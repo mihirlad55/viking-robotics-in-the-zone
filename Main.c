@@ -132,6 +132,7 @@
 #define MENU_LIST_SIDES_LENGTH 	3
 #define MENU_LIST_COLORS_LENGTH	3
 #define MENU_LIST_PID_LENGTH		7
+#define MENU_LIST_MOTOR_CHECK_LENGTH 3
 
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT };
 enum State { STATE_EXTENDED, STATE_RETRACTED };
@@ -147,7 +148,7 @@ struct MenuItem {
 
 
 //main screen menu items
-MenuItem menuItemUserControl, menuItemPIDMode, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
+MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
 MenuItem menuItemAutonGoBack, menuItemAuton15P, menuItemAuton10P, menuItemAuton5P, menuItemAuton15PRT, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
@@ -156,6 +157,8 @@ MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 MenuItem menuItemColorGoBack, menuItemColorBlue, menuItemColorRed;
 //pid menu items
 MenuItem menuItemPIDGoBack, menuItemPIDDrive, menuItemPIDGyro, menuItemPIDArm, menuItemPIDMini4Bar, menuItemPIDMoGoLift, menuItemPIDCustom;
+//Motor Check Menu Items
+MenuItem menuItemMotorCheckGoBack, menuItemMotorCheckAuto, menuItemMotorCheckManual;
 
 //screen lists for LCD
 MenuItem* menuListMain[MENU_LIST_MAIN_LENGTH];
@@ -163,6 +166,7 @@ MenuItem* menuListAuton[MENU_LIST_AUTON_LENGTH];
 MenuItem* menuListSides[MENU_LIST_SIDES_LENGTH];
 MenuItem* menuListColors[MENU_LIST_COLORS_LENGTH];
 MenuItem* menuListPID[MENU_LIST_PID_LENGTH];
+MenuItem* menuListMotorCheck[MENU_LIST_MOTOR_CHECK_LENGTH];
 
 MenuItem* currentMenu;
 
@@ -350,6 +354,30 @@ void populateMenuItems() {
 	menuItemPIDCustom.LCDAction = "<    Select    >";
 	menuItemPIDCustom.isDirectional = false;
 	menuListPID[i] = &menuItemPIDCustom;
+
+
+	i = 0;
+
+	menuItemMotorCheckGoBack.name = "Go Back";
+	menuItemMotorCheckGoBack.id = ++id;
+	menuItemMotorCheckGoBack.idx = i;
+	menuItemMotorCheckGoBack.LCDAction = "<    Select    >";
+	menuItemMotorCheckGoBack.isDirectional = false;
+	menuListMotorCheck[i] = &menuItemMotorCheckGoBack;
+
+	menuItemMotorCheckAuto.name = "Auto-Check";
+	menuItemMotorCheckAuto.id = ++id;
+	menuItemMotorCheckAuto.idx = i;
+	menuItemMotorCheckAuto.LCDAction = "<    Select    >";
+	menuItemMotorCheckAuto.isDirectional = false;
+	menuListMotorCheck[i] = &menuItemMotorCheckAuto;
+
+	menuItemMotorCheckManual.name = "Manual-Check";
+	menuItemMotorCheckManual.id = ++id;
+	menuItemMotorCheckManual.idx = i;
+	menuItemMotorCheckManual.LCDAction = "<    Select    >";
+	menuItemMotorCheckManual.isDirectional = false;
+	menuListMotorCheck[i] = &menuItemMotorCheckManual;
 
 	currentMenu = menuListMain;
 }
@@ -716,7 +744,7 @@ void displayProgram()
 			reconfigureMenu(menuListSides, 1, 0, MENU_LIST_SIDES_LENGTH - 1);
 		}
 		/* If current screen is the menu Item for going back to main screen... */
-		else if (currentMenu[LCDScreen].id == menuItemAutonGoBack.id || currentMenu[LCDScreen].id == menuItemPIDGoBack.id)
+		else if (currentMenu[LCDScreen].id == menuItemAutonGoBack.id || currentMenu[LCDScreen].id == menuItemPIDGoBack.id || currentMenu[LCDScreen].id == menuItemMotorCheckGoBack.id)
 		{
 			LCDScreenMax = MENU_LIST_MAIN_LENGTH - 1;
 			/* If in hardcoded competition mode, allow competition mode switch option */
@@ -771,6 +799,10 @@ void displayProgram()
 		else if (currentMenu[LCDScreen].id == menuItemPIDMode.id)
 		{
 			reconfigureMenu(menuListPID, 1, 0, MENU_LIST_PID_LENGTH - 1);
+		}
+		else if (currentMenu[LCDScreen].id == menuItemMotorCheck.id)
+		{
+			reconfigureMenu(menuListMotorCheck, 1, 0, MENU_LIST_MOTOR_CHECK_LENGTH - 1);
 		}
 		else
 		{
@@ -2429,6 +2461,7 @@ int directions[] = {
 
 int motorPorts[] = { port1, port2, port3, port4, port5, port6, port7, port8, port9, port10 };
 int lastSensorValue, motorPointer;
+task MotorCheck();
 
 void nextMotor()
 {
@@ -2514,7 +2547,7 @@ void MotorManualCheck()
 
 void MotorSelfCheck()
 {
-stopTask(loadLCDScreen):
+	stopTask(loadLCDScreen):
 
 	int passTable[10];
 	bool hasTestPassed = true;
@@ -2640,9 +2673,11 @@ stopTask(loadLCDScreen):
 	stopTask(MotorCheck);
 }
 
+
 task MotorCheck()
 {
-
+	if ( (*selectedProgram).id == menuItemMotorCheckAuto.id) MotorSelfCheck();
+	else if ( (*selectedProgram).id == menuItemMotorCheckManual.id) MotorManualCheck();
 }
 
 
@@ -3018,6 +3053,7 @@ void startUp()
 	}
 
 	if ((*selectedProgram).id == menuItemUserControl.id) startTask(usercontrol);
+	else if ( (*selectedProgram).id == menuItemMotorCheckAuto.id || (*selectedProgram).id == menuItemMotorCheckManual.id) startTask(MotorCheck);
 	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
 	{
 		/* Countdown if autonomous is selected */
@@ -3156,4 +3192,5 @@ void stopTasks()
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
 	stopTask(tKeepArmDown);
+	stopTask(MotorCheck);
 }
