@@ -67,6 +67,14 @@
 
 #define BTN_READY_ARM_MACRO				Btn6U
 
+/* For Motor checker */
+#define BTN_NEXT_MOTOR			Btn8R
+#define BTN_PREVIOUS_MOTOR		Btn8L
+#define BTN_POSITIVE_POWER		Btn6U
+#define BTN_NEGATIVE_POWER		Btn5U
+#define BTN_STOP_MOTOR			Btn7D
+#define BTN_STOP_ALL_MOTORS		Btn7U
+
 
 
 #define JOY_DRIVE_X		Ch1
@@ -115,16 +123,17 @@
 
 
 /* For motor checker */
-#define testDuration	2000			// Amount of time to power motors during autocheck
-#define motorPower		-127			// Amount of power to give motors during autocheck
-#define encoderErrorBounds			0	// Amount encoder should change to indicate a working motor
-#define potentiometerErrorBounds	7	// Amount a potentiometer should change to indicate a working motor
+#define MOTOR_TEST_DURATION			2000	// Amount of time to power motors during autocheck
+#define MOTOR_TEST_POWER			-127	// Amount of power to give motors during autocheck
+#define ERROR_BOUNDS_ENCODER		0		// Amount encoder should change to indicate a working motor
+#define ERROR_BOUNDS_POTENTIOMETER	7		// Amount a potentiometer should change to indicate a working motor
 
-#define SCREEN_LIST_MAIN_LENGTH		7
-#define SCREEN_LIST_AUTON_LENGTH 	7
-#define SCREEN_LIST_SIDES_LENGTH 	3
-#define SCREEN_LIST_COLORS_LENGTH	3
-#define SCREEN_LIST_PID_LENGTH		7
+/* Number of items in each menu list */
+#define MENU_LIST_MAIN_LENGTH		7
+#define MENU_LIST_AUTON_LENGTH 	7
+#define MENU_LIST_SIDES_LENGTH 	3
+#define MENU_LIST_COLORS_LENGTH	3
+#define MENU_LIST_PID_LENGTH		7
 
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT };
 enum State { STATE_EXTENDED, STATE_RETRACTED };
@@ -151,11 +160,11 @@ MenuItem menuItemColorGoBack, menuItemColorBlue, menuItemColorRed;
 MenuItem menuItemPIDGoBack, menuItemPIDDrive, menuItemPIDGyro, menuItemPIDArm, menuItemPIDMini4Bar, menuItemPIDMoGoLift, menuItemPIDCustom;
 
 //screen lists for LCD
-MenuItem* screenListMain[SCREEN_LIST_MAIN_LENGTH];
-MenuItem* screenListAuton[SCREEN_LIST_AUTON_LENGTH];
-MenuItem* screenListSides[SCREEN_LIST_SIDES_LENGTH];
-MenuItem* screenListColors[SCREEN_LIST_COLORS_LENGTH];
-MenuItem* screenListPID[SCREEN_LIST_PID_LENGTH];
+MenuItem* menuListMain[MENU_LIST_MAIN_LENGTH];
+MenuItem* menuListAuton[MENU_LIST_AUTON_LENGTH];
+MenuItem* menuListSides[MENU_LIST_SIDES_LENGTH];
+MenuItem* menuListColors[MENU_LIST_COLORS_LENGTH];
+MenuItem* menuListPID[MENU_LIST_PID_LENGTH];
 
 MenuItem* currentMenu;
 
@@ -171,44 +180,44 @@ void populateMenuItems() {
 	menuItemUserControl.LCDAction = "<     Start    >";
 	menuItemUserControl.idx = i;
 	menuItemUserControl.id = id;
-	screenListMain[i] = &menuItemUserControl;
+	menuListMain[i] = &menuItemUserControl;
 
 	menuItemPIDMode.name = "PID Mode";
 	menuItemPIDMode.id = ++id;
 	menuItemPIDMode.idx = ++i;
 	menuItemPIDMode.LCDAction = "<     Start    >";
-	screenListMain[i] = &menuItemPIDMode;
+	menuListMain[i] = &menuItemPIDMode;
 
 	menuItemSwitchCompetitionMode.name = "Switch Comp. Mode";
 	menuItemSwitchCompetitionMode.id = ++id;
 	menuItemSwitchCompetitionMode.idx = ++i;
 	menuItemSwitchCompetitionMode.LCDAction = "<    Select    >";
-	screenListMain[i] = &menuItemSwitchCompetitionMode;
+	menuListMain[i] = &menuItemSwitchCompetitionMode;
 
 	menuItemGoToAuton.name = "Go To Autonomous";
 	menuItemGoToAuton.id = ++id;
 	menuItemGoToAuton.idx = ++i;
 	menuItemGoToAuton.LCDAction = "<    Select    >";
-	screenListMain[i] = &menuItemGoToAuton;
+	menuListMain[i] = &menuItemGoToAuton;
 
 
 	menuItemResetGyro.name = "Reset Gyro";
 	menuItemResetGyro.id = ++id;
 	menuItemResetGyro.idx = ++i;
 	menuItemResetGyro.LCDAction = "<     Reset    >";
-	screenListMain[i] = &menuItemResetGyro;
+	menuListMain[i] = &menuItemResetGyro;
 
 
 	menuItemBatteryLevel.name = "Battery Level";
 	menuItemBatteryLevel.id = ++id;
 	menuItemBatteryLevel.idx = ++i;
 	menuItemBatteryLevel.LCDAction = "<    Select    >";
-	screenListMain[i] = &menuItemBatteryLevel;
+	menuListMain[i] = &menuItemBatteryLevel;
 
 	menuItemCurrentProgram.name = "Current Program";
 	menuItemCurrentProgram.id = ++id;
 	menuItemCurrentProgram.idx = ++i;
-	screenListMain[i] = &menuItemCurrentProgram;
+	menuListMain[i] = &menuItemCurrentProgram;
 
 	i = 0;
 
@@ -216,42 +225,42 @@ void populateMenuItems() {
 	menuItemAutonGoBack.id = ++id;
 	menuItemAutonGoBack.idx = i;
 	menuItemAutonGoBack.LCDAction = "<    Select    >";
-	screenListAuton[i] = &menuItemAutonGoBack;
+	menuListAuton[i] = &menuItemAutonGoBack;
 
 	menuItemAuton15P.name = "Auton15P";
 	menuItemAuton15P.id = ++id;
 	menuItemAuton15P.idx = ++i;
 	menuItemAuton15P.isDirectional = true;
-	screenListAuton[i] = &menuItemAuton15P;
+	menuListAuton[i] = &menuItemAuton15P;
 
 	menuItemAuton5P.name = "Auton5P";
 	menuItemAuton5P.id = ++id;
 	menuItemAuton5P.idx = ++i;
 	menuItemAuton5P.isDirectional = true;
-	screenListAuton[i] = &menuItemAuton5P;
+	menuListAuton[i] = &menuItemAuton5P;
 
 	menuItemAuton10P.name = "Auton10P";
 	menuItemAuton10P.id = ++id;
 	menuItemAuton10P.idx = ++i;
 	menuItemAuton10P.isDirectional = true;
-	screenListAuton[i] = &menuItemAuton10P;
+	menuListAuton[i] = &menuItemAuton10P;
 
 	menuItemAuton15PRT.name = "Auton2Cone";
 	menuItemAuton15PRT.id = ++id;
 	menuItemAuton15PRT.idx = ++i;
 	menuItemAuton15PRT.isDirectional = true;
-	screenListAuton[i] = &menuItemAuton15PRT;
+	menuListAuton[i] = &menuItemAuton15PRT;
 
 	menuItemAutonNone.name = "AutonNone";
 	menuItemAutonNone.id = ++id;
 	menuItemAutonNone.idx = ++i;
 	menuItemAutonNone.isDirectional = true;
-	screenListAuton[i] = &menuItemAutonNone;
+	menuListAuton[i] = &menuItemAutonNone;
 
 	menuItemProgSkills1.name = "Prog. Skills 1";
 	menuItemProgSkills1.id = ++id;
 	menuItemProgSkills1.idx = ++i;
-	screenListAuton[i] = &menuItemProgSkills1;
+	menuListAuton[i] = &menuItemProgSkills1;
 
 	i = 0;
 
@@ -259,19 +268,19 @@ void populateMenuItems() {
 	menuItemSideGoBack.id = ++id;
 	menuItemSideGoBack.idx = i;
 	menuItemSideGoBack.LCDAction = "<    Select    >";
-	screenListSides[i] = &menuItemSideGoBack;
+	menuListSides[i] = &menuItemSideGoBack;
 
 	menuItemSideLeft.name = "L";
 	menuItemSideLeft.id = ++id;
 	menuItemSideLeft.idx = ++i;
 	menuItemSideLeft.LCDAction = "<    Select    >";
-	screenListSides[i] = &menuItemSideLeft;
+	menuListSides[i] = &menuItemSideLeft;
 
 	menuItemSideRight.name = "R";
 	menuItemSideRight.id = ++id;
 	menuItemSideRight.idx = ++i;
 	menuItemSideRight.LCDAction = "<    Select    >";
-	screenListSides[i] = &menuItemSideRight;
+	menuListSides[i] = &menuItemSideRight;
 
 	i = 0;
 
@@ -279,19 +288,19 @@ void populateMenuItems() {
 	menuItemColorGoBack.id = ++id;
 	menuItemColorGoBack.idx = i;
 	menuItemColorGoBack.LCDAction = "<    Select    >";
-	screenListColors[i] = &menuItemColorGoBack;
+	menuListColors[i] = &menuItemColorGoBack;
 
 	menuItemColorBlue.name = "B";
 	menuItemColorBlue.id = ++id;
 	menuItemColorBlue.idx = ++i;
 	menuItemColorBlue.LCDAction = "<    Select    >";
-	screenListColors[i] = &menuItemColorBlue;
+	menuListColors[i] = &menuItemColorBlue;
 
 	menuItemColorRed.name = "R";
 	menuItemColorRed.id = ++id;
 	menuItemColorRed.idx = ++i;
 	menuItemColorRed.LCDAction = "<    Select    >";
-	screenListColors[i] = &menuItemColorRed;
+	menuListColors[i] = &menuItemColorRed;
 
 	i = 0;
 
@@ -300,51 +309,51 @@ void populateMenuItems() {
 	menuItemPIDGoBack.idx = i;
 	menuItemPIDGoBack.LCDAction = "<    Select    >";
 	menuItemPIDGoBack.isDirectional = false;
-	screenListPID[i] = &menuItemPIDGoBack;
+	menuListPID[i] = &menuItemPIDGoBack;
 
 	menuItemPIDDrive.name = "Drive";
 	menuItemPIDDrive.id = ++id;
 	menuItemPIDDrive.idx = i;
 	menuItemPIDDrive.LCDAction = "<    Select    >";
 	menuItemPIDDrive.isDirectional = false;
-	screenListPID[i] = &menuItemPIDDrive;
+	menuListPID[i] = &menuItemPIDDrive;
 
 	menuItemPIDGyro.name = "Gyro";
 	menuItemPIDGyro.id = ++id;
 	menuItemPIDGyro.idx = i;
 	menuItemPIDGyro.LCDAction = "<    Select    >";
 	menuItemPIDGyro.isDirectional = false;
-	screenListPID[i] = &menuItemPIDGyro;
+	menuListPID[i] = &menuItemPIDGyro;
 
 	menuItemPIDArm.name = "Arm";
 	menuItemPIDArm.id = ++id;
 	menuItemPIDArm.idx = i;
 	menuItemPIDArm.LCDAction = "<    Select    >";
 	menuItemPIDArm.isDirectional = false;
-	screenListPID[i] = &menuItemPIDArm;
+	menuListPID[i] = &menuItemPIDArm;
 
 	menuItemPIDMini4Bar.name = "Mini 4-Bar";
 	menuItemPIDMini4Bar.id = ++id;
 	menuItemPIDMini4Bar.idx = i;
 	menuItemPIDMini4Bar.LCDAction = "<    Select    >";
 	menuItemPIDMini4Bar.isDirectional = false;
-	screenListPID[i] = &menuItemPIDMini4Bar;
+	menuListPID[i] = &menuItemPIDMini4Bar;
 
 	menuItemPIDMoGoLift.name = "MoGo Lift";
 	menuItemPIDMoGoLift.id = ++id;
 	menuItemPIDMoGoLift.idx = i;
 	menuItemPIDMoGoLift.LCDAction = "<    Select    >";
 	menuItemPIDMoGoLift.isDirectional = false;
-	screenListPID[i] = &menuItemPIDMoGoLift;
+	menuListPID[i] = &menuItemPIDMoGoLift;
 
 	menuItemPIDCustom.name = "Custom";
 	menuItemPIDCustom.id = ++id;
 	menuItemPIDCustom.idx = i;
 	menuItemPIDCustom.LCDAction = "<    Select    >";
 	menuItemPIDCustom.isDirectional = false;
-	screenListPID[i] = &menuItemPIDCustom;
+	menuListPID[i] = &menuItemPIDCustom;
 
-	currentMenu = screenListMain;
+	currentMenu = menuListMain;
 }
 
 
@@ -593,9 +602,9 @@ void displayBatteryLevelOnLCD()
 	displayNextLCDString(backupBattery);
 }
 
-void reconfigureMenu(void* screenList, byte newLCDScreen, byte newLCDScreenMin, byte newLCDScreenMax)
+void reconfigureMenu(void* menuList, byte newLCDScreen, byte newLCDScreenMin, byte newLCDScreenMax)
 {
-	currentMenu = screenList;
+	currentMenu = menuList;
 	LCDScreen = newLCDScreen;
 	LCDScreenMin = newLCDScreenMin;
 	LCDScreenMax = newLCDScreenMax;
@@ -620,14 +629,14 @@ void displayProgram()
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
 	/* If the current menu is the directions menu add an L or an R to the end of the auton program name to indicate direction */
-	else if (currentMenu == screenListSides && ( currentMenu[LCDScreen].id == menuItemSideLeft.id || currentMenu[LCDScreen].id == menuItemSideRight.id) )
+	else if (currentMenu == menuListSides && ( currentMenu[LCDScreen].id == menuItemSideLeft.id || currentMenu[LCDScreen].id == menuItemSideRight.id) )
 	{
 		programName = (*selectedProgram).name;
 		if (currentMenu[LCDScreen].id == menuItemSideLeft.id) programName += "L";
 		else programName += "R";
 		displayLCDCenteredString(0, programName);
 	}
-	else if (currentMenu == screenListColors && ( currentMenu[LCDScreen].id == menuItemColorBlue.id || currentMenu[LCDScreen].id == menuItemColorRed.id) )
+	else if (currentMenu == menuListColors && ( currentMenu[LCDScreen].id == menuItemColorBlue.id || currentMenu[LCDScreen].id == menuItemColorRed.id) )
 	{
 		programName = (*selectedProgram).name;
 		if (currentMenu[LCDScreen].id == menuItemColorBlue.id) programName += "B";
@@ -689,31 +698,31 @@ void displayProgram()
 	{
 		waitForLCDButtonRelease();
 		/* If LCD is on the Autonomous menu screen, go to the direction selection screen */
-		if (currentMenu == screenListAuton && currentMenu[LCDScreen].id != menuItemAutonGoBack.id && currentMenu[LCDScreen].isDirectional)
+		if (currentMenu == menuListAuton && currentMenu[LCDScreen].id != menuItemAutonGoBack.id && currentMenu[LCDScreen].isDirectional)
 		{
 			selectedProgram = &currentMenu[LCDScreen];
-			reconfigureMenu(screenListSides, 1, 0, SCREEN_LIST_SIDES_LENGTH - 1);
+			reconfigureMenu(menuListSides, 1, 0, MENU_LIST_SIDES_LENGTH - 1);
 		}
-		else if (currentMenu == screenListSides && currentMenu[LCDScreen].id != menuItemSideGoBack.id)
+		else if (currentMenu == menuListSides && currentMenu[LCDScreen].id != menuItemSideGoBack.id)
 		{
 			autonomousSide = (currentMenu[LCDScreen].id == menuItemSideLeft.id) ? SIDE_LEFT : SIDE_RIGHT;
-			reconfigureMenu(screenListColors, 1, 0, SCREEN_LIST_COLORS_LENGTH - 1);
+			reconfigureMenu(menuListColors, 1, 0, MENU_LIST_COLORS_LENGTH - 1);
 		}
 		/* If the current menu Item is redirecting to the autonomous screen, go to the menu screen */
 		else if (currentMenu[LCDScreen].id == menuItemSideGoBack.id || currentMenu[LCDScreen].id == menuItemGoToAuton.id)
 		{
-			reconfigureMenu(screenListAuton, 1, 0, SCREEN_LIST_AUTON_LENGTH - 1);
+			reconfigureMenu(menuListAuton, 1, 0, MENU_LIST_AUTON_LENGTH - 1);
 		}
 		else if (currentMenu[LCDScreen].id == menuItemColorGoBack.id)
 		{
-			reconfigureMenu(screenListSides, 1, 0, SCREEN_LIST_SIDES_LENGTH - 1);
+			reconfigureMenu(menuListSides, 1, 0, MENU_LIST_SIDES_LENGTH - 1);
 		}
 		/* If current screen is the menu Item for going back to main screen... */
 		else if (currentMenu[LCDScreen].id == menuItemAutonGoBack.id || currentMenu[LCDScreen].id == menuItemPIDGoBack.id)
 		{
-			LCDScreenMax = SCREEN_LIST_MAIN_LENGTH - 1;
+			LCDScreenMax = MENU_LIST_MAIN_LENGTH - 1;
 			/* If in hardcoded competition mode, allow competition mode switch option */
-			currentMenu = screenListMain;
+			currentMenu = menuListMain;
 			if (isCompetitionMode)
 			{
 #ifdef competitionEnabled
@@ -747,7 +756,7 @@ void displayProgram()
 			If hardcoded competition mode, don't show the switch comeptition mode option. */
 			if (isCompetitionMode)
 			{
-				currentMenu = screenListMain;
+				currentMenu = menuListMain;
 #ifdef competitionEnabled
 				LCDScreenMin = menuItemGoToAuton.idx;
 #else
@@ -763,7 +772,7 @@ void displayProgram()
 		}
 		else if (currentMenu[LCDScreen].id == menuItemPIDMode.id)
 		{
-			reconfigureMenu(screenListPID, 1, 0, SCREEN_LIST_PID_LENGTH - 1);
+			reconfigureMenu(menuListPID, 1, 0, MENU_LIST_PID_LENGTH - 1);
 		}
 		else
 		{
@@ -772,9 +781,9 @@ void displayProgram()
 			else if (currentMenu[LCDScreen].id ==  menuItemColorRed.id) autonomousColor = COLOR_RED;
 			else selectedProgram = &currentMenu[LCDScreen];
 
-			LCDScreenMax = SCREEN_LIST_MAIN_LENGTH - 1;
+			LCDScreenMax = MENU_LIST_MAIN_LENGTH - 1;
 			LCDScreen = menuItemCurrentProgram.idx;
-			currentMenu = screenListMain;
+			currentMenu = menuListMain;
 
 			/* If it is currently in competition mode, make usercontrol and PID mode unavailable.
 			If hardcoded competition mode, don't show the switch comeptition mode option. */
@@ -2392,17 +2401,17 @@ task PIDMode()
 
 
 
-int sensors[] = {
-	/* Port 1 */			encoderArms,
-	/* Port 2 */			encoderDriveRight,
-	/* Port 3 */			encoderArms,
-	/* Port 4 */			encoderArms,
-	/* Port 5 */			potentiometerClawLeft,
-	/* Port 6 */			potentiometerClawRight,
-	/* Port 7 */			encoderArms,
-	/* Port 8 */			encoderArms,
-	/* Port 9 */			encoderDriveLeft,
-	/* Port 10 */			encoderArms
+int sensorToMotorPortMap[] = {
+	/* Port 1 */			potentiometerMini4Bar,
+	/* Port 2 */			potentiometerArm,
+	/* Port 3 */			potentiometerArm,
+	/* Port 4 */			potentiometerMoGoLift,
+	/* Port 5 */			potentiometerMoGoLift,
+	/* Port 6 */			encoderDriveLeft,
+	/* Port 7 */			encoderDriveLeft,
+	/* Port 8 */			encoderDriveRight,
+	/* Port 9 */			encoderDriveRight,
+	/* Port 10 */			sensorNone
 };
 
 //direction each motor should go when applied positive power (1 = positive, -1 = negative)
@@ -2435,7 +2444,7 @@ void previousMotor()
 	else motorPointer = 9;
 }
 
-task manualCheck()
+task MotorManualCheck()
 {
 	displayLCDCenteredString(0, "Manual Check");
 	string sMotorNum = "";
@@ -2455,25 +2464,25 @@ task manualCheck()
 
 			displayLCDCenteredString(1, LCDLine);
 
-			if (vexRT[btnNextMotor] == 1)
+			if (vexRT[BTN_NEXT_MOTOR] == 1)
 			{
-				while (vexRT[btnNextMotor] == 1) { }
+				while (vexRT[BTN_NEXT_MOTOR] == 1) { }
 				nextMotor();
 			}
-			else if (vexRT[btnPreviousMotor] == 1)
+			else if (vexRT[BTN_PREVIOUS_MOTOR] == 1)
 			{
-				while (vexRT[btnPreviousMotor] == 1) { }
+				while (vexRT[BTN_PREVIOUS_MOTOR] == 1) { }
 				previousMotor();
 			}
-			else if (vexRT[btnPositivePower] == 1) motor[motorPorts[motorPointer]] = 127;
-			else if (vexRT[btnNegativePower] == 1) motor[motorPorts[motorPointer]] = -127;
-			else if (vexRT[btnStopMotor] == 1) motor[motorPorts[motorPointer]] = 0;
-			else if (vexRT[btnAllMotorsOff] == 1) allMotorsOff();
+			else if (vexRT[BTN_POSITIVE_POWER] == 1) motor[motorPorts[motorPointer]] = 127;
+			else if (vexRT[BTN_NEGATIVE_POWER] == 1) motor[motorPorts[motorPointer]] = -127;
+			else if (vexRT[BTN_STOP_MOTOR] == 1) motor[motorPorts[motorPointer]] = 0;
+			else if (vexRT[BTN_STOP_ALL_MOTORS] == 1) allMotorsOff();
 		}
 	}
 }
 
-task selfCheck()
+void MotorSelfCheck()
 {
 	int passTable[10];
 	bool hasTestPassed = true;
@@ -2495,25 +2504,25 @@ task selfCheck()
 
 		waitForLCDButtonRelease();
 
-		while (nLCDButtons != LCDCenterButton && vexRT[btnJoyLCDSelect] == 0) { }
+		while (nLCDButtons != LCDCenterButton && vexRT[BTN_JOY_LCD_SELECT] == 0) { }
 		displayLCDCenteredString(1, "Please Wait...");
 
 		bool hasPassed = false;
-		lastSensorValue = SensorValue[sensors[i]];
+		lastSensorValue = SensorValue[sensorToMotorPortMap[i]];
 
-		motor[i] = motorPower;
+		motor[i] = MOTOR_TEST_POWER;
 		wait1Msec(10);
 		clearTimer(T1);
 
 		int newSensorValue;
 		int errorBounds;
 
-		if (SensorType[sensors[i]] == sensorPotentiometer) errorBounds = potentiometerErrorBounds;
-		else if (SensorType[sensors[i]] == sensorQuadEncoder) errorBounds = encoderErrorBounds;
+		if (SensorType[sensorToMotorPortMap[i]] == sensorPotentiometer) errorBounds = ERROR_BOUNDS_POTENTIOMETER;
+		else if (SensorType[sensorToMotorPortMap[i]] == sensorQuadEncoder) errorBounds = ERROR_BOUNDS_ENCODER;
 
-		while (time1[T1] < testDuration)
+		while (time1[T1] < MOTOR_TEST_DURATION)
 		{
-			newSensorValue = SensorValue[sensors[i]];
+			newSensorValue = SensorValue[sensorToMotorPortMap[i]];
 			if (newSensorValue - lastSensorValue != 0)
 			{
 				if (abs(newSensorValue - lastSensorValue) > errorBounds)
@@ -2561,7 +2570,7 @@ task selfCheck()
 				sprintf(LCDLine, "%1.0f%c", (3 - (time1[T1] / 1000) ));
 				displayLCDString(0, 15, LCDLine);
 
-				if (nLCDButtons == LCDCenterButton || vexRT[btnJoyLCDSelect] == 1)
+				if (nLCDButtons == LCDCenterButton || vexRT[BTN_JOY_LCD_SELECT] == 1)
 				{
 					i--;
 					break;
@@ -2595,7 +2604,6 @@ task selfCheck()
 		wait1Msec(2000);
 	}
 
-	selectedProgram = -1;
 	stopTask(loadLCDScreen);
 	startTask(loadLCDScreen);
 
@@ -2977,7 +2985,7 @@ void startUp()
 	}
 
 	if ((*selectedProgram).id == menuItemUserControl.id) startTask(usercontrol);
-	else if ((*selectedProgram).idx < SCREEN_LIST_PID_LENGTH - 1 && (*screenListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
+	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
 	{
 		/* Countdown if autonomous is selected */
 		programName += " PID";
@@ -2992,7 +3000,7 @@ void startUp()
 
 		startTask(PIDMode);
 	}
-	else if ((*selectedProgram).idx < SCREEN_LIST_AUTON_LENGTH - 1 && (*screenListAuton[ (*selectedProgram).idx ]).id == (*selectedProgram).id )
+	else if ((*selectedProgram).idx < MENU_LIST_AUTON_LENGTH - 1 && (*menuListAuton[ (*selectedProgram).idx ]).id == (*selectedProgram).id )
 	{
 		/* Countdown if autonomous is selected */
 		displayLCDCenteredString(0, programName);
