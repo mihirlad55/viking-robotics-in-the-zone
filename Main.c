@@ -68,8 +68,6 @@
 #define BTN_READY_ARM_MACRO				Btn6U
 
 /* For Motor checker */
-#define BTN_NEXT_MOTOR			Btn8R
-#define BTN_PREVIOUS_MOTOR		Btn8L
 #define BTN_POSITIVE_POWER		Btn6U
 #define BTN_NEGATIVE_POWER		Btn5U
 #define BTN_STOP_MOTOR			Btn7D
@@ -2434,56 +2432,90 @@ int lastSensorValue, motorPointer;
 
 void nextMotor()
 {
-	if (motorPointer < 9) motorPointer++;
+	if (motorPointer < 10) motorPointer++;
 	else motorPointer = 0;
 }
 
 void previousMotor()
 {
 	if (motorPointer > 0) motorPointer--;
-	else motorPointer = 9;
+	else motorPointer = 10;
 }
 
-task MotorManualCheck()
+void MotorManualCheck()
 {
 	displayLCDCenteredString(0, "Manual Check");
 	string sMotorNum = "";
 	string LCDLine = "";
 	while (true)
 	{
-		sprintf(sMotorNum, "%2.0f%c", motorPointer + 1);
-		LCDLine = "Port";
-		LCDLine += sMotorNum;
-		LCDLine += ": ";
+		if (motorPointer == 10)
+		{
+			displayLCDCenteredString(0, "Go Back");
+			displayLCDCenteredString(1, "<    Select    >");
+		}
+		else
+		{
+			sprintf(sMotorNum, "%2.0f%c", motorPointer + 1);
+			LCDLine = "Port";
+			LCDLine += sMotorNum;
+			LCDLine += ": ";
+		}
 
 		if (!isJoystickLCDMode())
 		{
-			if (motor[motorPorts[motorPointer]] == 127) LCDLine += "127";
-			else if (motor[motorPorts[motorPointer]] == -127) LCDLine += "-127";
-			else if (motor[motorPorts[motorPointer]] == 0) LCDLine += "0";
-
-			displayLCDCenteredString(1, LCDLine);
-
-			if (vexRT[BTN_NEXT_MOTOR] == 1)
+			if (motorPointer == 10)
 			{
-				while (vexRT[BTN_NEXT_MOTOR] == 1) { }
-				nextMotor();
+				waitForLCDButtonRelease();
+				waitForLCDButtonPress();
+
+				if (vexRT[BTN_JOY_LCD_NEXT] == 1)
+				{
+					while (vexRT[BTN_JOY_LCD_NEXT] == 1) { }
+					nextMotor();
+				}
+				else if (vexRT[BTN_JOY_LCD_PREVIOUS] == 1)
+				{
+					while (vexRT[BTN_JOY_LCD_PREVIOUS] == 1) { }
+					previousMotor();
+				}
+				else if (vexRT[BTN_JOY_LCD_SELECT] == 1 || nLCDButtons == LCDCenterButton) {
+					startTask(loadLCDScreen);
+					stopTask(MotorCheck);
+				}
 			}
-			else if (vexRT[BTN_PREVIOUS_MOTOR] == 1)
+			else
 			{
-				while (vexRT[BTN_PREVIOUS_MOTOR] == 1) { }
-				previousMotor();
+				if (motor[motorPorts[motorPointer]] == 127) LCDLine += "127";
+				else if (motor[motorPorts[motorPointer]] == -127) LCDLine += "-127";
+				else if (motor[motorPorts[motorPointer]] == 0) LCDLine += "0";
+
+				displayLCDCenteredString(1, LCDLine);
+
+
+				if (vexRT[BTN_JOY_LCD_NEXT] == 1)
+				{
+					while (vexRT[BTN_JOY_LCD_NEXT] == 1) { }
+					nextMotor();
+				}
+				else if (vexRT[BTN_JOY_LCD_PREVIOUS] == 1)
+				{
+					while (vexRT[BTN_JOY_LCD_PREVIOUS] == 1) { }
+					previousMotor();
+				}
+				else if (vexRT[BTN_POSITIVE_POWER] == 1) motor[motorPorts[motorPointer]] = 127;
+				else if (vexRT[BTN_NEGATIVE_POWER] == 1) motor[motorPorts[motorPointer]] = -127;
+				else if (vexRT[BTN_STOP_MOTOR] == 1) motor[motorPorts[motorPointer]] = 0;
+				else if (vexRT[BTN_STOP_ALL_MOTORS] == 1) allMotorsOff();
 			}
-			else if (vexRT[BTN_POSITIVE_POWER] == 1) motor[motorPorts[motorPointer]] = 127;
-			else if (vexRT[BTN_NEGATIVE_POWER] == 1) motor[motorPorts[motorPointer]] = -127;
-			else if (vexRT[BTN_STOP_MOTOR] == 1) motor[motorPorts[motorPointer]] = 0;
-			else if (vexRT[BTN_STOP_ALL_MOTORS] == 1) allMotorsOff();
 		}
 	}
 }
 
 void MotorSelfCheck()
 {
+stopTask(loadLCDScreen):
+
 	int passTable[10];
 	bool hasTestPassed = true;
 	string sMotorNum;
@@ -2604,8 +2636,9 @@ void MotorSelfCheck()
 		wait1Msec(2000);
 	}
 
-	stopTask(loadLCDScreen);
 	startTask(loadLCDScreen);
+	stopTask(MotorCheck);
+}
 
 task MotorCheck()
 {
