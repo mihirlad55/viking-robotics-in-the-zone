@@ -79,7 +79,10 @@
 #define JOY_DRIVE_Y		Ch2
 #define JOY_ARM			Ch3
 #define JOY_CLAW		Ch4
+#define JOY_LCD_X		Ch1
+#define JOY_LCD_Y		Ch2
 
+#define	LCD_JOYSTICK_DEADZONE	20
 #define DRIVE_JOYSTICK_DEADZONE	20
 #define ARM_JOYSTICK_DEADZONE	20
 #define CLAW_JOYSTICK_DEADZONE	20
@@ -554,7 +557,7 @@ bool isJoystickLCDMode() {
 void waitForLCDButtonRelease()
 {
 	//while these buttons are being pressed, keep waiting
-	while (!(nLCDButtons == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0))
+	while (!(nLCDButtons == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0) )
 	{
 		wait1Msec(10);
 	}
@@ -570,6 +573,18 @@ bool isTaskActive()
 }
 
 
+short getRadAngleFromTanRatio(short y, short x)
+{
+	short angle = atan( (float)abs(y) / (float)abs(x));
+
+	if (x > 0 && y > 0) return angle;
+	else if (x < 0 && y > 0) return PI - angle;
+	else if (x < 0 && y < 0) return PI + angle;
+	else if (x > 0 && y < 0) return 2*PI - angle;
+
+	return angle;
+}
+
 void waitForLCDButtonPress()
 {
 	LCDActiveTime = 0;
@@ -577,7 +592,7 @@ void waitForLCDButtonPress()
 	if (selectedProgram == NULL || !isTaskActive()) //if the robot has just started up
 	{
 		//while neither of these buttons are pressed, keep waiting
-		while ( nLCDButtons == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0 )
+		while ( nLCDButtons == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0 && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE )
 		{
 			wait1Msec(10);
 			LCDActiveTime++;
@@ -590,10 +605,15 @@ void waitForLCDButtonPress()
 	}
 	else
 	{
-		while (nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0) ))
+		while (nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0  && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE) ))
 		{
 			wait1Msec(10);
 		}
+	}
+
+	if (abs(vexRT[JOY_LCD_X]) > LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) > LCD_JOYSTICK_DEADZONE)
+	{
+		LCDScreen = ( getRadAngleFromTanRatio(vexRT[JOY_LCD_Y], vexRT[JOY_LCD_X]) / (2*PI / (float)LCDScreenMax) );
 	}
 }
 
