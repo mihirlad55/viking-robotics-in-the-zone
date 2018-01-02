@@ -529,9 +529,9 @@ void allMotorsOff()
 
 /* references to procedures and tasks */
 void startUp();
-task loadLCDScreen;
-task usercontrol;
-task PIDMode;
+task loadLCDScreen();
+task usercontrol();
+task MiscellaneousTask();
 
 int LCDSelectionScreenTimeoutMs;
 MenuItem *selectedProgram;
@@ -563,7 +563,7 @@ void waitForLCDButtonRelease()
 bool isTaskActive()
 {
 	//check if the main tasks are active
-	if (getTaskState(usercontrol) != taskStateStopped || getTaskState(autonomous) != taskStateStopped || getTaskState(PIDMode) != taskStateStopped)
+	if (getTaskState(usercontrol) != taskStateStopped || getTaskState(autonomous) != taskStateStopped || getTaskState(MiscellaneousTask) != taskStateStopped)
 		return true;
 
 	return false;
@@ -2322,7 +2322,7 @@ task autonomous()
 /*---------------------------------------------------------------------------*/
 
 
-task PIDMode()
+void PIDMode()
 {
 	if ( (*selectedProgram).id == menuItemPIDDrive.id)
 	{
@@ -2461,7 +2461,7 @@ int directions[] = {
 
 int motorPorts[] = { port1, port2, port3, port4, port5, port6, port7, port8, port9, port10 };
 int lastSensorValue, motorPointer;
-task MotorCheck();
+task MiscellaneousTask();
 
 void nextMotor()
 {
@@ -2514,7 +2514,7 @@ void MotorManualCheck()
 				}
 				else if (vexRT[BTN_JOY_LCD_SELECT] == 1 || nLCDButtons == LCDCenterButton) {
 					startTask(loadLCDScreen);
-					stopTask(MotorCheck);
+					stopTask(MiscellaneousTask);
 				}
 			}
 			else
@@ -2547,7 +2547,7 @@ void MotorManualCheck()
 
 void MotorSelfCheck()
 {
-	stopTask(loadLCDScreen):
+	stopTask(loadLCDScreen);
 
 	int passTable[10];
 	bool hasTestPassed = true;
@@ -2670,14 +2670,15 @@ void MotorSelfCheck()
 	}
 
 	startTask(loadLCDScreen);
-	stopTask(MotorCheck);
+	stopTask(MiscellaneousTask);
 }
 
 
-task MotorCheck()
+task MiscellaneousTask()
 {
 	if ( (*selectedProgram).id == menuItemMotorCheckAuto.id) MotorSelfCheck();
 	else if ( (*selectedProgram).id == menuItemMotorCheckManual.id) MotorManualCheck();
+	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id) PIDMode();
 }
 
 
@@ -3053,7 +3054,7 @@ void startUp()
 	}
 
 	if ((*selectedProgram).id == menuItemUserControl.id) startTask(usercontrol);
-	else if ( (*selectedProgram).id == menuItemMotorCheckAuto.id || (*selectedProgram).id == menuItemMotorCheckManual.id) startTask(MotorCheck);
+	else if ( (*selectedProgram).id == menuItemMotorCheckAuto.id || (*selectedProgram).id == menuItemMotorCheckManual.id) startTask(MiscellaneousTask);
 	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
 	{
 		/* Countdown if autonomous is selected */
@@ -3067,7 +3068,7 @@ void startUp()
 		displayLCDString(1, 12, "1");
 		wait1Msec(1000);
 
-		startTask(PIDMode);
+		startTask(MiscellaneousTask);
 	}
 	else if ((*selectedProgram).idx < MENU_LIST_AUTON_LENGTH - 1 && (*menuListAuton[ (*selectedProgram).idx ]).id == (*selectedProgram).id )
 	{
@@ -3184,7 +3185,6 @@ void stopTasks()
 	stopTask(Goliath);
 	stopTask(ControlLock);
 	stopTask(usercontrol);
-	stopTask(PIDMode);
 	stopTask(tDrivePIDControl);
 	stopTask(tArmPIDControl);
 	stopTask(tMoGoLift);
@@ -3192,5 +3192,5 @@ void stopTasks()
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
 	stopTask(tKeepArmDown);
-	stopTask(MotorCheck);
+	stopTask(MiscellaneousTask);
 }
