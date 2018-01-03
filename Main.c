@@ -3078,7 +3078,6 @@ task usercontrol()
 	if (IS_GOLIATH_ENABLED) startTask(Goliath);
 	if (IS_MINI_4_BAR_ENABLED) startTask(Mini4Bar);
 	if (IS_MOGO_LIFT_ENABLED) startTask(MoGoLift);
-	if (IS_CONTROL_LOCK_ENABLED) startTask(ControlLock);
 	else lockControls = false;
 
 	if (getTaskState(loadLCDScreen) == taskStateStopped) startTask(loadLCDScreen);
@@ -3089,7 +3088,7 @@ task usercontrol()
 		displayLCDCenteredString(1, "User Control");
 	}
 
-	while (true)
+	while (IS_CONTROL_LOCK_ENABLED)
 	{
 		if (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1 && lockControls)
 		{
@@ -3102,6 +3101,13 @@ task usercontrol()
 			lockControls = true;
 		}
 	}
+}
+
+
+
+task AutonRecorder()
+{
+
 }
 
 
@@ -3122,6 +3128,7 @@ void startUp()
 	}
 
 	if ((*selectedProgram).id == menuItemUserControl.id) startTask(usercontrol);
+	else if ( (*selectedProgram).id == menuItemAutonRecorder.id) startTask(AutonRecorder);
 	else if ( (*selectedProgram).id == menuItemMotorCheckAuto.id || (*selectedProgram).id == menuItemMotorCheckManual.id) startTask(MiscellaneousTask);
 	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
 	{
@@ -3251,7 +3258,6 @@ void stopTasks()
 	stopTask(Arm);
 	stopTask(Drive);
 	stopTask(Goliath);
-	stopTask(ControlLock);
 	stopTask(usercontrol);
 	stopTask(tDrivePIDControl);
 	stopTask(tArmPIDControl);
