@@ -1,5 +1,5 @@
-#pragma config(Sensor, in1,    gyro,           sensorGyro)
-#pragma config(Sensor, in2,    secondaryBattery, sensorAnalog)
+#pragma config(Sensor, in2,    gyro,           sensorGyro)
+#pragma config(Sensor, in1,    secondaryBattery, sensorAnalog)
 #pragma config(Sensor, in4,    potentiometerMoGoLift, sensorPotentiometer)
 #pragma config(Sensor, in7,    potentiometerMini4Bar, sensorPotentiometer)
 #pragma config(Sensor, in8,    potentiometerArm, sensorPotentiometer)
@@ -40,7 +40,6 @@
 #define SIDE_LEFT	false
 #define SIDE_RIGHT	true
 
-#define IS_DRIVE_ENABLED			true
 #define IS_PID_ENABLED				false
 #define IS_CONTROL_LOCK_ENABLED		false
 
@@ -82,10 +81,15 @@
 #define JOY_LCD_X		Ch1
 #define JOY_LCD_Y		Ch2
 
+
 #define	LCD_JOYSTICK_DEADZONE	20
 #define DRIVE_JOYSTICK_DEADZONE	20
 #define ARM_JOYSTICK_DEADZONE	20
 #define CLAW_JOYSTICK_DEADZONE	20
+
+#define IS_DRIVE_ENABLED				true
+#define DRIVE_ENCODER_LEFT_MULTIPLIER	-1
+#define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
 #define IS_ARM_ENABLED						true
 #define ARM_POTENTIOMETER_MIN_VALUE			1200
@@ -1095,6 +1099,8 @@ short getArmSensorValue() { return (SensorValue[potentiometerArm] + ARM_POTENTIO
 short getMini4BarSensorValue() { return (SensorValue[potentiometerMini4Bar] + MINI_4_BAR_POTENTIOMETER_OFFSET) * MINI_4_BAR_POTENTIOMETER_MULTIPLIER; }
 short getMoGoLiftSensorValue() { return (SensorValue[potentiometerMoGoLift] + MOGO_LIFT_POTENTIOMETER_OFFSET) * MOGO_LIFT_POTENTIOMETER_MULTIPLIER; }
 short getGyroSensorValue() { return SensorValue[gyro] * GYRO_MULTIPLIER; }
+short getDriveLeftSensorValue() { return SensorValue[encoderDriveLeft] * DRIVE_ENCODER_LEFT_MULTIPLIER; }
+short getDriveRightSensorValue() { return SensorValue[encoderDriveRight] * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
 
 
 bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
