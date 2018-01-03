@@ -139,12 +139,12 @@
 #define ERROR_BOUNDS_POTENTIOMETER	7		// Amount a potentiometer should change to indicate a working motor
 
 /* Number of items in each menu list */
-#define MENU_LIST_MAIN_LENGTH		8
-#define MENU_LIST_AUTON_LENGTH 	7
-#define MENU_LIST_SIDES_LENGTH 	3
-#define MENU_LIST_COLORS_LENGTH	3
-#define MENU_LIST_PID_LENGTH		7
-#define MENU_LIST_MOTOR_CHECK_LENGTH 3
+#define MENU_LIST_MAIN_LENGTH			9
+#define MENU_LIST_AUTON_LENGTH 			7
+#define MENU_LIST_SIDES_LENGTH 			3
+#define MENU_LIST_COLORS_LENGTH			3
+#define MENU_LIST_PID_LENGTH			7
+#define MENU_LIST_MOTOR_CHECK_LENGTH 	3
 
 
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT };
@@ -161,7 +161,7 @@ struct MenuItem {
 
 
 //main screen menu items
-MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
+MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
 MenuItem menuItemAutonGoBack, menuItemAuton15P, menuItemAuton10P, menuItemAuton5P, menuItemAuton15PRT, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
@@ -192,7 +192,7 @@ void populateMenuItems() {
 	short id = 0;
 
 	menuItemUserControl.name = "User Control";
-	menuItemUserControl.LCDAction = "<     Start    >";
+	menuItemUserControl.LCDAction = "Start";
 	menuItemUserControl.idx = i;
 	menuItemUserControl.id = id;
 	menuListMain[i] = &menuItemUserControl;
@@ -200,37 +200,43 @@ void populateMenuItems() {
 	menuItemPIDMode.name = "PID Mode";
 	menuItemPIDMode.id = ++id;
 	menuItemPIDMode.idx = ++i;
-	menuItemPIDMode.LCDAction = "<     Start    >";
+	menuItemPIDMode.LCDAction = "Start";
 	menuListMain[i] = &menuItemPIDMode;
 
 	menuItemMotorCheck.name = "Motor Check";
 	menuItemMotorCheck.id = ++id;
 	menuItemMotorCheck.idx = ++i;
-	menuItemMotorCheck.LCDAction = "<    Select    >";
+	menuItemMotorCheck.LCDAction = "Select";
 	menuListMain[i] = &menuItemMotorCheck;
+
+	menuItemAutonRecorder.name = "Auton Recorder";
+	menuItemAutonRecorder.id = ++id;
+	menuItemAutonRecorder.idx = ++i;
+	menuItemAutonRecorder.LCDAction = "Select";
+	menuListMain[i] = &menuItemAutonRecorder;
 
 	menuItemSwitchCompetitionMode.name = "Switch Comp. Mode";
 	menuItemSwitchCompetitionMode.id = ++id;
 	menuItemSwitchCompetitionMode.idx = ++i;
-	menuItemSwitchCompetitionMode.LCDAction = "<    Select    >";
+	menuItemSwitchCompetitionMode.LCDAction = "Select";
 	menuListMain[i] = &menuItemSwitchCompetitionMode;
 
 	menuItemGoToAuton.name = "Go To Autonomous";
 	menuItemGoToAuton.id = ++id;
 	menuItemGoToAuton.idx = ++i;
-	menuItemGoToAuton.LCDAction = "<    Select    >";
+	menuItemGoToAuton.LCDAction = "Select";
 	menuListMain[i] = &menuItemGoToAuton;
 
 	menuItemResetGyro.name = "Reset Gyro";
 	menuItemResetGyro.id = ++id;
 	menuItemResetGyro.idx = ++i;
-	menuItemResetGyro.LCDAction = "<     Reset    >";
+	menuItemResetGyro.LCDAction = "Reset";
 	menuListMain[i] = &menuItemResetGyro;
 
 	menuItemBatteryLevel.name = "Battery Level";
 	menuItemBatteryLevel.id = ++id;
 	menuItemBatteryLevel.idx = ++i;
-	menuItemBatteryLevel.LCDAction = "<    Select    >";
+	menuItemBatteryLevel.LCDAction = "Select";
 	menuListMain[i] = &menuItemBatteryLevel;
 
 	menuItemCurrentProgram.name = "Current Program";
@@ -243,7 +249,7 @@ void populateMenuItems() {
 	menuItemAutonGoBack.name = "Go Back";
 	menuItemAutonGoBack.id = ++id;
 	menuItemAutonGoBack.idx = i;
-	menuItemAutonGoBack.LCDAction = "<    Select    >";
+	menuItemAutonGoBack.LCDAction = "Select";
 	menuListAuton[i] = &menuItemAutonGoBack;
 
 	menuItemAuton15P.name = "Auton15P";
@@ -286,19 +292,19 @@ void populateMenuItems() {
 	menuItemSideGoBack.name = "Go Back";
 	menuItemSideGoBack.id = ++id;
 	menuItemSideGoBack.idx = i;
-	menuItemSideGoBack.LCDAction = "<    Select    >";
+	menuItemSideGoBack.LCDAction = "Select";
 	menuListSides[i] = &menuItemSideGoBack;
 
 	menuItemSideLeft.name = "L";
 	menuItemSideLeft.id = ++id;
 	menuItemSideLeft.idx = ++i;
-	menuItemSideLeft.LCDAction = "<    Select    >";
+	menuItemSideLeft.LCDAction = "Select";
 	menuListSides[i] = &menuItemSideLeft;
 
 	menuItemSideRight.name = "R";
 	menuItemSideRight.id = ++id;
 	menuItemSideRight.idx = ++i;
-	menuItemSideRight.LCDAction = "<    Select    >";
+	menuItemSideRight.LCDAction = "Select";
 	menuListSides[i] = &menuItemSideRight;
 
 	i = 0;
@@ -306,19 +312,19 @@ void populateMenuItems() {
 	menuItemColorGoBack.name = "Go Back";
 	menuItemColorGoBack.id = ++id;
 	menuItemColorGoBack.idx = i;
-	menuItemColorGoBack.LCDAction = "<    Select    >";
+	menuItemColorGoBack.LCDAction = "Select";
 	menuListColors[i] = &menuItemColorGoBack;
 
 	menuItemColorBlue.name = "B";
 	menuItemColorBlue.id = ++id;
 	menuItemColorBlue.idx = ++i;
-	menuItemColorBlue.LCDAction = "<    Select    >";
+	menuItemColorBlue.LCDAction = "Select";
 	menuListColors[i] = &menuItemColorBlue;
 
 	menuItemColorRed.name = "R";
 	menuItemColorRed.id = ++id;
 	menuItemColorRed.idx = ++i;
-	menuItemColorRed.LCDAction = "<    Select    >";
+	menuItemColorRed.LCDAction = "Select";
 	menuListColors[i] = &menuItemColorRed;
 
 	i = 0;
@@ -326,49 +332,49 @@ void populateMenuItems() {
 	menuItemPIDGoBack.name = "Go Back";
 	menuItemPIDGoBack.id = ++id;
 	menuItemPIDGoBack.idx = i;
-	menuItemPIDGoBack.LCDAction = "<    Select    >";
+	menuItemPIDGoBack.LCDAction = "Select";
 	menuItemPIDGoBack.isDirectional = false;
 	menuListPID[i] = &menuItemPIDGoBack;
 
 	menuItemPIDDrive.name = "Drive";
 	menuItemPIDDrive.id = ++id;
 	menuItemPIDDrive.idx = ++i;
-	menuItemPIDDrive.LCDAction = "<    Select    >";
+	menuItemPIDDrive.LCDAction = "Start";
 	menuItemPIDDrive.isDirectional = false;
 	menuListPID[i] = &menuItemPIDDrive;
 
 	menuItemPIDGyro.name = "Gyro";
 	menuItemPIDGyro.id = ++id;
 	menuItemPIDGyro.idx = ++i;
-	menuItemPIDGyro.LCDAction = "<    Select    >";
+	menuItemPIDGyro.LCDAction = "Start";
 	menuItemPIDGyro.isDirectional = false;
 	menuListPID[i] = &menuItemPIDGyro;
 
 	menuItemPIDArm.name = "Arm";
 	menuItemPIDArm.id = ++id;
 	menuItemPIDArm.idx = ++i;
-	menuItemPIDArm.LCDAction = "<    Select    >";
+	menuItemPIDArm.LCDAction = "Start";
 	menuItemPIDArm.isDirectional = false;
 	menuListPID[i] = &menuItemPIDArm;
 
 	menuItemPIDMini4Bar.name = "Mini 4-Bar";
 	menuItemPIDMini4Bar.id = ++id;
 	menuItemPIDMini4Bar.idx = ++i;
-	menuItemPIDMini4Bar.LCDAction = "<    Select    >";
+	menuItemPIDMini4Bar.LCDAction = "Start";
 	menuItemPIDMini4Bar.isDirectional = false;
 	menuListPID[i] = &menuItemPIDMini4Bar;
 
 	menuItemPIDMoGoLift.name = "MoGo Lift";
 	menuItemPIDMoGoLift.id = ++id;
 	menuItemPIDMoGoLift.idx = i;
-	menuItemPIDMoGoLift.LCDAction = "<    Select    >";
+	menuItemPIDMoGoLift.LCDAction = "Start";
 	menuItemPIDMoGoLift.isDirectional = false;
 	menuListPID[i] = &menuItemPIDMoGoLift;
 
 	menuItemPIDCustom.name = "Custom";
 	menuItemPIDCustom.id = ++id;
 	menuItemPIDCustom.idx = ++i;
-	menuItemPIDCustom.LCDAction = "<    Select    >";
+	menuItemPIDCustom.LCDAction = "Start";
 	menuItemPIDCustom.isDirectional = false;
 	menuListPID[i] = &menuItemPIDCustom;
 
@@ -377,21 +383,21 @@ void populateMenuItems() {
 	menuItemMotorCheckGoBack.name = "Go Back";
 	menuItemMotorCheckGoBack.id = ++id;
 	menuItemMotorCheckGoBack.idx = i;
-	menuItemMotorCheckGoBack.LCDAction = "<    Select    >";
+	menuItemMotorCheckGoBack.LCDAction = "Select";
 	menuItemMotorCheckGoBack.isDirectional = false;
 	menuListMotorCheck[i] = &menuItemMotorCheckGoBack;
 
 	menuItemMotorCheckAuto.name = "Auto-Check";
 	menuItemMotorCheckAuto.id = ++id;
 	menuItemMotorCheckAuto.idx = ++i;
-	menuItemMotorCheckAuto.LCDAction = "<    Select    >";
+	menuItemMotorCheckAuto.LCDAction = "Start";
 	menuItemMotorCheckAuto.isDirectional = false;
 	menuListMotorCheck[i] = &menuItemMotorCheckAuto;
 
 	menuItemMotorCheckManual.name = "Manual-Check";
 	menuItemMotorCheckManual.id = ++id;
 	menuItemMotorCheckManual.idx = ++i;
-	menuItemMotorCheckManual.LCDAction = "<    Select    >";
+	menuItemMotorCheckManual.LCDAction = "Start";
 	menuItemMotorCheckManual.isDirectional = false;
 	menuListMotorCheck[i] = &menuItemMotorCheckManual;
 
@@ -728,7 +734,7 @@ void displayProgram()
 	{
 		if (isCompetitionMode) displayLCDCenteredString(0, "Comp Mode Active");
 		else displayLCDCenteredString(0, "Test Mode Active");
-		displayLCDCenteredString(1, "< Switch  Mode >");
+		displayLCDCenteredString(1, "Switch  Mode");
 	}
 	else
 	{
@@ -736,6 +742,11 @@ void displayProgram()
 		displayLCDCenteredString(1, LCDAction); //display possible action
 	}
 
+	if (currentMenu[LCDScreen].id != menuItemResetGyro.id && currentMenu[LCDScreen].id != menuItemCurrentProgram.id)
+	{
+		displayLCDString(1, 0, "<");
+		displayLCDString(1, 15, ">");
+	}
 
 	waitForLCDButtonPress();
 
@@ -812,8 +823,8 @@ void displayProgram()
 		else if (currentMenu[LCDScreen].id == menuItemSwitchCompetitionMode.id)
 		{
 			isCompetitionMode = !isCompetitionMode;
-			if (!isCompetitionMode) LCDAction = "<     Start    >";
-			else LCDAction = "<    Select    >";
+			if (!isCompetitionMode) LCDAction = "Start";
+			else LCDAction = "Select";
 			displayLCDCenteredString(0, "Mode Switched!");
 			clearLCDLine(1);
 			wait1Msec(1000);
