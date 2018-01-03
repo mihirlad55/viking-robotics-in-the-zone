@@ -707,7 +707,7 @@ void displayProgram()
 		displayLCDCenteredString(0, programName);
 	}
 	/* If the current menu item is strictly a navigation item, change the second line to read "Select" */
-	else if (currentMenu[LCDScreen].id == menuItemSideGoBack.id || currentMenu[LCDScreen].id == menuItemColorGoBack.id || currentMenu[LCDScreen].id == menuItemAutonGoBack.id || currentMenu[LCDScreen].id == menuItemGoToAuton.id || currentMenu[LCDScreen].isDirectional)
+	else if (currentMenu[LCDScreen].isDirectional)
 	{
 		displayLCDCenteredString(0, currentMenu[LCDScreen].name); //display menuItem name
 		displayLCDCenteredString(1, "<    Select    >");
@@ -3068,25 +3068,6 @@ task MoGoLift()
 }
 
 
-/* Safety control lock to prevent any user control when lock is enabled */
-task ControlLock()
-{
-	while (true)
-	{
-		if (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1 && lockControls)
-		{
-			while (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1) wait1Msec(10);
-			lockControls = false;
-		}
-		else if (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1 && !lockControls)
-		{
-			while (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1) wait1Msec(10);
-			lockControls = true;
-		}
-	}
-}
-
-
 
 
 /* Main user control task */
@@ -3106,6 +3087,20 @@ task usercontrol()
 	{
 		displayLCDCenteredString(0, "Daud-_-Jaan");
 		displayLCDCenteredString(1, "User Control");
+	}
+
+	while (true)
+	{
+		if (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1 && lockControls)
+		{
+			while (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1) wait1Msec(10);
+			lockControls = false;
+		}
+		else if (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1 && !lockControls)
+		{
+			while (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1) wait1Msec(10);
+			lockControls = true;
+		}
 	}
 }
 
