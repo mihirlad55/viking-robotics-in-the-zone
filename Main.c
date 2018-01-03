@@ -67,6 +67,8 @@
 #define BTN_READY_ARM_MACRO				Btn6U
 
 /* For Motor checker */
+#define BTN_NEXT_MOTOR			Btn8R
+#define BTN_PREVIOUS_MOTOR		Btn8L
 #define BTN_POSITIVE_POWER		Btn6U
 #define BTN_NEGATIVE_POWER		Btn5U
 #define BTN_STOP_MOTOR			Btn7D
@@ -140,6 +142,7 @@
 #define MENU_LIST_COLORS_LENGTH	3
 #define MENU_LIST_PID_LENGTH		7
 #define MENU_LIST_MOTOR_CHECK_LENGTH 3
+
 
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT };
 enum State { STATE_EXTENDED, STATE_RETRACTED };
@@ -215,13 +218,11 @@ void populateMenuItems() {
 	menuItemGoToAuton.LCDAction = "<    Select    >";
 	menuListMain[i] = &menuItemGoToAuton;
 
-
 	menuItemResetGyro.name = "Reset Gyro";
 	menuItemResetGyro.id = ++id;
 	menuItemResetGyro.idx = ++i;
 	menuItemResetGyro.LCDAction = "<     Reset    >";
 	menuListMain[i] = &menuItemResetGyro;
-
 
 	menuItemBatteryLevel.name = "Battery Level";
 	menuItemBatteryLevel.id = ++id;
@@ -367,7 +368,6 @@ void populateMenuItems() {
 	menuItemPIDCustom.LCDAction = "<    Select    >";
 	menuItemPIDCustom.isDirectional = false;
 	menuListPID[i] = &menuItemPIDCustom;
-
 
 	i = 0;
 
@@ -2514,8 +2514,11 @@ void previousMotor()
 	else motorPointer = 10;
 }
 
+
 void MotorManualCheck()
 {
+	stopTask(loadLCDScreen);
+
 	displayLCDCenteredString(0, "Manual Check");
 	string sMotorNum = "";
 	string LCDLine = "";
@@ -2707,6 +2710,7 @@ void MotorSelfCheck()
 		else displayLCDCenteredString(1, "Is Functional");
 		wait1Msec(2000);
 	}
+
 
 	startTask(loadLCDScreen);
 	stopTask(MiscellaneousTask);
