@@ -107,13 +107,13 @@
 
 #define IS_MOGO_LIFT_ENABLED					true
 #define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	1000
-#define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	2000
+#define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	1940
 #define	MOGO_LIFT_POTENTIOMETER_OFFSET 			0
 #define MOGO_LIFT_POTENTIOMETER_MULTIPLIER		1
 
 #define IS_MINI_4_BAR_ENABLED						true
 #define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2000
-#define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	1000
+#define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	210
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
 
@@ -2887,22 +2887,35 @@ task Drive()
 }
 
 
+	float pGain = 0.09;
+	float iGain = 0.0002;
+	float dGain = 4;
 
 void userMini4BarPControl(short goalPoint, WaitForAction stopWhenMet)
 {
-	float pGain = 2.0;
 
 	goalPoint *= MINI_4_BAR_POTENTIOMETER_MULTIPLIER;
 
-	bool isButtonReleased = false;
+	bool isButtonReleased;
+	if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0) isButtonReleased = true;
+	else isButtonReleased = false;
 	int error = goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue();
+	int errorSum = 0;
+	int errorDifference = 0;
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MINI_4_BAR_EXTEND_MANUAL] == 0 && vexRT[BTN_MINI_4_BAR_RETRACT_MANUAL] == 0 && ( (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1 && !isButtonReleased) || vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0 && isButtonReleased))
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MINI_4_BAR_EXTEND_MANUAL] == 0 && vexRT[BTN_MINI_4_BAR_RETRACT_MANUAL] == 0 && ( (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1 && !isButtonReleased) || vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0
+		&& isButtonReleased))
 	{
 		if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0) isButtonReleased = true;
 
+		errorDifference = error - (goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue());
 		error = goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue();
-		setMini4BarMotorPower(error * pGain);
+		errorSum += error;
+
+		if (abs(error) < 30) errorSum = 0;
+
+		setMini4BarMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+		wait1Msec(1);
 	}
 	setMini4BarMotorPower(0);
 }
@@ -2914,7 +2927,8 @@ task Goliath()
 	{
 		if (!lockControls && !isJoystickLCDMode())
 		{
-			if (vexRT[BTN_GOLIATH_REVERSE] == 1)
+			if (vexRT[BTN_SENSOR_OVERRIDE] == 1) setGoliathMotorPower(0);
+			else if (vexRT[BTN_GOLIATH_REVERSE] == 1)
 			{
 				while (vexRT[BTN_GOLIATH_REVERSE] == 1)
 				{
