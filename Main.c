@@ -53,7 +53,7 @@
 #define BTN_CONTROL_LOCK_1				Btn8U
 #define BTN_CONTROL_LOCK_2				Btn7U
 #define BTN_SENSOR_OVERRIDE				Btn7U
-
+#define BTN_STOP_AUTON_RECORDER			Btn7R
 
 #define BTN_GOLIATH_REVERSE				Btn6U
 
@@ -67,7 +67,10 @@
 #define BTN_MINI_4_BAR_EXTEND_MANUAL	Btn8D
 #define BTN_MINI_4_BAR_RETRACT_MANUAL	Btn8R
 
+
 #define BTN_READY_ARM_MACRO				Btn6U
+#define BTN_MOGO_STACK_MACRO			Btn5U
+
 
 /* For Motor checker */
 #define BTN_NEXT_MOTOR			Btn8R
@@ -96,14 +99,15 @@
 #define DRIVE_ENCODER_LEFT_MULTIPLIER	-1
 #define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
-#define IS_ARM_ENABLED						true
-#define ARM_POTENTIOMETER_MIN_VALUE			1200
-#define ARM_POTENTIOMETER_MAX_VALUE			2900
-#define ARM_POTENTIOMETER_HIGH_GOAL_VALUE	1750
-#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 400
-#define ARM_POTENTIOMETER_CONE_DIFFERENCE	200
-#define ARM_POTENTIOMETER_OFFSET			0
-#define ARM_POTENTIOMETER_MULTIPLIER 		1
+#define IS_ARM_ENABLED								true
+#define ARM_POTENTIOMETER_MIN_VALUE					1200
+#define ARM_POTENTIOMETER_MAX_VALUE					2900
+#define ARM_POTENTIOMETER_HIGH_GOAL_VALUE			1750
+#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 		400
+#define ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE	200
+#define ARM_POTENTIOMETER_CONE_MULTIPLIER			0.2
+#define ARM_POTENTIOMETER_OFFSET					0
+#define ARM_POTENTIOMETER_MULTIPLIER 				1
 
 #define IS_MOGO_LIFT_ENABLED					true
 #define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	1000
@@ -147,9 +151,12 @@
 #define MENU_LIST_MOTOR_CHECK_LENGTH 	3
 
 
-enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT };
-enum State { STATE_EXTENDED, STATE_RETRACTED };
+enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT, A_GYRO, A_ARM_READY_MACRO, A_MOGO_CARRY_CONE_MACRO, A_NONE,
+	A_DRIVE_WAIT, A_ARM_WAIT, A_GOLIATH_WAIT, A_MINI_4_BAR_WAIT, A_MOGO_LIFT_WAIT, A_GYRO_WAIT, A_ARM_READY_MACRO_WAIT, A_MOGO_CARRY_CONE_MACRO_WAIT };
+enum StateExtension { STATE_EXTENSION_EXTENDED, STATE_EXTENSION_RETRACTED };
+enum StateGoliath { STATE_GOLIATH_INTAKE, STATE_GOLIATH_OUTTAKE, STATE_OFF };
 enum WaitForAction { WAIT, WAIT_NONE };
+enum Macro { MACRO_ARM_READY, MACRO_MOGO_STACK_CONE };
 
 struct MenuItem {
 	short id;
@@ -896,6 +903,12 @@ task loadLCDScreen() // Task responsible for keeping LCD Screen running.
 }
 
 
+char* ConvertIntegerToString(long num)
+{
+	string s = "";
+	sprintf(s, "%d", num);
+	return s;
+}
 
 
 int waitForJoystickButtonPress() // Gets joystick input and returns the index of the current button pressed.
@@ -1107,6 +1120,7 @@ void pre_auton()
 const float leftDriveMultiplier = (10.0/10.0);
 const float rightDriveMultiplier = (10.0/10.0);
 short potentiometerArmLimit = 0;
+char numOfInternalCones = 0;
 
 
 short getArmSensorValue() { return (SensorValue[potentiometerArm] + ARM_POTENTIOMETER_OFFSET) * ARM_POTENTIOMETER_MULTIPLIER; }
@@ -1681,8 +1695,12 @@ void moGoExtend()
 int tDrivePIDGoalPoint = 0;
 short tArmPIDGoalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE;
 short tGyroPIDGoalPoint = 0;
-State tMini4BarGoalState = STATE_EXTENDED;
-State tMoGoLiftGoalState = STATE_EXTENDED;
+StateExtension tMini4BarGoalState = STATE_EXTENSION_EXTENDED;
+StateExtension tMoGoLiftGoalState = STATE_EXTENSION_EXTENDED;
+Macro tMacroGoalPoint;
+
+void MacroArmReady();
+void MacroMoGoStackCone();
 
 /*  */
 WaitForAction waitForTArmPID = WAIT;
@@ -1694,6 +1712,7 @@ bool isTMoGoLiftReady = true;
 bool isTArmReady = true;
 bool isTGyroFaceReady = true;
 bool isTGyroPIDReady = true;
+bool isTMacroReady = true;
 
 
 
@@ -1740,22 +1759,12 @@ task tArmPIDControl()
 }
 
 
-task tKeepArmDown()
-{
-	isTArmReady = false;
-
-	while (SensorValue[limitSwitchArm1] == 0 && SensorValue[limitSwitchArm2] == 0) setArmMotorPower(-127);
-	setArmMotorPower(0);
-
-	isTArmReady = true;
-}
-
 task tMini4Bar()
 {
 	isTMini4BarReady = false;
 
-	if (tMini4BarGoalState == STATE_EXTENDED) mini4BarExtend();
-	else if (tMini4BarGoalState == STATE_RETRACTED) mini4BarRetract();
+	if (tMini4BarGoalState == STATE_EXTENSION_EXTENDED) mini4BarExtend();
+	else if (tMini4BarGoalState == STATE_EXTENSION_RETRACTED) mini4BarRetract();
 
 	isTMini4BarReady = true;
 }
@@ -1764,20 +1773,24 @@ task tMoGoLift()
 {
 	isTMoGoLiftReady = false;
 
-	if (tMoGoLiftGoalState == STATE_EXTENDED) moGoExtend();
-	else if (tMoGoLiftGoalState == STATE_RETRACTED) moGoRetract();
+	if (tMoGoLiftGoalState == STATE_EXTENSION_EXTENDED) moGoExtend();
+	else if (tMoGoLiftGoalState == STATE_EXTENSION_RETRACTED) moGoRetract();
 
 	isTMoGoLiftReady = true;
 }
 
+task tMacro()
+{
+	isTMacroReady = false;
+
+	if (tMacroGoalPoint == MACRO_ARM_READY) MacroArmReady();
+	else if (tMacroGoalPoint == MACRO_MOGO_STACK_CONE) MacroMoGoStackCone();
+
+	isTMacroReady = true;
+}
+
 
 /* Procedures for starting autonomous tasks */
-void startTKeepArmDown()
-{
-	stopTask(tKeepArmDown);
-	stopTask(tArmPIDControl);
-	startTask(tKeepArmDown);
-}
 
 void startTDrivePID(int goalPoint)
 {
@@ -1791,7 +1804,6 @@ void startTDrivePID(int goalPoint)
 void startTArmPID(int goalPoint, WaitForAction stopWhenMet)
 {
 	stopTask(tArmPIDControl);
-	stopTask(tKeepArmDown);
 	tArmPIDGoalPoint = goalPoint;
 	waitForTArmPID = stopWhenMet;
 
@@ -1817,18 +1829,25 @@ void startTGyroFace(int goalPoint)
 	startTask(tGyroFace);
 }
 
-void startTMini4Bar(State GoalState)
+void startTMini4Bar(StateExtension GoalState)
 {
 	stopTask(tMini4Bar);
 	tMini4BarGoalState = GoalState;
 	startTask(tMini4Bar);
 }
 
-void startTMoGoLift(State GoalState)
+void startTMoGoLift(StateExtension GoalState)
 {
 	stopTask(tMoGoLift);
 	tMoGoLiftGoalState = GoalState;
 	startTask(tMoGoLift);
+}
+
+void startTMacro(Macro macroGoalPoint)
+{
+	stopTask(tMacro);
+	tMacroGoalPoint = macroGoalPoint;
+	startTask(tMacro);
 }
 
 /* Procedures for waiting for tasks */
@@ -1870,6 +1889,12 @@ void waitForTMoGoLift()
 	while (!isTMoGoLiftReady) { }
 }
 
+void waitForTMacro()
+{
+	wait1Msec(10);
+	while (!isTMacroReady) { }
+}
+
 void waitForAllPIDTasks()
 {
 	wait1Msec(10);
@@ -1879,6 +1904,7 @@ void waitForAllPIDTasks()
 	while (!isTGyroPIDReady) { }
 	while (!isTMini4BarReady) { }
 	while (!isTMoGoLiftReady) { }
+	while (!isTMacroReady) { }
 }
 
 
@@ -1889,9 +1915,9 @@ void stopAllTPID()
 	stopTask(tArmPIDControl);
 	stopTask(tGyroPIDControl);
 	stopTask(tGyroFace);
-	stopTask(tKeepArmDown);
 	stopTask(tMini4Bar);
 	stopTask(tMoGoLift);
+	stopTask(tMacro);
 }
 
 
@@ -1901,7 +1927,7 @@ void goliathIntake(char power)
 
 	stopTask(tMini4Bar);
 	stopTask(tArmPIDControl);
-	startTMini4Bar(STATE_EXTENDED);
+	startTMini4Bar(STATE_EXTENSION_EXTENDED);
 	while (getMini4BarSensorValue() < (MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE + 200) * MINI_4_BAR_POTENTIOMETER_MULTIPLIER) { }
 	startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT);
 	setGoliathMotorPower(power);
@@ -1917,6 +1943,41 @@ void goliathIntake()
 {
 	goliathIntake(GOLIATH_INTAKE_POWER);
 }
+
+
+
+void MacroArmReady()
+{
+	setArmMotorPower(127);
+	while (getArmSensorValue() < ( (numOfInternalCones > 4) ? (ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) * ARM_POTENTIOMETER_MULTIPLIER : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
+	setArmMotorPower(0);
+	startTMini4Bar(STATE_EXTENSION_EXTENDED);
+	waitForTMini4Bar();
+
+	startTArmPID(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE * ARM_POTENTIOMETER_MULTIPLIER, WAIT_NONE);
+	waitForTArm();
+	setArmMotorPower(0);
+}
+
+void MacroMoGoStackCone()
+{
+	setArmMotorPower(-30);
+	setGoliathMotorPower(50);
+	wait1Msec(500);
+	startTArmPID( (numOfInternalCones > 4) ? ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200 : ARM_POTENTIOMETER_MIN_VALUE + 100, WAIT);
+	waitForTArm();
+	startTMini4Bar(STATE_EXTENSION_RETRACTED);
+	waitForTMini4Bar();
+
+	if (numOfInternalCones > 4) startTArmPID(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
+	waitForTArm();
+
+	setGoliathMotorPower(-50);
+	wait1Msec(800);
+	setGoliathMotorPower(50);
+}
+
+
 
 
 
@@ -2795,6 +2856,10 @@ task MiscellaneousTask()
 bool lockControls = true;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
+bool isMoGoStackConeMacroActive = false;
+StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
+StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
+StateGoliath stateGoliathCurrent = STATE_GOLIATH_INTAKE;
 
 
 int SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
@@ -2824,9 +2889,9 @@ task Arm()
 		if (!lockControls && !isJoystickLCDMode())
 		{
 			/* Allow joystick control of arm if less than upper limit of sensors are overriden */
-			if ( !isArmReadyMacroActive && (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE) )
+			if (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE)
 			{
-				while ( !isArmReadyMacroActive && (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE) )
+				while (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE)
 				{
 					SetArmLimit();
 					setArmMotorPower(vexRT[JOY_ARM]);
@@ -2835,7 +2900,7 @@ task Arm()
 				SetArmLimit();
 			}
 			/* If PID button is pressed, bring arm to carry value */
-			else if (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1 && !isArmReadyMacroActive)
+			else if (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1)
 			{
 				while (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1) { }
 				int errorSum = 0;
@@ -2846,7 +2911,7 @@ task Arm()
 				int newPower = 0;
 
 				/* Stay in PID mode until user uses joystick */
-				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 && !isArmReadyMacroActive)
+				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0)
 				{
 					errorDifference = error - (goalPoint - getArmSensorValue());
 					error = goalPoint - getArmSensorValue();
@@ -2898,11 +2963,11 @@ task Drive()
 }
 
 
-	float pGain = 0.09;
-	float iGain = 0.0002;
-	float dGain = 4;
+float pGain = 0.09;
+float iGain = 0.0002;
+float dGain = 4;
 
-void userMini4BarPControl(short goalPoint, WaitForAction stopWhenMet)
+void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
 
 	goalPoint *= MINI_4_BAR_POTENTIOMETER_MULTIPLIER;
@@ -2932,6 +2997,35 @@ void userMini4BarPControl(short goalPoint, WaitForAction stopWhenMet)
 }
 
 
+void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
+{
+	float pGain = 0.09;
+	float iGain = 0.0002;
+	float dGain = 4;
+
+	goalPoint *= ARM_POTENTIOMETER_MULTIPLIER;
+
+
+	int error = goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue();
+	int errorSum = 0;
+	int errorDifference = 0;
+
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < 0 )
+	{
+		errorDifference = error - (goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue());
+		error = goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue();
+		errorSum += error;
+
+		if (abs(error) < 30) errorSum = 0;
+
+		setArmMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+		wait1Msec(1);
+	}
+	setArmMotorPower(0);
+}
+
+
+
 task Goliath()
 {
 	while (true)
@@ -2941,19 +3035,17 @@ task Goliath()
 			if (vexRT[BTN_SENSOR_OVERRIDE] == 1) setGoliathMotorPower(0);
 			else if (vexRT[BTN_GOLIATH_REVERSE] == 1)
 			{
-				while (vexRT[BTN_GOLIATH_REVERSE] == 1)
-				{
-					setGoliathMotorPower(-50);
-				}
+				setGoliathMotorPower(-50);
+				while (vexRT[BTN_GOLIATH_REVERSE] == 1) { }
 				setGoliathMotorPower(50);
 			}
 		}
 	}
 }
 
+
 task Mini4Bar()
 {
-	State currentState = STATE_RETRACTED;
 	while (true)
 	{
 		if (!lockControls && !isJoystickLCDMode())
@@ -2963,12 +3055,32 @@ task Mini4Bar()
 				while (vexRT[BTN_SENSOR_OVERRIDE] == 1) { }
 				areSensorsOverridden = !areSensorsOverridden;
 			}
+			else if (vexRT[BTN_MOGO_STACK_MACRO] == 1)
+			{
+				isMoGoStackConeMacroActive = true;
+				setArmMotorPower(-30);
+				setGoliathMotorPower(50);
+				wait1Msec(500);
+				userArmPIDControl( (numOfInternalCones > 4) ? ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200 : ARM_POTENTIOMETER_MIN_VALUE + 100, WAIT);
+				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT);
+
+				if (numOfInternalCones > 4) userArmPIDControl(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
+
+				setGoliathMotorPower(-50);
+				wait1Msec(800);
+				setGoliathMotorPower(50);
+				isMoGoStackConeMacroActive = false;
+			}
 			else if (vexRT[BTN_READY_ARM_MACRO] == 1)
 			{
 				isArmReadyMacroActive = true;
-				userMini4BarPControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT);
+				setArmMotorPower(127);
+				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 &&
+					getArmSensorValue() < ( (numOfInternalCones > 4) ? (ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) * ARM_POTENTIOMETER_MULTIPLIER : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
+				setArmMotorPower(0);
+				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT);
 
-				while (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE * ARM_POTENTIOMETER_MULTIPLIER && !areSensorsOverridden) setArmMotorPower(-127);
+				userArmPIDControl(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE * ARM_POTENTIOMETER_MULTIPLIER, WAIT_NONE);
 				setArmMotorPower(0);
 				isArmReadyMacroActive = false;
 			}
@@ -2978,16 +3090,16 @@ task Mini4Bar()
 				if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1)
 				{
 					while (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1) { }
-					currentState = (currentState == STATE_RETRACTED) ? STATE_EXTENDED : STATE_RETRACTED;
+					stateMini4BarCurrent = (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) ? STATE_EXTENSION_EXTENDED : STATE_EXTENSION_RETRACTED;
 				}
 
-				if (currentState == STATE_RETRACTED)
+				if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 				{
-					userMini4BarPControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+					userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
 				}
-				else if (currentState == STATE_EXTENDED)
+				else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
 				{
-					userMini4BarPControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+					userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
 				}
 			}
 			else if (areSensorsOverridden)
@@ -3013,7 +3125,6 @@ task Mini4Bar()
 
 task MoGoLift()
 {
-	State currentState = STATE_RETRACTED;
 	while (true)
 	{
 		if (!lockControls && !isJoystickLCDMode())
@@ -3023,10 +3134,10 @@ task MoGoLift()
 				if (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1)
 				{
 					while (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1) { }
-					currentState = (currentState == STATE_RETRACTED) ? STATE_EXTENDED : STATE_RETRACTED;
+					stateMoGoLiftCurrent = (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED) ? STATE_EXTENSION_EXTENDED : STATE_EXTENSION_RETRACTED;
 				}
 
-				if (currentState == STATE_RETRACTED)
+				if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED)
 				{
 					while (getMoGoLiftSensorValue() > MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER)
 					{
@@ -3034,7 +3145,7 @@ task MoGoLift()
 					}
 					setMoGoLiftMotorPower(0);
 				}
-				else if (currentState == STATE_EXTENDED)
+				else if (stateMoGoLiftCurrent == STATE_EXTENSION_EXTENDED)
 				{
 					float dGain = 2.0;
 
@@ -3073,6 +3184,9 @@ task MoGoLift()
 /* Main user control task */
 task usercontrol()
 {
+	numOfInternalCones = 0;
+
+
 	if (IS_ARM_ENABLED) startTask(Arm);
 	if (IS_DRIVE_ENABLED) startTask(Drive);
 	if (IS_GOLIATH_ENABLED) startTask(Goliath);
@@ -3104,11 +3218,249 @@ task usercontrol()
 }
 
 
+#define FLAG_BIT_DRIVE_ACTIVE					1
+#define FLAG_BIT_GYRO_ACTIVE					2
+#define FLAG_BIT_ARM_ACTIVE						4
+#define FLAG_BIT_MINI_4_BAR_EXTENDED			8
+#define FLAG_BIT_MINI_4_BAR_RETRACTED			16
+#define FLAG_BIT_MOGO_LIFT_EXTENDED				32
+#define FLAG_BIT_MOGO_LIFT_RETRACTED			64
+#define FLAG_BIT_GOLIATH_INTAKE					128
+#define FLAG_BIT_GOLIATH_OUTTAKE				256
+#define FLAG_BIT_ARM_READY_MACRO_ACTIVE			512
+#define FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE	1024
+
+int lastFlag;
+
+int getCurrentFlag()
+{
+	int flag = 0;
+
+	if (motor[motorDriveLeftFront] > 0 && motor[motorDriveRightFront] < 0) flag += FLAG_BIT_GYRO_ACTIVE;
+	else if (motor[motorDriveLeftFront] < 0 && motor[motorDriveRightFront] > 0) flag += FLAG_BIT_GYRO_ACTIVE;
+	else if (abs(motor[motorDriveLeftFront]) > 0) flag += FLAG_BIT_DRIVE_ACTIVE;
+
+	if (abs(motor[motorArmLeft]) > 0) flag += FLAG_BIT_ARM_ACTIVE;
+
+	if (motor[motorGoliath] > 0) flag += FLAG_BIT_GOLIATH_INTAKE;
+	else if (motor[motorGoliath] < 0) flag += FLAG_BIT_GOLIATH_OUTTAKE;
+
+	if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED) flag += FLAG_BIT_MINI_4_BAR_EXTENDED;
+	else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) flag += FLAG_BIT_MINI_4_BAR_RETRACTED;
+
+	if (stateMoGoLiftCurrent == STATE_EXTENSION_EXTENDED) flag += FLAG_BIT_MOGO_LIFT_EXTENDED;
+	else if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED) flag += FLAG_BIT_MOGO_LIFT_RETRACTED;
+
+	if (isArmReadyMacroActive) flag += FLAG_BIT_ARM_READY_MACRO_ACTIVE;
+	else if (isMoGoStackConeMacroActive) flag += FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE;
+
+	return flag;
+}
+
+bool isFlagBitChangedToTrue(int flagBit)
+{
+	return ( !(lastFlag & flagBit) && (getCurrentFlag() & flagBit) );
+}
+
+bool isFlagBitChangedToFalse(int flagBit)
+{
+	return ( (lastFlag & flagBit) && !(getCurrentFlag() & flagBit) );
+}
+
+
 
 task AutonRecorder()
 {
+	numOfInternalCones = 0;
+
+	lastFlag = getCurrentFlag();
+	SensorValue[encoderDriveLeft] = 0;
+	SensorValue[encoderDriveRight] = 0;
+	SensorValue[gyro] = 0;
+
+	Action actions[70];
+	char goalPoints[70];
+
+	for (int i = 0; i < 40; i++)
+	{
+		actions[i] = A_NONE;
+	}
+
+	char idx = 0;
+
+	char lastDriveIdx = 0;
+	char lastArmIdx = 0;
+	char lastGyroIdx = 0;
+
+	bool isDriveDone = false;
+	bool isArmDone = false;
+	bool isGyroDone = false;
+
+
+	while (vexRT[BTN_STOP_AUTON_RECORDER] == 0)
+	{
+		while (lastFlag == getCurrentFlag()) { }
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && actions[idx - 1] != A_DRIVE)
+		{
+			actions[idx] = A_DRIVE;
+			lastDriveIdx = idx++;
+		}
+		else if (isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE)) isDriveDone = true;
+		else if (!isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE) && isDriveDone)
+		{
+			goalPoints[lastDriveIdx] = SensorValue[encoderDriveLeft];
+			actions[idx++] = A_DRIVE_WAIT;
+			SensorValue[encoderDriveLeft] = 0;
+			SensorValue[encoderDriveRight] = 0;
+			isDriveDone = false;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && actions[idx - 1] != A_GYRO)
+		{
+			actions[idx] = A_GYRO;
+			lastGyroIdx = idx++;
+		}
+		else if (isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = true;
+		else if (!isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE) && isGyroDone)
+		{
+			goalPoints[lastGyroIdx] = SensorValue[gyro];
+			actions[idx++] = A_GYRO_WAIT;
+			isGyroDone = false;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && actions[idx - 1] != A_ARM)
+		{
+			actions[idx] = A_ARM;
+			lastArmIdx = idx++;
+		}
+		else if (isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE)) isArmDone = true;
+		else if (!isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE) && isArmDone)
+		{
+			goalPoints[lastArmIdx] = SensorValue[potentiometerArm];
+			actions[idx++] = A_ARM_WAIT;
+			isArmDone = false;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_GOLIATH_INTAKE))
+		{
+			actions[idx] = A_GOLIATH;
+			goalPoints[idx++] = STATE_GOLIATH_INTAKE;
+		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_GOLIATH_OUTTAKE))
+		{
+			actions[idx] = A_GOLIATH;
+			goalPoints[idx++] = STATE_GOLIATH_OUTTAKE;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_MINI_4_BAR_EXTENDED))
+		{
+			actions[idx] = A_MINI_4_BAR;
+			goalPoints[idx++] = STATE_EXTENSION_EXTENDED;
+		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_MINI_4_BAR_RETRACTED))
+		{
+			actions[idx] = A_MINI_4_BAR;
+			goalPoints[idx++] = STATE_EXTENSION_RETRACTED;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_MOGO_LIFT_EXTENDED))
+		{
+			actions[idx] = A_MOGO_LIFT;
+			goalPoints[idx++] = STATE_EXTENSION_EXTENDED;
+		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_MOGO_LIFT_RETRACTED))
+		{
+			actions[idx] = A_MOGO_LIFT;
+			goalPoints[idx++] = STATE_EXTENSION_RETRACTED;
+		}
+
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_READY_MACRO_ACTIVE))
+		{
+			actions[idx++] = A_ARM_READY_MACRO;
+		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE))
+		{
+			actions[idx++] = A_MOGO_CARRY_CONE_MACRO;
+		}
+
+
+		lastFlag = getCurrentFlag();
+
+	}
+
+	string debugLine = "";
+	for (int i = 0; i < 40 && actions[i+1] != A_NONE; i++)
+	{
+		if (actions[i] == A_DRIVE)
+		{
+			debugLine = "startTDrivePID(";
+			debugLine += (*ConvertIntegerToString(goalPoints[i]));
+			debugLine += ");";
+			writeDebugStreamLine(debugLine);
+		}
+		else if (actions[i] == A_ARM)
+		{
+			debugLine = "startTArmPID(";
+			debugLine += (*ConvertIntegerToString(goalPoints[i]));
+			debugLine += ", WAIT);";
+		}
+		else if (actions[i] == A_GYRO)
+		{
+			debugLine = "startTGyroPID(";
+			debugLine += (*ConvertIntegerToString(goalPoints[i]));
+			debugLine += ");";
+		}
+		else if (actions[i] == A_GOLIATH)
+		{
+			if (goalPoints[i] == (short) STATE_GOLIATH_INTAKE) debugLine = "setGoliathMotorPower(50);";
+			else if (goalPoints[i] == (short) STATE_GOLIATH_OUTTAKE) debugLine = "setGoliathMotorPower(-50);";
+		}
+		else if (actions[i] == A_MOGO_LIFT)
+		{
+			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) debugLine = "startTMoGoLift(STATE_EXTENSION_EXTENDED);";
+			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) debugLine = "startTMoGoLift(STATE_EXTENSION_RETRACTED);";
+		}
+		else if (actions[i] == A_MINI_4_BAR)
+		{
+			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) debugLine = "startTMini4Bar(STATE_EXTENSION_EXTENDED);";
+			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) debugLine = "startTMini4Bar(STATE_EXTENSION_RETRACTED);";
+		}
+		else if (actions[i] == A_ARM_READY_MACRO)
+		{
+			debugLine = "startTMacro(MACRO_ARM_READY);";
+		}
+		else if (actions[i] == A_MOGO_CARRY_CONE_MACRO)
+		{
+			debugLine = "startTMacro(MACRO_MOGO_STACK_CONE);";
+		}
+		else if (actions[i] == A_DRIVE_WAIT)
+		{
+			debugLine = "waitForTDrive();";
+		}
+		else if (actions[i] == A_ARM_WAIT)
+		{
+			debugLine = "waitForTArm();";
+		}
+		else if (actions[i] == A_GYRO_WAIT)
+		{
+			debugLine = "waitForTGyroPID();";
+		}
+
+		writeDebugStreamLine(debugLine);
+
+	}
 
 }
+
+
+
 
 
 /* Start up program based on currently selected program and direction */
@@ -3265,6 +3617,6 @@ void stopTasks()
 	stopTask(tMini4Bar);
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
-	stopTask(tKeepArmDown);
+	stopTask(tMacro);
 	stopTask(MiscellaneousTask);
 }
