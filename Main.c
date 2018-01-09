@@ -68,7 +68,7 @@
 #define BTN_MINI_4_BAR_RETRACT_MANUAL	Btn8R
 
 
-#define BTN_READY_ARM_MACRO				Btn6U
+#define BTN_READY_ARM_MACRO				Btn8U
 #define BTN_MOGO_STACK_MACRO			Btn5U
 
 
@@ -100,10 +100,10 @@
 #define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
 #define IS_ARM_ENABLED								true
-#define ARM_POTENTIOMETER_MIN_VALUE					1200
-#define ARM_POTENTIOMETER_MAX_VALUE					2900
+#define ARM_POTENTIOMETER_MIN_VALUE					1150
+#define ARM_POTENTIOMETER_MAX_VALUE					2782
 #define ARM_POTENTIOMETER_HIGH_GOAL_VALUE			1750
-#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 		400
+#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 		1100
 #define ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE	200
 #define ARM_POTENTIOMETER_CONE_MULTIPLIER			0.2
 #define ARM_POTENTIOMETER_OFFSET					0
@@ -116,8 +116,8 @@
 #define MOGO_LIFT_POTENTIOMETER_MULTIPLIER		1
 
 #define IS_MINI_4_BAR_ENABLED						true
-#define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2000
-#define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	210
+#define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2100
+#define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	100
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
 
@@ -2853,7 +2853,7 @@ task MiscellaneousTask()
 
 
 
-bool lockControls = true;
+bool lockControls = IS_CONTROL_LOCK_ENABLED;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
@@ -3037,7 +3037,14 @@ task Goliath()
 			{
 				setGoliathMotorPower(-50);
 				while (vexRT[BTN_GOLIATH_REVERSE] == 1) { }
+
 				setGoliathMotorPower(50);
+			}
+			else if (!areSensorsOverridden)
+			{
+				if (SensorValue[potentiometerArm] < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 || abs(SensorValue[potentiometerArm] - ARM_POTENTIOMETER_HIGH_GOAL_VALUE) < 200 ) setGoliathMotorPower(50);
+				else if (SensorValue[potentiometerArm] > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) setGoliathMotorPower(15);
+
 			}
 		}
 	}
@@ -3192,7 +3199,6 @@ task usercontrol()
 	if (IS_GOLIATH_ENABLED) startTask(Goliath);
 	if (IS_MINI_4_BAR_ENABLED) startTask(Mini4Bar);
 	if (IS_MOGO_LIFT_ENABLED) startTask(MoGoLift);
-	else lockControls = false;
 
 	if (getTaskState(loadLCDScreen) == taskStateStopped) startTask(loadLCDScreen);
 
@@ -3306,6 +3312,7 @@ task AutonRecorder()
 			actions[idx] = A_DRIVE;
 			lastDriveIdx = idx++;
 		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE)) isDriveDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE)) isDriveDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE) && isDriveDone)
 		{
@@ -3322,6 +3329,7 @@ task AutonRecorder()
 			actions[idx] = A_GYRO;
 			lastGyroIdx = idx++;
 		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE) && isGyroDone)
 		{
@@ -3336,6 +3344,7 @@ task AutonRecorder()
 			actions[idx] = A_ARM;
 			lastArmIdx = idx++;
 		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE)) isArmDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE)) isArmDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE) && isArmDone)
 		{
