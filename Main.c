@@ -2860,7 +2860,6 @@ bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
 StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
 StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
-StateGoliath stateGoliathCurrent = STATE_GOLIATH_INTAKE;
 
 
 int SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
