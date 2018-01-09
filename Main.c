@@ -59,8 +59,8 @@
 
 #define BTN_ARM_HIGH_GOAL_PID     		Btn8L
 
-#define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn6D
-#define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn6D
+#define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn5U
+#define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
 #define BTN_MOGO_LIFT_RETRACT_MANUAL	Btn5D
 
 #define BTN_MINI_4_BAR_TOGGLE_AUTO		Btn8D
@@ -69,7 +69,7 @@
 
 
 #define BTN_READY_ARM_MACRO				Btn8U
-#define BTN_MOGO_STACK_MACRO			Btn5U
+#define BTN_MOGO_STACK_MACRO			Btn6D
 
 
 /* For Motor checker */
@@ -118,6 +118,7 @@
 #define IS_MINI_4_BAR_ENABLED						true
 #define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2100
 #define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	100
+#define MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE		1950
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
 
@@ -2980,7 +2981,7 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	int errorDifference = 0;
 
 	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MINI_4_BAR_EXTEND_MANUAL] == 0 && vexRT[BTN_MINI_4_BAR_RETRACT_MANUAL] == 0 && ( (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1 && !isButtonReleased) || vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0
-		&& isButtonReleased))
+		&& isButtonReleased) && ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) )
 	{
 		if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0) isButtonReleased = true;
 
@@ -3102,7 +3103,8 @@ task Mini4Bar()
 
 				if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 				{
-					userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+					if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
+					else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
 				}
 				else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
 				{
