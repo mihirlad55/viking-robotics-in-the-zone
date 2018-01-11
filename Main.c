@@ -1131,8 +1131,13 @@ short getMoGoLiftSensorValue() { return (SensorValue[potentiometerMoGoLift] + MO
 short getGyroSensorValue() { return SensorValue[gyro] * GYRO_MULTIPLIER; }
 short getDriveLeftSensorValue() { return SensorValue[encoderDriveLeft] * DRIVE_ENCODER_LEFT_MULTIPLIER; }
 short getDriveRightSensorValue() { return SensorValue[encoderDriveRight] * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
-short correctGoalPoint(short goalPoint, short multiplier) { return goalPoint * multiplier; }
 
+short correctArmGoalPoint(short goalPoint) { return goalPoint * ARM_POTENTIOMETER_MULTIPLIER; }
+short correctDriveLeftGoalPoint(short goalPoint) { return goalPoint * DRIVE_ENCODER_LEFT_MULTIPLIER; }
+short correctDriveRightGoalPoint(short goalPoint) { return goalPoint * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
+short correctMini4BarGoalPoint(short goalPoint) { return goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER; }
+short correctGyroGoalPoint(short goalPoint) { return goalPoint * GYRO_MULTIPLIER; }
+short correctMoGoLiftGoalPoint(short goalPoint) { return goalPoint * MOGO_LIFT_POTENTIOMETER_MULTIPLIER; }
 
 bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
 {
@@ -1444,7 +1449,7 @@ void gyroFace(int degrees)
 {
 	autonomousReady = false;
 
-	degrees *= GYRO_MULTIPLIER;
+	degrees = correctGyroGoalPoint(degrees);
 	degrees *= 10;
 	int undershoot = 160;
 	//degrees = (getGyroSensorValue() - degrees * 10) / 10;
@@ -1532,7 +1537,7 @@ void gyroPIDControl(short goalPoint)
 	autonomousReady = false;
 
 	goalPoint *= 10; // Convert degree format to gyro format
-	goalPoint *= GYRO_MULTIPLIER;
+	goalPoint = correctGyroGoalPoint(goalPoint);
 
 	int error = goalPoint - getGyroSensorValue();
 	int newPower = 0;
@@ -1593,7 +1598,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	autonomousReady = false;
 
 	SetArmLimit();
-	goalPoint *= ARM_POTENTIOMETER_MULTIPLIER;
+	goalPoint = correctArmGoalPoint(goalPoint);
 
 	int errorSum = 0;
 	int errorDifference = 0;
@@ -1632,7 +1637,7 @@ void mini4BarPIDControl(short goalPoint)
 	float pGain = (2.8/10.0);
 
 	autonomousReady = false;
-	goalPoint *= MINI_4_BAR_POTENTIOMETER_MULTIPLIER;
+	goalPoint = correctMini4BarGoalPoint(goalPoint);
 
 	int error = goalPoint - getMini4BarSensorValue();
 	int newPower = 0;
@@ -1668,7 +1673,7 @@ void mini4BarExtend()
 
 void moGoRetract()
 {
-	while (getMoGoLiftSensorValue() < MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER)
+	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
 	{
 		setMoGoLiftMotorPower(127);
 	}
@@ -1679,13 +1684,13 @@ void moGoExtend()
 {
 	float dGain = 2.0;
 
-	int error = MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue();
+	int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
 	int errorDifference = 0;
 
-	while (getMoGoLiftSensorValue() > MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER)
+	while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) )
 	{
-		errorDifference = error - (MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue());
-		error = MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue();
+		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
+		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
 		setMoGoLiftMotorPower(50 - dGain * abs(errorDifference) );
 	}
 	setMoGoLiftMotorPower(0);
@@ -1931,7 +1936,7 @@ void goliathIntake(char power)
 	stopTask(tMini4Bar);
 	stopTask(tArmPIDControl);
 	startTMini4Bar(STATE_EXTENSION_EXTENDED);
-	while (getMini4BarSensorValue() < (MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE + 200) * MINI_4_BAR_POTENTIOMETER_MULTIPLIER) { }
+	while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE + 200) ) { }
 	startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT);
 	setGoliathMotorPower(power);
 	wait1Msec(200);
@@ -1952,12 +1957,12 @@ void goliathIntake()
 void MacroArmReady()
 {
 	setArmMotorPower(127);
-	while (getArmSensorValue() < ( (numOfInternalCones > 4) ? (ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) * ARM_POTENTIOMETER_MULTIPLIER : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
+	while (getArmSensorValue() < ( (numOfInternalCones > 4) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
 	setArmMotorPower(0);
 	startTMini4Bar(STATE_EXTENSION_EXTENDED);
 	waitForTMini4Bar();
 
-	startTArmPID(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE * ARM_POTENTIOMETER_MULTIPLIER, WAIT_NONE);
+	startTArmPID(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE, WAIT_NONE);
 	waitForTArm();
 	setArmMotorPower(0);
 }
@@ -2864,6 +2869,7 @@ StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
 StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
 
+
 int SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
 {
 	int speedDifference = lastPower - newPower;
@@ -2903,7 +2909,7 @@ task Arm()
 
 				/* while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 && getArmSensorValue() > correctGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 200, ARM_POTENTIOMETER_MULTIPLIER) )
 				{
-					setArmMotorPower(20);
+				setArmMotorPower(20);
 				}*/
 			}
 			/* If PID button is pressed, bring arm to carry value */
@@ -2911,7 +2917,7 @@ task Arm()
 			{
 				while (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1) { }
 				int errorSum = 0;
-				short goalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE * ARM_POTENTIOMETER_MULTIPLIER;
+				short goalPoint = correctArmGoalPoint(ARM_POTENTIOMETER_HIGH_GOAL_VALUE);
 				int error = goalPoint - getArmSensorValue();
 				int errorDifference = 0;
 				int lastMotorPower = 0;
@@ -2969,8 +2975,112 @@ task Drive()
 	}
 }
 
+#define FLAG_BIT_BTN6U	1
+#define FLAG_BIT_BTN6D	2
+#define FLAG_BIT_BTN5U	4
+#define FLAG_BIT_BTN5D	8
+#define FLAG_BIT_BTN7D	16
+#define FLAG_BIT_BTN7L	32
+#define FLAG_BIT_BTN7U	64
+#define FLAG_BIT_BTN7R	128
+#define FLAG_BIT_BTN8D	256
+#define FLAG_BIT_BTN8L	512
+#define FLAG_BIT_BTN8U	1024
+#define FLAG_BIT_BTN8R	2048
 
+#define FLAG_BIT_CH1	5096
+#define FLAG_BIT_CH2	10192
+#define FLAG_BIT_CH3	20384
+#define FLAG_BIT_CH4	40768
 
+short getControllerStateFlag()
+{
+	short flag;
+
+	flag += (vexRT[Btn6U] == 1) ? FLAG_BIT_BTN6U : 0;
+	flag += (vexRT[Btn6D] == 1) ? FLAG_BIT_BTN6D : 0;
+	flag += (vexRT[Btn5U] == 1) ? FLAG_BIT_BTN5U : 0;
+	flag += (vexRT[Btn5D] == 1) ? FLAG_BIT_BTN5D : 0;
+	flag += (vexRT[Btn7D] == 1) ? FLAG_BIT_BTN7D : 0;
+	flag += (vexRT[Btn7L] == 1) ? FLAG_BIT_BTN7L : 0;
+	flag += (vexRT[Btn7U] == 1) ? FLAG_BIT_BTN7U : 0;
+	flag += (vexRT[Btn7R] == 1) ? FLAG_BIT_BTN7R : 0;
+	flag += (vexRT[Btn8D] == 1) ? FLAG_BIT_BTN8D : 0;
+	flag += (vexRT[Btn8L] == 1) ? FLAG_BIT_BTN8L : 0;
+	flag += (vexRT[Btn8U] == 1) ? FLAG_BIT_BTN8U : 0;
+	flag += (vexRT[Btn8R] == 1) ? FLAG_BIT_BTN8R : 0;
+
+	flag += (abs(vexRT[Ch1]) > 20) ? FLAG_BIT_CH1 : 0;
+	flag += (abs(vexRT[Ch2]) > 20) ? FLAG_BIT_CH2 : 0;
+	flag += (abs(vexRT[Ch3]) > 20) ? FLAG_BIT_CH3 : 0;
+	flag += (abs(vexRT[Ch4]) > 20) ? FLAG_BIT_CH4 : 0;
+
+	return flag;
+}
+
+bool isControllerStateButtonPressed(short oldFlag, short buttonFlags)
+{
+	return (((oldFlag | getControllerStateFlag()) - oldFlag) & buttonFlags) > 0;
+}
+
+short ConvertButtonToFlagBit(int btn)
+{
+	switch (btn)
+	{
+		case Btn6U:
+			return FLAG_BIT_BTN6U;
+
+		case Btn6D:
+			return FLAG_BIT_BTN6D;
+
+		case Btn5U:
+			return FLAG_BIT_BTN5U;
+
+		case Btn5D:
+			return FLAG_BIT_BTN5D;
+
+		case Btn7D:
+			return FLAG_BIT_BTN7D;
+
+		case Btn7L:
+			return FLAG_BIT_BTN7L;
+
+		case Btn7U:
+			return FLAG_BIT_BTN7U;
+
+		case Btn7R:
+			return FLAG_BIT_BTN7R;
+
+		case Btn8D:
+			return FLAG_BIT_BTN8D;
+
+		case Btn8L:
+			return FLAG_BIT_BTN8L;
+
+		case Btn8U:
+			return FLAG_BIT_BTN8U;
+			break;
+
+		case Btn8R:
+			return FLAG_BIT_BTN8R;
+			break;
+
+		case Ch1:
+			return FLAG_BIT_CH1;
+
+		case Ch2:
+			return FLAG_BIT_CH2;
+
+		case Ch3:
+			return FLAG_BIT_CH3;
+
+		case Ch4:
+			return FLAG_BIT_CH4;
+
+		default:
+			return 0;
+	}
+}
 
 void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
@@ -2978,22 +3088,21 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	float iGain = 0.0002;
 	float dGain = 4;
 
-	goalPoint *= MINI_4_BAR_POTENTIOMETER_MULTIPLIER;
+	goalPoint = correctMini4BarGoalPoint(goalPoint);
 
-	bool isButtonReleased;
-	if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0) isButtonReleased = true;
-	else isButtonReleased = false;
-	int error = goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue();
+	int error = goalPoint - getMini4BarSensorValue();
 	int errorSum = 0;
 	int errorDifference = 0;
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MINI_4_BAR_RETRACT_MANUAL] == 0 && ( (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1 && !isButtonReleased)
-		|| vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0 && isButtonReleased) && ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
-	{
-		if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 0) isButtonReleased = true;
+	short oldFlag = getControllerStateFlag();
+	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE);
 
-		errorDifference = error - (goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue());
-		error = goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER - getMini4BarSensorValue();
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && isControllerStateButtonPressed(oldFlag, buttonMask)
+		&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
+	{
+		oldFlag = getControllerStateFlag();
+		errorDifference = error - (goalPoint - getMini4BarSensorValue());
+		error = goalPoint - getMini4BarSensorValue();
 		errorSum += error;
 
 		if (abs(error) < 30) errorSum = 0;
@@ -3004,24 +3113,27 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	setMini4BarMotorPower(0);
 }
 
-	float pGain = 0.09;
+float pGain = 0.09;
 void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
 
 	float iGain = 0.0002;
 	float dGain = 4;
 
-	goalPoint *= ARM_POTENTIOMETER_MULTIPLIER;
+	goalPoint = correctArmGoalPoint(goalPoint);
 
-
-	int error = goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue();
+	int error = goalPoint - getArmSensorValue();
 	int errorSum = 0;
 	int errorDifference = 0;
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE )
+	short oldFlag = getControllerStateFlag();
+	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
+
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
 	{
-		errorDifference = error - (goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue());
-		error = goalPoint * ARM_POTENTIOMETER_MULTIPLIER - getArmSensorValue();
+		oldFlag = getControllerStateFlag();
+		errorDifference = error - (goalPoint - getArmSensorValue());
+		error = goalPoint - getArmSensorValue();
 		errorSum += error;
 
 		if (abs(error) < 30) errorSum = 0;
@@ -3091,13 +3203,13 @@ task Mini4Bar()
 				isArmReadyMacroActive = true;
 				setArmMotorPower(127);
 				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 &&
-					getArmSensorValue() < ( (numOfInternalCones > 4) ? (ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) * ARM_POTENTIOMETER_MULTIPLIER : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
+					getArmSensorValue() < ( (numOfInternalCones > 4) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : correctArmGoalPoint(ARM_POTENTIOMETER_MIN_VALUE + 300) ) ) { }
 				setArmMotorPower(0);
 				stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
-					if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
-					else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+				if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
+				else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT);
 
-				userArmPIDControl(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE * ARM_POTENTIOMETER_MULTIPLIER, WAIT);
+				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) &&  vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE ) setArmMotorPower(-60);
 				setArmMotorPower(0);
 				isArmReadyMacroActive = false;
 			}
@@ -3158,7 +3270,7 @@ task MoGoLift()
 
 				if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED)
 				{
-					while (getMoGoLiftSensorValue() > MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER)
+					while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
 					{
 						setMoGoLiftMotorPower(-127);
 					}
@@ -3168,13 +3280,13 @@ task MoGoLift()
 				{
 					float dGain = 2.0;
 
-					int error = MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue();
+					int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
 					int errorDifference = 0;
 
-					while (getMoGoLiftSensorValue() > MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER && !areSensorsOverridden && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0)
+					while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && !areSensorsOverridden && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0)
 					{
-						errorDifference = error - (MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue());
-						error = MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE * MOGO_LIFT_POTENTIOMETER_MULTIPLIER - getMoGoLiftSensorValue();
+						errorDifference = error - ( correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
+						error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
 						setMoGoLiftMotorPower(50 - dGain * abs(errorDifference) );
 					}
 					setMoGoLiftMotorPower(0);
