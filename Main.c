@@ -3278,8 +3278,8 @@ task MoGoLift()
 				{
 					float dGain = 2.0;
 
-					int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
-					int errorDifference = 0;
+					short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+					short errorDifference = 0;
 
 					while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && !areSensorsOverridden && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0)
 					{
