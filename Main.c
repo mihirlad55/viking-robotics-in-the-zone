@@ -197,8 +197,8 @@ MenuItem *startupLCDProgram = &menuItemUserControl;
 /* add all the menuItems to their respective lists by reference
 and assign ids and indices to each item */
 void populateMenuItems() {
-	short i = 0;
-	short id = 0;
+	ubyte i = 0;
+	ubyte id = 0;
 
 	menuItemUserControl.name = "User Control";
 	menuItemUserControl.LCDAction = "Start";
@@ -566,9 +566,9 @@ task MiscellaneousTask();
 
 int LCDSelectionScreenTimeoutMs;
 MenuItem *selectedProgram;
-short LCDScreenMin = menuItemGoToAuton.idx; //minimum index for Screen List
-short LCDScreenMax = menuItemBatteryLevel.idx; //maximum index for Screen List
-short LCDScreen = 0; //current index of menuItem
+ubyte LCDScreenMin = menuItemGoToAuton.idx; //minimum index for Screen List
+ubyte LCDScreenMax = menuItemBatteryLevel.idx; //maximum index for Screen List
+ubyte LCDScreen = 0; //current index of menuItem
 bool autonomousSide = SIDE_LEFT; //side selected for autonomous
 bool autonomousColor = COLOR_BLUE;
 int LCDActiveTime = 0; //amount of time LCD has been inactive
@@ -677,7 +677,7 @@ void displayBatteryLevelOnLCD()
 	displayNextLCDString(backupBattery);
 }
 
-void reconfigureMenu(void* menuList, byte newLCDScreen, byte newLCDScreenMin, byte newLCDScreenMax)
+void reconfigureMenu(void* menuList, ubyte newLCDScreen, ubyte newLCDScreenMin, ubyte newLCDScreenMax)
 {
 	currentMenu = menuList;
 	LCDScreen = newLCDScreen;
@@ -916,9 +916,9 @@ char* ConvertIntegerToString(long num)
 int waitForJoystickButtonPress() // Gets joystick input and returns the index of the current button pressed.
 {
 	int buttons[12] = { Btn5D, Btn5U, Btn6D, Btn6U, Btn7U, Btn7D, Btn7R, Btn7L, Btn8R, Btn8D, Btn8U, Btn8L };
-	int count = 0;
-	int i = 0;
-	int buttonPressed;
+	ubyte count = 0;
+	ubyte i = 0;
+	ubyte buttonPressed;
 
 	while (true)
 	{
@@ -1029,7 +1029,7 @@ void pre_auton()
 		if (PASSWORD_ENABLED)
 		{
 			bool correctPassword = false;
-			int incorrectAttempts = 3;
+			ubyte incorrectAttempts = 3;
 			while (!correctPassword)
 			{
 				displayLCDCenteredString(0, "Enter Password");
@@ -1049,7 +1049,7 @@ void pre_auton()
 				correctPassword = true;
 
 				/* Check if entered code matches password */
-				for (int i = 0; i < 5; i++)
+				for (ubyte i = 0; i < 5; i++)
 				{
 					if (code[i] != correctCode[i]) correctPassword = false;
 				}
@@ -1122,7 +1122,7 @@ void pre_auton()
 const float leftDriveMultiplier = (10.0/10.0);
 const float rightDriveMultiplier = (10.0/10.0);
 short potentiometerArmLimit = 0;
-char numOfInternalCones = 0;
+ubyte numOfInternalCones = 0;
 
 
 short getArmSensorValue() { return (SensorValue[potentiometerArm] + ARM_POTENTIOMETER_OFFSET) * ARM_POTENTIOMETER_MULTIPLIER; }
@@ -1149,7 +1149,7 @@ bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
 	return false;
 }
 
-void setDriveMotorPower(short leftMotorPower, short rightMotorPower) // Set Drive motor power with seperate power for each side
+void setDriveMotorPower(int leftMotorPower, int rightMotorPower) // Set Drive motor power with seperate power for each side
 {
 	motor[motorDriveRightFront] = rightMotorPower * rightDriveMultiplier;
 	motor[motorDriveRightBack] = rightMotorPower * rightDriveMultiplier;
@@ -1158,29 +1158,29 @@ void setDriveMotorPower(short leftMotorPower, short rightMotorPower) // Set Driv
 	motor[motorDriveLeftBack] = leftMotorPower * leftDriveMultiplier;
 }
 
-void setDriveMotorPower(short motorPower) // Set equal drive motor power for all motors
+void setDriveMotorPower(int motorPower) // Set equal drive motor power for all motors
 {
 	setDriveMotorPower(motorPower, motorPower);
 }
 
-void setArmMotorPower(short motorPower) // Set arm motor power
+void setArmMotorPower(int motorPower) // Set arm motor power
 {
 	motor[motorArmLeft] = motorPower;
 	motor[motorArmRight] = motorPower;
 }
 
 
-void setGoliathMotorPower(short motorPower) // Set individual claw motor power
+void setGoliathMotorPower(int motorPower) // Set individual claw motor power
 {
 	motor[motorGoliath] = motorPower;
 }
 
-void setMini4BarMotorPower(short motorPower)
+void setMini4BarMotorPower(int motorPower)
 {
 	motor[motorMini4Bar] = motorPower;
 }
 
-void setMoGoLiftMotorPower(short motorPower)
+void setMoGoLiftMotorPower(int motorPower)
 {
 	motor[motorMoGoLiftLeft] = motorPower;
 	motor[motorMoGoLiftRight] = motorPower;
@@ -1196,7 +1196,7 @@ void waitUntilReady()
 }
 
 /* Perform timed action for given amount of time with individual motor powers */
-void actionTimed(Action action, int time, int leftMotorPower, int rightMotorPower)
+void actionTimed(Action action, short time, byte leftMotorPower, byte rightMotorPower)
 {
 	autonomousReady = false;
 
@@ -1229,7 +1229,7 @@ void actionTimed(Action action, int time, int motorPower)
 
 
 /* Perform action until sensor passes given value */
-void actionUntilAtGoalPoint(Action action, short goalPoint, int motorPower)
+void actionUntilAtGoalPoint(Action action, short goalPoint, byte motorPower)
 {
 	autonomousReady = false;
 
@@ -1274,7 +1274,7 @@ void actionUntilAtGoalPoint(Action action, short goalPoint, int motorPower)
 
 
 /* Perform action until sensor value is greater than given value with individual motor power */
-void actionUntilOverGoalPoint(Action action, short goalPoint, int leftMotorPower, int rightMotorPower)
+void actionUntilOverGoalPoint(Action action, short goalPoint, byte leftMotorPower, byte rightMotorPower)
 {
 	autonomousReady = false;
 
@@ -1314,14 +1314,14 @@ void actionUntilOverGoalPoint(Action action, short goalPoint, int leftMotorPower
 
 
 /* Perform action until sensor value is over given value with equal motor power */
-void actionUntilOverGoalPoint(char action, short goalPoint, int motorPower)
+void actionUntilOverGoalPoint(Action action, short goalPoint, byte motorPower)
 {
 	actionUntilOverGoalPoint(action, goalPoint, motorPower, motorPower);
 }
 
 
 /* Perform action until sensor value is less than given value with individual motor power */
-void actionUntilUnderGoalPoint(Action action, short goalPoint, int leftMotorPower, int rightMotorPower)
+void actionUntilUnderGoalPoint(Action action, short goalPoint, byte leftMotorPower, byte rightMotorPower)
 {
 	autonomousReady = false;
 
@@ -1360,7 +1360,7 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, int leftMotorPowe
 }
 
 /* Perform action until sensor value is less than given value with equal motor power */
-void actionUntilUnderGoalPoint(char action, short goalPoint, int motorPower)
+void actionUntilUnderGoalPoint(char action, short goalPoint, byte motorPower)
 {
 	actionUntilUnderGoalPoint(action, goalPoint, motorPower, motorPower);
 }
@@ -1380,8 +1380,8 @@ void drivePIDControl(short goalPoint)
 
 	goalPoint = SensorValue[encoderDriveRight] + goalPoint;
 
-	int error = goalPoint - SensorValue[encoderDriveRight];
-	int errorDifference = 0;
+	short error = goalPoint - SensorValue[encoderDriveRight];
+	short errorDifference = 0;
 	int newPower = 0;
 	int errorSum = 0;
 	int timeInitial = time1[T4];
@@ -1413,13 +1413,13 @@ void drivePIDControl(short goalPoint)
 }
 
 /* Drive for specified amount of time while maintaining direction */
-void gyroDrive(int power, int time, int deg)
+void gyroDrive(byte power, int time, short deg)
 {
 	autonomousReady = false;
 
 	deg *= 10;
 	float pGain = (500.0/1000.0);
-	int error = 0;
+	short error = 0;
 
 	clearTimer(T1);
 	while (time1[T1] < time)
@@ -1445,7 +1445,7 @@ void gyroDrive(int power, int time, int deg)
 
 
 /* Face a certain bearing */
-void gyroFace(int degrees)
+void gyroFace(short degrees)
 {
 	autonomousReady = false;
 
@@ -1453,8 +1453,8 @@ void gyroFace(int degrees)
 	degrees *= 10;
 	int undershoot = 160;
 	//degrees = (getGyroSensorValue() - degrees * 10) / 10;
-	int error = degrees - getGyroSensorValue();
-	int left = 0, right = 0;
+	short error = degrees - getGyroSensorValue();
+	byte left = 0, right = 0;
 	if (degrees < 0){left = -1; right = 1;}
 	else if (degrees > 0){left = 1; right = -1; }
 
@@ -1539,12 +1539,12 @@ void gyroPIDControl(short goalPoint)
 	goalPoint *= 10; // Convert degree format to gyro format
 	goalPoint = correctGyroGoalPoint(goalPoint);
 
-	int error = goalPoint - getGyroSensorValue();
+	short error = goalPoint - getGyroSensorValue();
 	int newPower = 0;
 	const int minPower = 0;
-	float errorSum = 0;
-	int errorDifference = 0;
-	const int errorMargin = 10;
+	int errorSum = 0;
+	short errorDifference = 0;
+	const ubyte errorMargin = 10;
 	int timeInitial = time1[T4];
 
 	while (time1[T4] - timeInitial < 150)
@@ -1578,7 +1578,7 @@ void gyroPIDControl(short goalPoint)
 }
 
 /* Rotate from current bearing */
-void gyroRotate(int deg)
+void gyroRotate(short deg)
 {
 	autonomousReady = false;
 	short goalPoint = (getGyroSensorValue() + deg * 10);
@@ -1601,8 +1601,8 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	goalPoint = correctArmGoalPoint(goalPoint);
 
 	int errorSum = 0;
-	int errorDifference = 0;
-	int error = goalPoint - getArmSensorValue();
+	short errorDifference = 0;
+	short error = goalPoint - getArmSensorValue();
 	int newPower = 0;
 
 	int timeInitial = time1[T4];
@@ -1639,7 +1639,7 @@ void mini4BarPIDControl(short goalPoint)
 	autonomousReady = false;
 	goalPoint = correctMini4BarGoalPoint(goalPoint);
 
-	int error = goalPoint - getMini4BarSensorValue();
+	short error = goalPoint - getMini4BarSensorValue();
 	int newPower = 0;
 
 	int timeInitial = time1[T4];
@@ -1684,8 +1684,8 @@ void moGoExtend()
 {
 	float dGain = 2.0;
 
-	int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
-	int errorDifference = 0;
+	short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+	short errorDifference = 0;
 
 	while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) )
 	{
@@ -1700,7 +1700,7 @@ void moGoExtend()
 
 
 /* Variables used by tasks */
-int tDrivePIDGoalPoint = 0;
+short tDrivePIDGoalPoint = 0;
 short tArmPIDGoalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE;
 short tGyroPIDGoalPoint = 0;
 StateExtension tMini4BarGoalState = STATE_EXTENSION_EXTENDED;
@@ -1800,7 +1800,7 @@ task tMacro()
 
 /* Procedures for starting autonomous tasks */
 
-void startTDrivePID(int goalPoint)
+void startTDrivePID(short goalPoint)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
@@ -1809,7 +1809,7 @@ void startTDrivePID(int goalPoint)
 	startTask(tDrivePIDControl);
 }
 
-void startTArmPID(int goalPoint, WaitForAction stopWhenMet)
+void startTArmPID(short goalPoint, WaitForAction stopWhenMet)
 {
 	stopTask(tArmPIDControl);
 	tArmPIDGoalPoint = goalPoint;
@@ -1819,7 +1819,7 @@ void startTArmPID(int goalPoint, WaitForAction stopWhenMet)
 }
 
 
-void startTGyroPID(int goalPoint)
+void startTGyroPID(short goalPoint)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
@@ -1828,7 +1828,7 @@ void startTGyroPID(int goalPoint)
 	startTask(tGyroPIDControl);
 }
 
-void startTGyroFace(int goalPoint)
+void startTGyroFace(short goalPoint)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
@@ -1929,7 +1929,7 @@ void stopAllTPID()
 }
 
 
-void goliathIntake(char power)
+void goliathIntake(byte power)
 {
 	autonomousReady = false;
 
@@ -2448,7 +2448,7 @@ void PIDMode()
 {
 	if ( (*selectedProgram).id == menuItemPIDDrive.id)
 	{
-		int goalPoint = 0;
+		short goalPoint = 0;
 		while (true)
 		{
 			goalPoint = (1 + random(15)) * 100;
@@ -2582,7 +2582,7 @@ int directions[] = {
 
 
 int motorPorts[] = { port1, port2, port3, port4, port5, port6, port7, port8, port9, port10 };
-int lastSensorValue, motorPointer;
+short lastSensorValue, motorPointer;
 task MiscellaneousTask();
 
 void nextMotor()
@@ -2704,8 +2704,8 @@ void MotorSelfCheck()
 		wait1Msec(10);
 		clearTimer(T1);
 
-		int newSensorValue;
-		int errorBounds;
+		short newSensorValue;
+		ubyte errorBounds;
 
 		if (SensorType[sensorToMotorPortMap[i]] == sensorPotentiometer) errorBounds = ERROR_BOUNDS_POTENTIOMETER;
 		else if (SensorType[sensorToMotorPortMap[i]] == sensorQuadEncoder) errorBounds = ERROR_BOUNDS_ENCODER;
@@ -2870,7 +2870,7 @@ StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
 
 
-int SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
+byte SlewRate(byte lastPower, byte newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
 {
 	int speedDifference = lastPower - newPower;
 	if (abs(speedDifference) < MAX_SPEED_DIFFERENCE)
@@ -2918,8 +2918,8 @@ task Arm()
 				while (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1) { }
 				int errorSum = 0;
 				short goalPoint = correctArmGoalPoint(ARM_POTENTIOMETER_HIGH_GOAL_VALUE);
-				int error = goalPoint - getArmSensorValue();
-				int errorDifference = 0;
+				byte error = goalPoint - getArmSensorValue();
+				byte errorDifference = 0;
 				int lastMotorPower = 0;
 				int newPower = 0;
 
@@ -3059,11 +3059,9 @@ short ConvertButtonToFlagBit(int btn)
 
 		case Btn8U:
 			return FLAG_BIT_BTN8U;
-			break;
 
 		case Btn8R:
 			return FLAG_BIT_BTN8R;
-			break;
 
 		case Ch1:
 			return FLAG_BIT_CH1;
@@ -3090,14 +3088,14 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 	goalPoint = correctMini4BarGoalPoint(goalPoint);
 
-	int error = goalPoint - getMini4BarSensorValue();
+	short error = goalPoint - getMini4BarSensorValue();
 	int errorSum = 0;
-	int errorDifference = 0;
+	short errorDifference = 0;
 
 	short oldFlag = getControllerStateFlag();
 	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE);
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || (stopWhenMet == WAIT_NONE) ) && isControllerStateButtonPressed(oldFlag, buttonMask)
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask)
 		&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
 	{
 		oldFlag = getControllerStateFlag();
@@ -3122,9 +3120,9 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 	goalPoint = correctArmGoalPoint(goalPoint);
 
-	int error = goalPoint - getArmSensorValue();
+	short error = goalPoint - getArmSensorValue();
 	int errorSum = 0;
-	int errorDifference = 0;
+	short errorDifference = 0;
 
 	short oldFlag = getControllerStateFlag();
 	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
@@ -3360,11 +3358,11 @@ task usercontrol()
 #define FLAG_BIT_ARM_READY_MACRO_ACTIVE			512
 #define FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE	1024
 
-int lastFlag;
+short lastFlag;
 
-int getCurrentFlag()
+short getCurrentFlag()
 {
-	int flag = 0;
+	short flag = 0;
 
 	if (motor[motorDriveLeftFront] > 0 && motor[motorDriveRightFront] < 0) flag += FLAG_BIT_GYRO_ACTIVE;
 	else if (motor[motorDriveLeftFront] < 0 && motor[motorDriveRightFront] > 0) flag += FLAG_BIT_GYRO_ACTIVE;
@@ -3387,12 +3385,12 @@ int getCurrentFlag()
 	return flag;
 }
 
-bool isFlagBitChangedToTrue(int flagBit)
+bool isFlagBitChangedToTrue(short flagBit)
 {
 	return ( !(lastFlag & flagBit) && (getCurrentFlag() & flagBit) );
 }
 
-bool isFlagBitChangedToFalse(int flagBit)
+bool isFlagBitChangedToFalse(short flagBit)
 {
 	return ( (lastFlag & flagBit) && !(getCurrentFlag() & flagBit) );
 }
@@ -3411,16 +3409,16 @@ task AutonRecorder()
 	Action actions[70];
 	char goalPoints[70];
 
-	for (int i = 0; i < 40; i++)
+	for (ubyte i = 0; i < 40; i++)
 	{
 		actions[i] = A_NONE;
 	}
 
-	char idx = 0;
+	ubyte idx = 0;
 
-	char lastDriveIdx = 0;
-	char lastArmIdx = 0;
-	char lastGyroIdx = 0;
+	ubyte lastDriveIdx = 0;
+	ubyte lastArmIdx = 0;
+	ubyte lastGyroIdx = 0;
 
 	bool isDriveDone = false;
 	bool isArmDone = false;
@@ -3431,7 +3429,7 @@ task AutonRecorder()
 	{
 		while (lastFlag == getCurrentFlag()) { }
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && actions[idx - 1] != A_DRIVE)
+		if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && idx != 0 && actions[idx - 1] != A_DRIVE)
 		{
 			actions[idx] = A_DRIVE;
 			lastDriveIdx = idx++;
@@ -3448,7 +3446,7 @@ task AutonRecorder()
 		}
 
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && actions[idx - 1] != A_GYRO)
+		if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && idx != 0 && actions[idx - 1] != A_GYRO)
 		{
 			actions[idx] = A_GYRO;
 			lastGyroIdx = idx++;
@@ -3463,7 +3461,7 @@ task AutonRecorder()
 		}
 
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && actions[idx - 1] != A_ARM)
+		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && idx != 0 && actions[idx - 1] != A_ARM)
 		{
 			actions[idx] = A_ARM;
 			lastArmIdx = idx++;
@@ -3517,10 +3515,14 @@ task AutonRecorder()
 		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_READY_MACRO_ACTIVE))
 		{
 			actions[idx++] = A_ARM_READY_MACRO;
+			isArmReadyMacroActive = true;
+			while (isArmReadyMacroActive) { }
 		}
 		else if (isFlagBitChangedToTrue(FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE))
 		{
 			actions[idx++] = A_MOGO_CARRY_CONE_MACRO;
+			isMoGoStackConeMacroActive = true;
+			while (isMoGoStackConeMacroActive) { }
 		}
 
 
@@ -3529,7 +3531,7 @@ task AutonRecorder()
 	}
 
 	string debugLine = "";
-	for (int i = 0; i < 40 && actions[i+1] != A_NONE; i++)
+	for (ubyte i = 0; i < 40 && actions[i+1] != A_NONE; i++)
 	{
 		if (actions[i] == A_DRIVE)
 		{
