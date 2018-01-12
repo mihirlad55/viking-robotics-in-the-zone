@@ -1360,7 +1360,7 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte leftMotorPow
 }
 
 /* Perform action until sensor value is less than given value with equal motor power */
-void actionUntilUnderGoalPoint(char action, short goalPoint, byte motorPower)
+void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 {
 	actionUntilUnderGoalPoint(action, goalPoint, motorPower, motorPower);
 }
@@ -1927,6 +1927,7 @@ void stopAllTPID()
 	stopTask(tMoGoLift);
 	stopTask(tMacro);
 }
+
 
 
 void goliathIntake(byte power)
@@ -2582,7 +2583,8 @@ int directions[] = {
 
 
 int motorPorts[] = { port1, port2, port3, port4, port5, port6, port7, port8, port9, port10 };
-short lastSensorValue, motorPointer;
+ubyte motorPointer;
+short lastSensorValue;
 task MiscellaneousTask();
 
 void nextMotor()
@@ -2870,7 +2872,7 @@ StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
 
 
-byte SlewRate(byte lastPower, byte newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
+byte SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
 {
 	int speedDifference = lastPower - newPower;
 	if (abs(speedDifference) < MAX_SPEED_DIFFERENCE)
@@ -2995,7 +2997,7 @@ task Drive()
 
 short getControllerStateFlag()
 {
-	short flag;
+	short flag = 0;
 
 	flag += (vexRT[Btn6U] == 1) ? FLAG_BIT_BTN6U : 0;
 	flag += (vexRT[Btn6D] == 1) ? FLAG_BIT_BTN6D : 0;
@@ -3080,6 +3082,7 @@ short ConvertButtonToFlagBit(int btn)
 	}
 }
 
+
 void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
 	float pGain = 0.09;
@@ -3096,7 +3099,8 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE);
 
 	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask)
-		&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
+		&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100
+&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getMini4BarSensorValue());
@@ -3407,7 +3411,7 @@ task AutonRecorder()
 	SensorValue[gyro] = 0;
 
 	Action actions[70];
-	char goalPoints[70];
+	byte goalPoints[70];
 
 	for (ubyte i = 0; i < 40; i++)
 	{
