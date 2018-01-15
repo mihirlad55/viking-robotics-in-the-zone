@@ -3134,7 +3134,7 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short oldFlag = getControllerStateFlag();
 	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
+	while ( ( (stopWhenMet == WAIT && abs(error) > 20) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getArmSensorValue());
