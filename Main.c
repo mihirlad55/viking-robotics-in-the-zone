@@ -60,10 +60,11 @@
 #define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
 #define BTN_MOGO_LIFT_RETRACT_MANUAL	Btn5D
 
-#define BTN_MINI_4_BAR_TOGGLE_AUTO		Btn6D
+#define BTN_MINI_4_BAR_HOLD_AUTO		Btn6D
 #define BTN_MINI_4_BAR_EXTEND_MANUAL	Btn8D
 #define BTN_MINI_4_BAR_RETRACT_MANUAL	Btn8R
-
+#define BTN_MINI_4_BAR_TOGGLE_ENABLE	Btn8D
+#define BTN_MINI_4_BAR_TOGGLE_AUTO		Btn6D
 
 #define BTN_READY_ARM_MACRO				Btn8U
 #define BTN_MOGO_STACK_MACRO			Btn8L
@@ -2864,6 +2865,7 @@ bool lockControls = IS_CONTROL_LOCK_ENABLED;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
+bool isToggleActive = false;
 StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
 StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
@@ -3093,11 +3095,14 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short errorDifference = 0;
 
 	short oldFlag = getControllerStateFlag();
-	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE);
+	ubyte initialButtonState = vexRT[BTN_MINI_4_BAR_HOLD_AUTO];
+	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_HOLD_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_ENABLE);
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask)
-		&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100
-&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
+	while ( ( (stopWhenMet == WAIT && abs(error) > 30) || stopWhenMet == WAIT_NONE )
+		&& ( (initialButtonState == vexRT[BTN_MINI_4_BAR_HOLD_AUTO] && !isToggleActive) || isToggleActive)
+	&& !isControllerStateButtonPressed(oldFlag, buttonMask)
+	&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100
+	&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100 && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getMini4BarSensorValue());
@@ -3199,6 +3204,7 @@ task Mini4Bar()
 			}
 			else if (vexRT[BTN_READY_ARM_MACRO] == 1)
 			{
+				while (vexRT[BTN_READY_ARM_MACRO] == 1) { }
 				isArmReadyMacroActive = true;
 				setArmMotorPower(127);
 				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 &&
@@ -3208,27 +3214,49 @@ task Mini4Bar()
 				if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
 				else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT);
 
-				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) &&  vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_READY_ARM_MACRO] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE ) setArmMotorPower(-60);
+				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) &&  vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE ) setArmMotorPower(-60);
 				setArmMotorPower(0);
 				isArmReadyMacroActive = false;
 			}
 
 			if (!areSensorsOverridden)
 			{
-				if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1)
+				if (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1)
 				{
-					while (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1) { }
-					stateMini4BarCurrent = ( (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) ? STATE_EXTENSION_EXTENDED : STATE_EXTENSION_RETRACTED );
+					isToggleActive = !isToggleActive;
+					while (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1) { }
 				}
 
-				if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
+				if (!isToggleActive)
 				{
-					userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+					if (vexRT[BTN_MINI_4_BAR_HOLD_AUTO] == 1)
+					{
+						stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
+						userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+					}
+					else
+					{
+						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED
+						if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
+						else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+					}
 				}
-				else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
+				else if (isToggleActive)
 				{
-					if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
-					else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+					if (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1)
+					{
+						stateMini4BarCurrent = (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED) ? STATE_EXTENSION_RETRACTED : STATE_EXTENSION_EXTENDED;
+						while (vexRT[BTN_MINI_4_BAR_TOGGLE_AUTO] == 1) { }
+					}
+					else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
+					{
+						if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
+						else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+					}
+					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
+					{
+						userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+					}
 				}
 			}
 			else if (areSensorsOverridden)
