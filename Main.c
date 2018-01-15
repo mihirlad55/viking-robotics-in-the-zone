@@ -3082,8 +3082,8 @@ short ConvertButtonToFlagBit(int btn)
 
 void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
-	float pGain = 0.09;
-	float iGain = 0.0002;
+	float pGain = 0.2;
+	float iGain = 0.0001;
 	float dGain = 4;
 
 	goalPoint = correctMini4BarGoalPoint(goalPoint);
