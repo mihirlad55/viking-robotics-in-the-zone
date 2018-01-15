@@ -3289,35 +3289,52 @@ task MoGoLift()
 		{
 			if (!areSensorsOverridden)
 			{
-				if (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1)
+				if (isToggleActive)
 				{
-					while (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1) { }
-					stateMoGoLiftCurrent = (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED) ? STATE_EXTENSION_EXTENDED : STATE_EXTENSION_RETRACTED;
-					numOfInternalCones = 0;
-				}
-
-				if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED)
-				{
-					while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
+					if (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1)
 					{
-						setMoGoLiftMotorPower(-127);
+						while (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1) { }
+						stateMoGoLiftCurrent = (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED) ? STATE_EXTENSION_EXTENDED : STATE_EXTENSION_RETRACTED;
+						numOfInternalCones = 0;
 					}
-					setMoGoLiftMotorPower(0);
-				}
-				else if (stateMoGoLiftCurrent == STATE_EXTENSION_EXTENDED)
-				{
-					float dGain = 2.0;
 
-					short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
-					short errorDifference = 0;
-
-					while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && !areSensorsOverridden && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0)
+					if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED)
 					{
-						errorDifference = error - ( correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
-						error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
-						setMoGoLiftMotorPower(50 - dGain * abs(errorDifference) );
+						while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE + 100) && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] != 1)
+						{
+							setMoGoLiftMotorPower(-127);
+						}
+						setMoGoLiftMotorPower(0);
 					}
-					setMoGoLiftMotorPower(0);
+					else if (stateMoGoLiftCurrent == STATE_EXTENSION_EXTENDED)
+					{
+						float dGain = 2.0;
+
+						short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+						short errorDifference = 0;
+
+
+						while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - 100 && !areSensorsOverridden && vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0)
+						{
+							errorDifference = error - ( correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
+							error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+							setMoGoLiftMotorPower(50 - dGain * abs(errorDifference) );
+						}
+						setMoGoLiftMotorPower(0);
+					}
+				}
+				else if (!isToggleActive)
+				{
+					if (vexRT[BTN_MOGO_LIFT_EXTEND_MANUAL] == 1)
+					{
+						while (vexRT[BTN_MOGO_LIFT_EXTEND_MANUAL] == 1) setMoGoLiftMotorPower(127);
+						setMoGoLiftMotorPower(0);
+					}
+					else if (vexRT[BTN_MOGO_LIFT_RETRACT_MANUAL] == 1)
+					{
+						while (vexRT[BTN_MOGO_LIFT_RETRACT_MANUAL] == 1) setMoGoLiftMotorPower(-127);
+						setMoGoLiftMotorPower(0);
+					}
 				}
 			}
 			else if (areSensorsOverridden)
