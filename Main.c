@@ -3117,11 +3117,12 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	setMini4BarMotorPower(0);
 }
 
-float pGain = 0.09;
+
 void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
 
-	float iGain = 0.0002;
+	float pGain = 0.2;
+	float iGain = 0.0001;
 	float dGain = 4;
 
 	goalPoint = correctArmGoalPoint(goalPoint);
