@@ -98,11 +98,11 @@
 #define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
 #define IS_ARM_ENABLED								true
-#define ARM_POTENTIOMETER_MIN_VALUE					1150
-#define ARM_POTENTIOMETER_MAX_VALUE					2782
-#define ARM_POTENTIOMETER_HIGH_GOAL_VALUE			1750
-#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 		1100
-#define ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE	200
+#define ARM_POTENTIOMETER_MIN_VALUE					1250
+#define ARM_POTENTIOMETER_MAX_VALUE					2882
+#define ARM_POTENTIOMETER_HIGH_GOAL_VALUE			1850
+#define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE 		1280
+#define ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE	300
 #define ARM_POTENTIOMETER_CONE_MULTIPLIER			0.2
 #define ARM_POTENTIOMETER_OFFSET					0
 #define ARM_POTENTIOMETER_MULTIPLIER 				1
@@ -3134,7 +3134,7 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short oldFlag = getControllerStateFlag();
 	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 20) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
+	while ( ( (stopWhenMet == WAIT && abs(error) > 40) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getArmSensorValue());
