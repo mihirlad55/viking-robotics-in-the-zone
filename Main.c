@@ -1551,14 +1551,21 @@ void gyroPIDControl(short goalPoint)
 		error = goalPoint  - getGyroSensorValue();
 		errorSum += error / 10.0;
 
+		if (errorDifference > 20) errorSum = 0;
+
 		if (abs(error) < 19) errorSum = 0;
-		if (abs(error) > 20) timeInitial = time1[T4];
+		if (abs(error) >= 19) timeInitial = time1[T4];
 
 		/* Prevent wind-up. Set maximum integral gain to 127 power. */
 		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		if (abs(error) < 19) newPower = 0;
+		else
+		{
+			if (errorDifference > 20) newPower = error * pGain;
+			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		}
 
 		/* Set motor power to minimum required to move if lower than minimum */
 		//if (newPower > -minPower && error < 0) newPower = -minPower;
