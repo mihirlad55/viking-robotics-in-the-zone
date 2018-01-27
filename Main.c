@@ -729,7 +729,7 @@ void displayProgram()
 		displayLCDCenteredString(1, LCDAction); //display possible action
 	}
 
-	if (currentMenu[LCDScreen].id != menuItemResetGyro.id && currentMenu[LCDScreen].id != menuItemCurrentProgram.id)
+	if (currentMenu[LCDScreen].id != menuItemResetGyro.id && currentMenu[LCDScreen].id != menuItemCurrentProgram.id && currentMenu[LCDScreen].id != menuItemBatteryLevel.id)
 	{
 		displayLCDString(1, 0, "<");
 		displayLCDString(1, 15, ">");
