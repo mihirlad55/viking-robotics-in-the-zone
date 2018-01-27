@@ -562,7 +562,6 @@ task loadLCDScreen();
 task usercontrol();
 task MiscellaneousTask();
 
-int LCDSelectionScreenTimeoutMs;
 MenuItem *selectedProgram;
 ubyte LCDScreenMin = menuItemGoToAuton.idx; //minimum index for Screen List
 ubyte LCDScreenMax = menuItemBatteryLevel.idx; //maximum index for Screen List
@@ -614,28 +613,9 @@ float getRadAngleFromTanRatio(float y, float x)
 
 void waitForLCDButtonPress()
 {
-	LCDActiveTime = 0;
-
-	if (selectedProgram == NULL || !isTaskActive()) //if the robot has just started up
+	while (nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0  && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE) ))
 	{
-		//while neither of these buttons are pressed, keep waiting
-		while ( nLCDButtons == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0 && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE )
-		{
-			wait1Msec(10);
-			LCDActiveTime++;
-
-			if (LCDActiveTime > LCDSelectionScreenTimeoutMs / 10)
-			{
-				break;
-			}
-		}
-	}
-	else
-	{
-		while (nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0  && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE) ))
-		{
-			wait1Msec(10);
-		}
+		wait1Msec(10);
 	}
 
 	if (abs(vexRT[JOY_LCD_X]) > LCD_JOYSTICK_DEADZONE || abs(vexRT[JOY_LCD_Y]) > LCD_JOYSTICK_DEADZONE)
