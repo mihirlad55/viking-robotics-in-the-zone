@@ -1617,41 +1617,40 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 
 
-void mini4BarPIDControl(short goalPoint)
+void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
-	float pGain = (2.8/10.0);
+	float pGain = 0.2;
+	float iGain = 0.0001;
+	float dGain = 4;
 
-	autonomousReady = false;
 	goalPoint = correctMini4BarGoalPoint(goalPoint);
 
 	short error = goalPoint - getMini4BarSensorValue();
-	int newPower = 0;
+	int errorSum = 0;
+	short errorDifference = 0;
 
-	int timeInitial = time1[T4];
 
-	while (time1[T4] - timeInitial < 100)
+	while (abs(error) > 30 || stopWhenMet == WAIT_NONE )
 	{
+		errorDifference = error - (goalPoint - getMini4BarSensorValue());
 		error = goalPoint - getMini4BarSensorValue();
+		errorSum += error;
 
-		if (abs(error) >= 50) timeInitial = time1[T4];
+		if (abs(error) < 30) errorSum = 0;
 
-		newPower = error * pGain;
-
-		setArmMotorPower(newPower);
-		wait1Msec(15);
+		setMini4BarMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+		wait1Msec(1);
 	}
-
-	autonomousReady = true;
 }
 
 void mini4BarRetract()
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE);
+	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
 }
 
 void mini4BarExtend()
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE);
+	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
 }
 
 
@@ -1688,7 +1687,7 @@ void moGoExtend()
 short tDrivePIDGoalPoint = 0;
 short tArmPIDGoalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE;
 short tGyroPIDGoalPoint = 0;
-StateExtension tMini4BarGoalState = STATE_EXTENSION_EXTENDED;
+short tMini4BarGoalPoint = MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE;
 StateExtension tMoGoLiftGoalState = STATE_EXTENSION_EXTENDED;
 Macro tMacroGoalPoint;
 
@@ -1697,6 +1696,7 @@ void MacroMoGoStackCone();
 
 /*  */
 WaitForAction waitForTArmPID = WAIT;
+WaitForAction waitForTMini4BarPID = WAIT;
 
 /* Status of Autonomous Tasks */
 bool isTDriveReady = true;
@@ -1756,8 +1756,7 @@ task tMini4Bar()
 {
 	isTMini4BarReady = false;
 
-	if (tMini4BarGoalState == STATE_EXTENSION_EXTENDED) mini4BarExtend();
-	else if (tMini4BarGoalState == STATE_EXTENSION_RETRACTED) mini4BarRetract();
+	mini4BarPIDControl(tMini4BarGoalPoint, waitForTMini4BarPID);
 
 	isTMini4BarReady = true;
 }
@@ -1822,10 +1821,11 @@ void startTGyroFace(short goalPoint)
 	startTask(tGyroFace);
 }
 
-void startTMini4Bar(StateExtension GoalState)
+void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet)
 {
 	stopTask(tMini4Bar);
-	tMini4BarGoalState = GoalState;
+	tMini4BarGoalPoint = goalPoint;
+	waitForTMini4BarPID = stopWhenMet;
 	startTask(tMini4Bar);
 }
 
@@ -1921,7 +1921,7 @@ void goliathIntake(byte power)
 
 	stopTask(tMini4Bar);
 	stopTask(tArmPIDControl);
-	startTMini4Bar(STATE_EXTENSION_EXTENDED);
+	startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT_NONE);
 	while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE + 200) ) { }
 	startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT);
 	setGoliathMotorPower(power);
@@ -1945,7 +1945,7 @@ void MacroArmReady()
 	setArmMotorPower(127);
 	while (getArmSensorValue() < ( (numOfInternalCones > 4) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : ARM_POTENTIOMETER_MIN_VALUE + 300 ) ) { }
 	setArmMotorPower(0);
-	startTMini4Bar(STATE_EXTENSION_EXTENDED);
+	startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT);
 	waitForTMini4Bar();
 
 	startTArmPID(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE, WAIT_NONE);
@@ -1960,7 +1960,7 @@ void MacroMoGoStackCone()
 	wait1Msec(500);
 	startTArmPID( (numOfInternalCones > 4) ? ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200 : ARM_POTENTIOMETER_MIN_VALUE + 100, WAIT);
 	waitForTArm();
-	startTMini4Bar(STATE_EXTENSION_RETRACTED);
+	startTMini4Bar(STATE_EXTENSION_RETRACTED, WAIT);
 	waitForTMini4Bar();
 
 	if (numOfInternalCones > 4) startTArmPID(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
