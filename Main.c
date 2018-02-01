@@ -1625,7 +1625,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
-	float pGain = 0.2;
+	float pGain = 0.3;
 	float iGain = 0.0001;
 	float dGain = 4;
 
@@ -1634,19 +1634,24 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short error = goalPoint - getMini4BarSensorValue();
 	int errorSum = 0;
 	short errorDifference = 0;
+	int timeInitial = time1[T4];
 
-
-	while (abs(error) > 30 || stopWhenMet == WAIT_NONE )
+	while (time1[T4] - timeInitial < 150 || stopWhenMet == WAIT_NONE )
 	{
 		errorDifference = error - (goalPoint - getMini4BarSensorValue());
 		error = goalPoint - getMini4BarSensorValue();
 		errorSum += error;
 
-		if (abs(error) < 30) errorSum = 0;
+		if (abs(error) > 50) timeInitial = time1[T4];
+
+		if (abs(error) <= 50 && goalPoint > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE + 200) ) errorSum = -25.0 / iGain;
+		else if (abs(error) <= 50) errorSum = 0;
 
 		setMini4BarMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
 		wait1Msec(1);
 	}
+	setMini4BarMotorPower(-20);
+}
 
 void mini4BarRetract(WaitForAction stopWhenMet)
 {
