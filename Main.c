@@ -3126,10 +3126,9 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 {
-
-	float pGain = 0.2;
-	float iGain = 0.0001;
-	float dGain = 4;
+	float pGain = 0.07;
+	float iGain = 0.0002;
+	float dGain = 0.1;
 
 	goalPoint = correctArmGoalPoint(goalPoint);
 
@@ -3138,20 +3137,28 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short errorDifference = 0;
 
 	short oldFlag = getControllerStateFlag();
+	int timeInitial = time1[T1];
 	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
 
-	while ( ( (stopWhenMet == WAIT && abs(error) > 40) || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
+	while ( ( (stopWhenMet == WAIT && time1[T1] - timeInitial < 150 || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getArmSensorValue());
 		error = goalPoint - getArmSensorValue();
 		errorSum += error;
 
-		if (abs(error) < 30) errorSum = 0;
+		if (error > 0 && error < 30) errorSum = 20.0 / iGain;
+		else if (error < 0 && error > -30) errorSum = 0;
 
-		setArmMotorPower(error * pGain);
+		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
+		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
+
+		if (abs(error) > 40) timeInitial = time1[T1];
+		setArmMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+
 		wait1Msec(1);
 	}
+	setArmMotorPower(20);
 }
 
 
