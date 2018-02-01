@@ -373,7 +373,7 @@ void populateMenuItems() {
 
 	menuItemPIDMoGoLift.name = "MoGo Lift";
 	menuItemPIDMoGoLift.id = ++id;
-	menuItemPIDMoGoLift.idx = i;
+	menuItemPIDMoGoLift.idx = ++i;
 	menuItemPIDMoGoLift.LCDAction = "Start";
 	menuItemPIDMoGoLift.isDirectional = false;
 	menuListPID[i] = &menuItemPIDMoGoLift;
