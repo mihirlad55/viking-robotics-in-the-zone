@@ -2904,9 +2904,9 @@ task Arm()
 		if (!lockControls && !isJoystickLCDMode())
 		{
 			/* Allow joystick control of arm if less than upper limit of sensors are overriden */
-			if (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE)
+			if (!isMoGoStackConeMacroActive && !isArmReadyMacroActive && (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE))
 			{
-				while (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE)
+				while (!isMoGoStackConeMacroActive && !isArmReadyMacroActive && (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE))
 				{
 					SetArmLimit();
 					setArmMotorPower(vexRT[JOY_ARM]);
@@ -3160,7 +3160,7 @@ task Goliath()
 {
 	while (true)
 	{
-		if (!lockControls && !isJoystickLCDMode())
+		if (!lockControls && !isJoystickLCDMode() && !isMoGoStackConeMacroActive && !isArmReadyMacroActive)
 		{
 			if (vexRT[BTN_SENSOR_OVERRIDE] == 1) setGoliathMotorPower(0);
 			else if (vexRT[BTN_GOLIATH_REVERSE] == 1)
