@@ -1531,7 +1531,7 @@ void gyroPIDControl(short goalPoint)
 		error = goalPoint  - getGyroSensorValue();
 		errorSum += error / 10.0;
 
-		if (errorDifference > 20) errorSum = 0;
+		if (abs(errorDifference) > 20) errorSum = 0;
 
 		if (abs(error) < 19) errorSum = 0;
 		if (abs(error) >= 19) timeInitial = time1[T4];
@@ -1543,7 +1543,7 @@ void gyroPIDControl(short goalPoint)
 		if (abs(error) < 19) newPower = 0;
 		else
 		{
-			if (errorDifference > 20) newPower = error * pGain;
+			if (abs(errorDifference) > 20) newPower = error * pGain;
 			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 		}
 
