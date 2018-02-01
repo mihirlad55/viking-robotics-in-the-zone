@@ -3202,30 +3202,39 @@ task Mini4Bar()
 			else if (vexRT[BTN_MOGO_STACK_MACRO] == 1)
 			{
 				isMoGoStackConeMacroActive = true;
+				startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100)) setArmMotorPower(-60);
 				setArmMotorPower(-30);
 				setGoliathMotorPower(50);
-				wait1Msec(500);
-				userArmPIDControl( (numOfInternalCones > 4) ? ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200 : ARM_POTENTIOMETER_MIN_VALUE + 100, WAIT);
+
+				wait1Msec(1000);
+				stopTask(tMini4Bar);
+				startTMini4Bar(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
+				if (numOfInternalCones >= 2) userArmPIDControl(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
+				stopTask(tMini4Bar);
 				stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT);
 
-				if (numOfInternalCones > 4) userArmPIDControl(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
+				if (numOfInternalCones >= 2) userArmPIDControl(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
 
 				setGoliathMotorPower(-50);
 				wait1Msec(800);
 				setGoliathMotorPower(50);
+				numOfInternalCones++;
 				isMoGoStackConeMacroActive = false;
 			}
 			else if (vexRT[BTN_READY_ARM_MACRO] == 1)
 			{
 				while (vexRT[BTN_READY_ARM_MACRO] == 1) { }
 				isArmReadyMacroActive = true;
+				stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
+				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
 				setArmMotorPower(127);
 				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 &&
-					getArmSensorValue() < ( (numOfInternalCones > 4) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : correctArmGoalPoint(ARM_POTENTIOMETER_MIN_VALUE + 300) ) ) { }
+					getArmSensorValue() < ( (numOfInternalCones >= 2) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : correctArmGoalPoint(ARM_POTENTIOMETER_MIN_VALUE + 300) ) ) { }
 				setArmMotorPower(0);
 				stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
-				if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
+				if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
 				else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT);
 
 				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) &&  vexRT[BTN_SENSOR_OVERRIDE] == 0 && vexRT[BTN_MOGO_STACK_MACRO] == 0 && abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE ) setArmMotorPower(-60);
