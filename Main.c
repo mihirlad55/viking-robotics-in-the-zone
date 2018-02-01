@@ -54,7 +54,7 @@
 
 #define BTN_GOLIATH_REVERSE				Btn6U
 
-#define BTN_ARM_HIGH_GOAL_PID     		Btn8L
+#define BTN_ARM_HIGH_GOAL_PID     		Btn7D
 
 #define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn5U
 #define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
