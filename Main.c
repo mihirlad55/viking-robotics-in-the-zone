@@ -1349,35 +1349,41 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 
 void drivePIDControl(short goalPoint)
 {
-
-	float pGain = (8.0/10.0);
-	float iGain = (10.0/1000.0);
-	float dGain = (3.0/1.0);
+	float pGain = (0.55);
+	float iGain = (0.01);
+	float dGain = (2.5);
 
 	autonomousReady = false;
 
-	goalPoint = SensorValue[encoderDriveRight] + goalPoint;
+	goalPoint = getDriveLeftSensorValue() + correctDriveLeftGoalPoint(goalPoint);
 
-	short error = goalPoint - SensorValue[encoderDriveRight];
+	short error = goalPoint - getDriveLeftSensorValue();
 	short errorDifference = 0;
 	int newPower = 0;
 	int errorSum = 0;
 	int timeInitial = time1[T4];
 
-	while (time1[T4] - timeInitial < 200)
+	while (time1[T4] - timeInitial < 150)
 	{
-		errorDifference = error - (goalPoint - SensorValue[encoderDriveRight]);
-		error = goalPoint - SensorValue[encoderDriveRight];
+		errorDifference = error - (goalPoint - getDriveLeftSensorValue());
+		error = goalPoint - getDriveLeftSensorValue();
 		errorSum += error;
 
+		if (abs(errorDifference) > 9) errorSum = 0;
+
 		if (abs(error) < 15) errorSum = 0;
-		else timeInitial = time1[T4];
+		if (abs(error) >= 15) timeInitial = time1[T4];
 
-		/* Prevent wind-up. Set max integral gain to full power */
-		if (errorSum * iGain > 127) errorSum = 127.0 / iGain;
-		else if (errorSum * iGain < -127) errorSum = -127.0 / iGain;
+		/* Prevent wind-up. Set maximum integral gain to 127 power. */
+		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
+		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		if (abs(error) < 15) newPower = 0;
+		else
+		{
+			if (abs(errorDifference) > 9) newPower = error * pGain;
+			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		}
 
 		/* If power is too low, set minimum power required to move motor */
 		//if (newPower > -minPower && error < 0) newPower = -minPower;
