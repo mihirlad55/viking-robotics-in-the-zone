@@ -3814,6 +3814,8 @@ void stopTasks()
 	stopTask(Arm);
 	stopTask(Drive);
 	stopTask(Goliath);
+	stopTask(Mini4Bar);
+	stopTask(MoGoLift);
 	stopTask(usercontrol);
 	stopTask(tDrivePIDControl);
 	stopTask(tArmPIDControl);
