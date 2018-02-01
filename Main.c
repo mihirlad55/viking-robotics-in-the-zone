@@ -207,7 +207,7 @@ void populateMenuItems() {
 	menuItemPIDMode.name = "PID Mode";
 	menuItemPIDMode.id = ++id;
 	menuItemPIDMode.idx = ++i;
-	menuItemPIDMode.LCDAction = "Start";
+	menuItemPIDMode.LCDAction = "Select";
 	menuListMain[i] = &menuItemPIDMode;
 
 	menuItemMotorCheck.name = "Motor Check";
