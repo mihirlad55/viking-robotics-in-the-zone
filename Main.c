@@ -1647,16 +1647,20 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 		setMini4BarMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
 		wait1Msec(1);
 	}
+
+void mini4BarRetract(WaitForAction stopWhenMet)
+{
+	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet);
 }
 
-void mini4BarRetract()
+void mini4BarExtend(WaitForAction stopWhenMet)
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, stopWhenMet);
 }
 
-void mini4BarExtend()
+void mini4BarParallel(WaitForAction stopWhenMet)
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, stopWhenMet);
 }
 
 
@@ -2492,12 +2496,14 @@ void PIDMode()
 		while (true)
 		{
 			SensorValue[LED] = 1;
-			mini4BarExtend();
+			mini4BarExtend(WAIT);
+			waitForTMini4Bar();
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			mini4BarRetract();
+			mini4BarRetract(WAIT);
+			waitForTMini4Bar();
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 		}
