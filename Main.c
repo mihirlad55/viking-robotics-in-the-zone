@@ -2424,17 +2424,19 @@ task autonomous()
 
 
 
-
 /*---------------------------------------------------------------------------*/
 /*							PID Mode Task									 */
 /*---------------------------------------------------------------------------*/
 
+void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet);
 
+short goalPoint;
 void PIDMode()
 {
+	goalPoint;
 	if ( (*selectedProgram).id == menuItemPIDDrive.id)
 	{
-		short goalPoint = 0;
+		goalPoint = 0;
 		while (true)
 		{
 			goalPoint = (1 + random(15)) * 100;
@@ -2453,8 +2455,10 @@ void PIDMode()
 	{
 		while (true)
 		{
+			goalPoint = (-35 + random(70)) * 10;
+			displayLCDCenteredString(0, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			gyroPIDControl( (-36 + random(72)) * 100);
+			gyroPIDControl(goalPoint);
 			SensorValue[LED] = 0;
 			wait1Msec(1500);
 		}
@@ -2509,7 +2513,22 @@ void PIDMode()
 	}
 	else if ( (*selectedProgram).id == menuItemPIDCustom.id)
 	{
+		while (true)
+		{
+			SensorValue[LED] = 1;
+			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
 
+			SensorValue[LED] = 1;
+			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			while (getArmSensorValue() > ARM_POTENTIOMETER_MIN_VALUE + 100) { setArmMotorPower(-60); }
+			setArmMotorPower(0);
+			wait1Msec(1000);
+		}
 	}
 }
 
