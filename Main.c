@@ -1348,12 +1348,11 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 
 
 
-
 void drivePIDControl(short goalPoint)
 {
-	float pGain = (0.7);
-	float iGain = (0.001);
-	float dGain = (0.5);
+	float pGain = (0.55);
+	float iGain = (0.01);
+	float dGain = (2.5);
 
 	autonomousReady = false;
 
@@ -1371,6 +1370,8 @@ void drivePIDControl(short goalPoint)
 		error = goalPoint - getDriveLeftSensorValue();
 		errorSum += error;
 
+		if (abs(errorDifference) > 9) errorSum = 0;
+
 		if (abs(error) < 15) errorSum = 0;
 		if (abs(error) >= 15) timeInitial = time1[T4];
 
@@ -1378,11 +1379,19 @@ void drivePIDControl(short goalPoint)
 		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		if (abs(error) < 15) newPower = 0;
+		else
+		{
+			if (abs(errorDifference) > 9) newPower = error * pGain;
+			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		}
 
+		/* If power is too low, set minimum power required to move motor */
+		//if (newPower > -minPower && error < 0) newPower = -minPower;
+		//else if (newPower < minPower && error > 0) newPower = minPower;
 		setDriveMotorPower(newPower, newPower);
 
-		wait1Msec(10);
+		wait1Msec(15);
 	}
 	setDriveMotorPower(0,0);
 	autonomousReady = true;
