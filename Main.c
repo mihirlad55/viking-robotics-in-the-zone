@@ -2029,6 +2029,10 @@ task autonomous()
 	}
 	if ( (*selectedProgram).id == menuItemAuton20P.id)
 	{
+		setMini4BarMotorPower(-20);
+		setArmMotorPower(-20);
+		wait1Msec(300);
+
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
 
@@ -2065,16 +2069,15 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
 		waitForTGyroPID();
 
+		moGoHalfway();
+		wait1Msec(200);
+
 		actionTimed(A_DRIVE, 1200, 127);
 		setDriveMotorPower(0);
-
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		waitForTMoGoLift();
 
 		setDriveMotorPower(-127);
 		wait1Msec(300);
 
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		startTDrivePID(-373);
 
 	}
