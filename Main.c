@@ -2616,6 +2616,7 @@ task MiscellaneousTask()
 
 
 bool lockControls = IS_CONTROL_LOCK_ENABLED;
+bool isAutonRecorderEnabled = false;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
@@ -2712,21 +2713,32 @@ task Drive()
 
 	while (true)
 	{
-		if (!lockControls && !isJoystickLCDMode())
+		if (!isAutonRecorderEnabled)
 		{
-			/* Drive if joystick is greater than deadzone */
-			if (abs(vexRT[JOY_DRIVE_X]) > DRIVE_JOYSTICK_DEADZONE || abs(vexRT[JOY_DRIVE_Y]) > DRIVE_JOYSTICK_DEADZONE)
+			if (!lockControls && !isJoystickLCDMode())
 			{
-				x = vexRT[Ch2];
-				y = vexRT[Ch1];
-				axisY = a * pow(vexRT[Ch2] - (h * (vexRT[Ch2] / (-abs(vexRT[Ch2] + 0.1)))), 3) + (20 * (vexRT[Ch2] / (abs(vexRT[Ch2] + 0.1))));
-				axisX = ax * pow(vexRT[Ch1] - (2 * (vexRT[Ch1] / (-abs(vexRT[Ch1] + 0.1)))), 3) + (20 * (vexRT[Ch1] / (abs(vexRT[Ch1] + 0.1))));
+				/* Drive if joystick is greater than deadzone */
+				if (abs(vexRT[JOY_DRIVE_X]) > DRIVE_JOYSTICK_DEADZONE || abs(vexRT[JOY_DRIVE_Y]) > DRIVE_JOYSTICK_DEADZONE)
+				{
+					x = vexRT[Ch2];
+					y = vexRT[Ch1];
+					axisY = a * pow(vexRT[Ch2] - (h * (vexRT[Ch2] / (-abs(vexRT[Ch2] + 0.1)))), 3) + (20 * (vexRT[Ch2] / (abs(vexRT[Ch2] + 0.1))));
+					axisX = ax * pow(vexRT[Ch1] - (2 * (vexRT[Ch1] / (-abs(vexRT[Ch1] + 0.1)))), 3) + (20 * (vexRT[Ch1] / (abs(vexRT[Ch1] + 0.1))));
 
-				setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], axisY + axisX), SlewRate(motor[motorDriveRightFront], axisY - axisX) );
+					setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], axisY + axisX), SlewRate(motor[motorDriveRightFront], axisY - axisX) );
+				}
+				else setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], 0), SlewRate(motor[motorDriveRightFront], 0) );
 			}
-			else setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], 0), SlewRate(motor[motorDriveRightFront], 0) );
+			wait1Msec(25);
 		}
-		wait1Msec(25);
+		else if (isAutonRecorderEnabled)
+		{
+			if (vexRT[Ch2] > 50) setDriveMotorPower(70);
+			else if (vexRT[Ch2] < -50) setDriveMotorPower(-70);
+			else if (vexRT[Ch1] > 50) setDriveMotorPower(70, -70);
+			else if (vexRT[Ch1] < -50) setDriveMotorPower(-70, 70);
+			else setDriveMotorPower(0);
+		}
 	}
 }
 
@@ -3176,6 +3188,7 @@ task usercontrol()
 #define FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE	1024
 
 short lastFlag;
+short currentFlag;
 
 short getCurrentFlag()
 {
@@ -3204,29 +3217,34 @@ short getCurrentFlag()
 
 bool isFlagBitChangedToTrue(short flagBit)
 {
-	return ( !(lastFlag & flagBit) && (getCurrentFlag() & flagBit) );
+	return ( !(lastFlag & flagBit) && (currentFlag & flagBit) );
 }
 
 bool isFlagBitChangedToFalse(short flagBit)
 {
-	return ( (lastFlag & flagBit) && !(getCurrentFlag() & flagBit) );
+	return ( (lastFlag & flagBit) && !(currentFlag & flagBit) );
 }
 
-
+	Action actions[70];
 
 task AutonRecorder()
 {
+	startTask(usercontrol);
+	isAutonRecorderEnabled = true;
+
 	numOfInternalCones = 0;
 
 	lastFlag = getCurrentFlag();
+	currentFlag = getCurrentFlag();
+
 	SensorValue[encoderDriveLeft] = 0;
 	SensorValue[encoderDriveRight] = 0;
 	SensorValue[gyro] = 0;
 
-	Action actions[70];
-	byte goalPoints[70];
 
-	for (ubyte i = 0; i < 40; i++)
+	short goalPoints[70];
+
+	for (ubyte i = 0; i < 70; i++)
 	{
 		actions[i] = A_NONE;
 	}
@@ -3244,51 +3262,54 @@ task AutonRecorder()
 
 	while (vexRT[BTN_STOP_AUTON_RECORDER] == 0)
 	{
-		while (lastFlag == getCurrentFlag()) { }
+		while (lastFlag == currentFlag && vexRT[BTN_STOP_AUTON_RECORDER] == 0) { currentFlag = getCurrentFlag(); }
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && idx != 0 && actions[idx - 1] != A_DRIVE)
-		{
-			actions[idx] = A_DRIVE;
-			lastDriveIdx = idx++;
-		}
-		else if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE)) isDriveDone = false;
+
+		if (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && idx != 0 && actions[idx - 1] == A_DRIVE ) isDriveDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE)) isDriveDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_DRIVE_ACTIVE) && isDriveDone)
 		{
 			goalPoints[lastDriveIdx] = SensorValue[encoderDriveLeft];
-			actions[idx++] = A_DRIVE_WAIT;
+			if (actions[idx - 1] != A_DRIVE) {
+				Action tempAction = actions[idx - 1];
+				actions[idx - 1] = A_DRIVE_WAIT;
+				actions[idx++] = tempAction;
+			}
+			else actions[idx++] = A_DRIVE_WAIT;
 			SensorValue[encoderDriveLeft] = 0;
 			SensorValue[encoderDriveRight] = 0;
 			isDriveDone = false;
 		}
 
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && idx != 0 && actions[idx - 1] != A_GYRO)
-		{
-			actions[idx] = A_GYRO;
-			lastGyroIdx = idx++;
-		}
-		else if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = false;
+		if (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && idx != 0 && actions[idx - 1] == A_GYRO ) isGyroDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE) && isGyroDone)
 		{
 			goalPoints[lastGyroIdx] = SensorValue[gyro];
-			actions[idx++] = A_GYRO_WAIT;
+			if (actions[idx - 1] != A_GYRO)
+			{
+				Action tempAction = actions[idx - 1];
+				actions[idx - 1] = A_GYRO_WAIT;
+				actions[idx++] = tempAction;
+			}
+			else actions[idx++] = A_GYRO_WAIT;
 			isGyroDone = false;
 		}
 
 
-		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && idx != 0 && actions[idx - 1] != A_ARM)
-		{
-			actions[idx] = A_ARM;
-			lastArmIdx = idx++;
-		}
-		else if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE)) isArmDone = false;
+		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && idx != 0 && actions[idx - 1] == A_ARM) isArmDone = false;
 		else if (isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE)) isArmDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_ARM_ACTIVE) && isArmDone)
 		{
 			goalPoints[lastArmIdx] = SensorValue[potentiometerArm];
-			actions[idx++] = A_ARM_WAIT;
+			if (actions[idx - 1] != A_ARM)
+			{
+				Action tempAction = actions[idx - 1];
+				actions[idx - 1] = A_ARM_WAIT;
+				actions[idx++] = tempAction;
+			}
+			else actions[idx++] = A_ARM_WAIT;
 			isArmDone = false;
 		}
 
@@ -3343,72 +3364,107 @@ task AutonRecorder()
 		}
 
 
-		lastFlag = getCurrentFlag();
+		if ((isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && idx != 0 && actions[idx - 1] != A_DRIVE) || (isFlagBitChangedToTrue(FLAG_BIT_DRIVE_ACTIVE) && idx == 0))
+		{
+			actions[idx] = A_DRIVE;
+			SensorValue[encoderDriveLeft] = 0;
+			SensorValue[encoderDriveRight] = 0;
+			lastDriveIdx = idx++;
+		}
+		else if ( (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && idx != 0 && actions[idx - 1] != A_GYRO) || (isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && idx == 0) )
+		{
+			actions[idx] = A_GYRO;
+			lastGyroIdx = idx++;
+		}
+
+
+		if ( (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && idx != 0 && actions[idx - 1] != A_ARM) || (isFlagBitChangedToTrue(FLAG_BIT_ARM_ACTIVE) && idx == 0) )
+		{
+			actions[idx] = A_ARM;
+			lastArmIdx = idx++;
+		}
+
+
+		lastFlag = currentFlag;
 
 	}
 
-	string debugLine = "";
+	string debugLine1;
+	string debugLine2;
+	string debugLine3;
+	string debugLine4;
+	clearDebugStream();
+
 	for (ubyte i = 0; i < 40 && actions[i+1] != A_NONE; i++)
 	{
 		if (actions[i] == A_DRIVE)
 		{
-			debugLine = "startTDrivePID(";
-			debugLine += (*ConvertIntegerToString(goalPoints[i]));
-			debugLine += ");";
-			writeDebugStreamLine(debugLine);
+			debugLine1 = "startTDrivePID(";
+			debugLine2 = ConvertIntegerToString(goalPoints[i]);
+			debugLine2 += ");";
+			debugLine3 = "";
+			debugLine4 = "";
 		}
 		else if (actions[i] == A_ARM)
 		{
-			debugLine = "startTArmPID(";
-			debugLine += (*ConvertIntegerToString(goalPoints[i]));
-			debugLine += ", WAIT);";
+			debugLine1 = "startTArmPID(";
+			debugLine2 = ConvertIntegerToString(goalPoints[i]);
+			debugLine2 += ", WAIT);";
+			debugLine3 = "";
+			debugLine4 = "";
 		}
 		else if (actions[i] == A_GYRO)
 		{
-			debugLine = "startTGyroPID(";
-			debugLine += (*ConvertIntegerToString(goalPoints[i]));
-			debugLine += ");";
+			debugLine1 = "startTGyroPID(";
+			debugLine2 = ConvertIntegerToString(goalPoints[i]);
+			debugLine2 += ");";
+			debugLine3 = "";
+			debugLine4 = "";
 		}
 		else if (actions[i] == A_GOLIATH)
 		{
-			if (goalPoints[i] == (short) STATE_GOLIATH_INTAKE) debugLine = "setGoliathMotorPower(50);";
-			else if (goalPoints[i] == (short) STATE_GOLIATH_OUTTAKE) debugLine = "setGoliathMotorPower(-50);";
+			if (goalPoints[i] == (short) STATE_GOLIATH_INTAKE) { debugLine1 = "setGoliathMotor"; debugLine2 = "Power(50);"; debugLine3 = ""; debugLine4 = ""; }
+			else if (goalPoints[i] == (short) STATE_GOLIATH_OUTTAKE) { debugLine1 = "setGoliathMotor"; debugLine2 = "Power(-50);"; debugLine3 = ""; debugLine4 = ""; }
 		}
 		else if (actions[i] == A_MOGO_LIFT)
 		{
-			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) debugLine = "startTMoGoLift(STATE_EXTENSION_EXTENDED);";
-			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) debugLine = "startTMoGoLift(STATE_EXTENSION_RETRACTED);";
+			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) { debugLine1 = "startTMoGoLift(ST"; debugLine2 = "ATE_EXTENSION_EXTEN"; debugLine3 = "DED);"; debugLine4 = ""; }
+			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) { debugLine1 = "startTMoGoLift(ST"; debugLine2 = "ATE_EXTENSION_RETR"; debugLine3 = "ACTED);"; debugLine4 = ""; }
 		}
 		else if (actions[i] == A_MINI_4_BAR)
 		{
-			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) debugLine = "startTMini4Bar(STATE_EXTENSION_EXTENDED);";
-			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) debugLine = "startTMini4Bar(STATE_EXTENSION_RETRACTED);";
+			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) { debugLine1 = "mini4BarExtend(WA"; debugLine2 = "IT);"; debugLine3 = ""; debugLine4 = "waitForTMini4Bar();"; }
+			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) { debugLine1 = "mini4BarRetract("; debugLine2 = "WAIT);"; debugLine3 = ""; debugLine4 = "waitForTMini4Bar();"; }
 		}
 		else if (actions[i] == A_ARM_READY_MACRO)
 		{
-			debugLine = "startTMacro(MACRO_ARM_READY);";
+			debugLine1 = "startTMacro(MACR"; debugLine1 = "O_ARM_READY);"; debugLine3 = ""; debugLine4 = "";
 		}
 		else if (actions[i] == A_MOGO_CARRY_CONE_MACRO)
 		{
-			debugLine = "startTMacro(MACRO_MOGO_STACK_CONE);";
+			debugLine1 = "startTMacro(MACRO"; debugLine2 = "_MOGO_STACK_CONE);"; debugLine3 = ""; debugLine4 = "";
 		}
 		else if (actions[i] == A_DRIVE_WAIT)
 		{
-			debugLine = "waitForTDrive();";
+			debugLine1 = "waitForTDrive();"; debugLine2 = ""; debugLine3 = ""; debugLine4 = "";
 		}
 		else if (actions[i] == A_ARM_WAIT)
 		{
-			debugLine = "waitForTArm();";
+			debugLine1 = "waitForTArm();"; debugLine2 = ""; debugLine3 = ""; debugLine4 = "";
 		}
 		else if (actions[i] == A_GYRO_WAIT)
 		{
-			debugLine = "waitForTGyroPID();";
+			debugLine1 = "waitForTGyroPID();"; debugLine2 = ""; debugLine3 = ""; debugLine4 = "";
 		}
 
-		writeDebugStreamLine(debugLine);
-
+		writeDebugStream(debugLine1);
+		writeDebugStream(debugLine2);
+		writeDebugStream(debugLine3);
+		writeDebugStream(debugLine4);
+		writeDebugStream("\n\r");
 	}
 
+	isAutonRecorderEnabled = false;
 }
 
 
