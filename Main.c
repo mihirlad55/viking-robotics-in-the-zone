@@ -110,6 +110,7 @@
 #define IS_MOGO_LIFT_ENABLED					true
 #define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	3380
 #define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	1420
+#define MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE	2020
 #define	MOGO_LIFT_POTENTIOMETER_OFFSET 			0
 #define MOGO_LIFT_POTENTIOMETER_MULTIPLIER		1
 
@@ -153,7 +154,7 @@
 
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT, A_GYRO, A_ARM_READY_MACRO, A_MOGO_CARRY_CONE_MACRO, A_NONE,
 	A_DRIVE_WAIT, A_ARM_WAIT, A_GOLIATH_WAIT, A_MINI_4_BAR_WAIT, A_MOGO_LIFT_WAIT, A_GYRO_WAIT, A_ARM_READY_MACRO_WAIT, A_MOGO_CARRY_CONE_MACRO_WAIT };
-enum StateExtension { STATE_EXTENSION_EXTENDED, STATE_EXTENSION_RETRACTED };
+enum StateExtension { STATE_EXTENSION_EXTENDED, STATE_EXTENSION_RETRACTED, STATE_EXTENSION_HALFWAY };
 enum StateGoliath { STATE_GOLIATH_INTAKE, STATE_GOLIATH_OUTTAKE, STATE_OFF };
 enum WaitForAction { WAIT, WAIT_NONE };
 enum Macro { MACRO_ARM_READY, MACRO_MOGO_STACK_CONE };
@@ -1700,6 +1701,37 @@ void moGoExtend()
 
 
 
+void moGoHalfway()
+{
+
+	float pGain = 0.08;
+	float iGain = 0.0003;
+	float dGain = 2.0;
+
+	short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
+	short errorDifference = 0;
+	int errorSum = 0;
+	int timeInitial = time1[T4];
+
+	while (time1[T4] - timeInitial < 150)
+	{
+		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue());
+		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
+		errorSum += error;
+
+		if (abs(error) < 30) errorSum = 0;
+		else if (abs(error) >= 30) timeInitial = time1[T4];
+
+		setMoGoLiftMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+
+		wait1Msec(5);
+	}
+	setMoGoLiftMotorPower(0);
+}
+
+
+
+
 /* Variables used by tasks */
 short tDrivePIDGoalPoint = 0;
 short tArmPIDGoalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE;
@@ -1784,6 +1816,7 @@ task tMoGoLift()
 
 	if (tMoGoLiftGoalState == STATE_EXTENSION_EXTENDED) moGoExtend();
 	else if (tMoGoLiftGoalState == STATE_EXTENSION_RETRACTED) moGoRetract();
+	else if (tMogoLiftGoalState == STATE_EXTENSION_HALFWAY) moGoHalfway();
 
 	isTMoGoLiftReady = true;
 }
@@ -2255,6 +2288,26 @@ void PIDMode()
 
 			SensorValue[LED] = 1;
 			moGoRetract();
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			SensorValue[LED] = 1;
+			moGoHalfway();
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			SensorValue[LED] = 1;
+			moGoRetract();
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			SensorValue[LED] = 1;
+			moGoExtend();
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			SensorValue[LED] = 1;
+			moGoHalfway();
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 		}
