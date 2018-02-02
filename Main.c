@@ -171,7 +171,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton15P, menuItemAuton10P, menuItemAuton5P, menuItemAuton15PRT, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton20P, menuItemAuton10P, menuItemAuton5P, menuItemAuton20PRT, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -260,11 +260,11 @@ void populateMenuItems() {
 	menuItemAutonGoBack.LCDAction = "Select";
 	menuListAuton[i] = &menuItemAutonGoBack;
 
-	menuItemAuton15P.name = "Auton15P";
-	menuItemAuton15P.id = ++id;
-	menuItemAuton15P.idx = ++i;
-	menuItemAuton15P.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton15P;
+	menuItemAuton20P.name = "Auton20P";
+	menuItemAuton20P.id = ++id;
+	menuItemAuton20P.idx = ++i;
+	menuItemAuton20P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton20P;
 
 	menuItemAuton5P.name = "Auton5P";
 	menuItemAuton5P.id = ++id;
@@ -278,11 +278,11 @@ void populateMenuItems() {
 	menuItemAuton10P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton10P;
 
-	menuItemAuton15PRT.name = "Auton2Cone";
-	menuItemAuton15PRT.id = ++id;
-	menuItemAuton15PRT.idx = ++i;
-	menuItemAuton15PRT.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton15PRT;
+	menuItemAuton20PRT.name = "Auton2Cone";
+	menuItemAuton20PRT.id = ++id;
+	menuItemAuton20PRT.idx = ++i;
+	menuItemAuton20PRT.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton20PRT;
 
 	menuItemAutonNone.name = "AutonNone";
 	menuItemAutonNone.id = ++id;
@@ -2036,7 +2036,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton15P.id)
+	if ( (*selectedProgram).id == menuItemAuton20P.id)
 	{
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
