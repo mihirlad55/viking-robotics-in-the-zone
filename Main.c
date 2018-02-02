@@ -2868,7 +2868,7 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 		&& ( (initialButtonState == vexRT[BTN_MINI_4_BAR_HOLD_AUTO] && !isToggleActive) || isToggleActive)
 	&& !isControllerStateButtonPressed(oldFlag, buttonMask)
 	&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE
-	&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() >= ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) )
+	&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() >= ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) ) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getMini4BarSensorValue());
@@ -2900,7 +2900,7 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	int timeInitial = time1[T1];
 	short buttonMask = ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(JOY_ARM);
 
-	while ( ( (stopWhenMet == WAIT && time1[T1] - timeInitial < 150 || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
+	while ( (stopWhenMet == WAIT && time1[T1] - timeInitial < 150 || stopWhenMet == WAIT_NONE ) && !isControllerStateButtonPressed(oldFlag, buttonMask) )
 	{
 		oldFlag = getControllerStateFlag();
 		errorDifference = error - (goalPoint - getArmSensorValue());
@@ -3019,7 +3019,7 @@ task Mini4Bar()
 					}
 					else
 					{
-						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED
+						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
 						if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
 						else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
 					}
