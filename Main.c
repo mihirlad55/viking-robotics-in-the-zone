@@ -2001,425 +2001,155 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	/*	if ((*selectedProgram).id == menuItemAuton15P.id)
+	if ( (*selectedProgram).id == menuItemAuton15P.id)
 	{
-	startTDrivePID(600);
+		setGoliathMotorPower(50);
+		mini4BarRetract(WAIT_NONE);
 
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 400, true);
-	wait1Msec(200);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 37, false);
-	waitForTClaw();
-	stopTask(tArmConePIDControl);
+		startTDrivePID(200);
+		waitForTDrive();
 
-	startTKeepArmDown();
-	waitForTArm();
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		startTDrivePID(1155);
+		waitForTDrive();
 
-	startTDrivePID(800);
-	waitForTDrive();
+		actionTimed(A_DRIVE, 200, 127);
 
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTGyroPID(5);
+		waitForTGyroPID();
+		waitForTMoGoLift();
 
-	stopAllTPID();
-	grab(127);
-	wait1Msec(300);
-	grab(40);
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, true);
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(5);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(-5);
-	waitForTArm();
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-	stopTask(tGyroPIDControl);
+		startTDrivePID(-1322);
+		waitForTDrive();
 
-	startTDrivePID(-1500);
-	waitForTDrive();
+		setGoliathMotorPower(-50);
+		wait1Msec(500);
+		setGoliathMotorPower(50);
 
-	if (autonomousSide == SIDE_RED) startTGyroPID(-32);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(32);
-	waitForTGyroPID();
+		startTGyroPID(-142);
+		waitForTGyroPID();
 
-	startTDrivePID(-650);
-	waitForTDrive();
+		startTDrivePID(820);
+		waitForTDrive();
 
-	if (autonomousSide == SIDE_RED) startTGyroPID(-135);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(135);
-	waitForTGyroPID();
+		startTGyroPID(-243);
+		waitForTGyroPID();
 
-	setDriveMotorPower(127, 127);
-	wait1Msec(1300);
+		actionTimed(A_DRIVE, 1200, 127);
+		setDriveMotorPower(0);
 
-	stopTask(tArmConePIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE, true);
-	waitForTClaw();
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		waitForTMoGoLift();
 
-	setDriveMotorPower(-127, -127);
-	wait1Msec(600);
-	setDriveMotorPower(0);
-	}
-	else if ((*selectedProgram).id == menuItemAuton15PRT.id)
-	{
-	startTDrivePID(200);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 300, true);
-	waitForTArm();
+		setDriveMotorPower(-127);
+		wait1Msec(300);
 
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 500, true);
-	waitForTClaw();
-
-	waitForTDrive();
-	startTDrivePID(-20);
-	waitForTDrive();
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE, true);
-	waitForTArm();
-	stopAllTPID();
-
-	actionUntilOverGoalPoint(A_CLAW, CLAW_OPEN_POTENTIOMETER_VALUE + 700, 127);
-	grab(127);
-	wait1Msec(350);
-	grab(40);
-
-	startTArmConePID(HIGH_CARRY_ARM_POTENTIOMETER_VALUE + 250, true);
-	startTDrivePID(100);
-	waitForTArm();
-	waitForTDrive();
-
-	startTDrivePID(450);
-	waitForTDrive();
-
-	stopTask(tArmConePIDControl);
-	setArmMotorPower(-60);
-	wait1Msec(700);
-	setArmMotorPower(0);
-
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE);
-	startTDrivePID(-400);
-	waitForTDrive();
-	stopTask(tClawPIDControl);
-
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 250);
-	startTArmConePID(potentiometerArmLimit, true);
-	if (autonomousSide == SIDE_RED) startTGyroPID(-90);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(90);
-	waitForTGyroPID();
-	waitForTArm();
-
-	startTDrivePID(300);
-	waitForTDrive();
-	startTDrivePID(70);
-	waitForTDrive();
-	stopTask(tClawPIDControl);
-	stopTask(tArmConePIDControl);
-
-	grab(127);
-	wait1Msec(550);
-	grab(50);
-	startTArmConePID(HIGH_CARRY_ARM_POTENTIOMETER_VALUE + 250, true);
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(26);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(-26);
-	waitForTGyroPID();
-
-	startTDrivePID(100);
-	wait1Msec(200);
-	waitForTDrive();
-
-	startTDrivePID(500);
-	waitForTDrive();
-
-	stopTask(tArmConePIDControl);
-	setArmMotorPower(-40);
-	wait1Msec(500);
-	setArmMotorPower(0);
-
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE);
-
-	startTDrivePID(-200);
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTDrivePID(-373);
 
 	}
-	else if ( (*selectedProgram).id == menuItemAuton5P.id)
+	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
-	startTDrivePID(200);
+		setGoliathMotorPower(50);
+		mini4BarRetract(WAIT_NONE);
 
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 400, true);
-	wait1Msec(200);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 37, false);
-	waitForTClaw();
-	stopTask(tArmConePIDControl);
+		startTDrivePID(200);
+		waitForTDrive();
 
-	startTKeepArmDown();
-	waitForTArm();
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		startTDrivePID(1155);
+		waitForTDrive();
 
-	startTDrivePID(1200);
-	waitForTDrive();
+		actionTimed(A_DRIVE, 200, 127);
 
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTGyroPID(5);
+		waitForTGyroPID();
+		waitForTMoGoLift();
 
-	stopAllTPID();
-	grab(127);
-	wait1Msec(300);
-	grab(40);
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, true);
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(0);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(0);
-	waitForTArm();
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-	stopTask(tGyroPIDControl);
+		startTDrivePID(-1422);
+		waitForTDrive();
 
-	startTDrivePID(-900);
-	waitForTDrive();
+		setGoliathMotorPower(-50);
+		wait1Msec(500);
+		setGoliathMotorPower(50);
 
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(-190);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(190);
-	waitForTGyroPID();
+		startTGyroPID(-145);
+		waitForTGyroPID();
 
-	startTDrivePID(450);
-	waitForTDrive();
+		startTDrivePID(820);
+		waitForTDrive();
 
-	stopTask(tArmMoGoPIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 100, true);
-	waitForTClaw();
+		startTGyroPID(-243);
+		waitForTGyroPID();
 
-	setDriveMotorPower(-127);
-	wait1Msec(1000);
-	setDriveMotorPower(0);
-	}
-	else if ( (*selectedProgram).id == menuItemAuton10P.id)
-	{
-	startTDrivePID(600);
+		actionTimed(A_DRIVE, 1200, 127);
+		setDriveMotorPower(0);
 
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 400, true);
-	wait1Msec(200);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 37, false);
-	waitForTClaw();
-	stopTask(tArmConePIDControl);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		waitForTMoGoLift();
 
-	startTKeepArmDown();
-	waitForTArm();
-	waitForTDrive();
+		setDriveMotorPower(-127);
+		wait1Msec(300);
 
-	startTDrivePID(800);
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
+		startTDrivePID(-572);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 
-	stopAllTPID();
-	grab(127);
-	wait1Msec(300);
-	grab(40);
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, true);
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(5);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(-5);
-	waitForTArm();
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-	stopTask(tGyroPIDControl);
+		waitForTDrive();
 
-	startTDrivePID(-900);
-	waitForTDrive();
+		startTGyroPID(33);
+		waitForTGyroPID();
 
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(-180);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(180);
-	waitForTGyroPID();
+		startTDrivePID(463);
+		waitForTDrive();
 
-	startTDrivePID(800);
-	waitForTDrive();
+		startTGyroPID(-670);
+		waitForTGyroPID();
 
-	if (autonomousSide == SIDE_RED) startTGyroPID(225);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(-225);
-	waitForTGyroPID();
+		startTDrivePID(392);
+		waitForTDrive();
 
-	startTDrivePID(400);
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		waitForTMoGoLift();
+		startTDrivePID(-783);
+		waitForTDrive();
 
-	stopTask(tArmConePIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE, true);
-	waitForTClaw();
+		startTGyroPID(-157);
+		waitForTGyroPID();
 
-	setDriveMotorPower(-127, -127);
-	wait1Msec(600);
-	setDriveMotorPower(0);
-	}
-	else if ( (*selectedProgram).id == menuItemProgSkills1.id )
-	{
-	startTDrivePID(600);
+		startTDrivePID(444);
+		waitForTDrive();
 
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE + 400, true);
-	wait1Msec(200);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 37, false);
-	waitForTClaw();
-	stopTask(tArmConePIDControl);
+		startTGyroPID(-2539);
+		waitForTGyroPID();
 
-	startTKeepArmDown();
-	waitForTArm();
-	waitForTDrive();
+		startTDrivePID(117);
+		waitForTDrive();
 
-	startTDrivePID(800);
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		waitForTMoGoLift();
 
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
+		startTDrivePID(-356);
+		waitForTDrive();
 
-	stopAllTPID();
-	grab(127);
-	wait1Msec(300);
-	grab(40);
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, true);
-	if (autonomousSide == SIDE_BLUE) startTGyroPID(5);
-	else if (autonomousSide == SIDE_RED) startTGyroPID(-5);
-	waitForTArm();
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-	stopTask(tGyroPIDControl);
+		startTGyroPID(-1483);
+		waitForTGyroPID();
 
-	startTDrivePID(-1500);
-	waitForTDrive();
+		startTDrivePID(445);
+		waitForTDrive();
 
-	if (autonomousSide == SIDE_RED) startTGyroPID(-32);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(32);
-	waitForTGyroPID();
+		startTGyroPID(-641);
+		waitForTGyroPID();
 
-	startTDrivePID(-650);
-	waitForTDrive();
+		startTDrivePID(358);
+		waitForTDrive();
 
-	if (autonomousSide == SIDE_RED) startTGyroPID(-135);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(135);
-	waitForTGyroPID();
-
-	setDriveMotorPower(127, 127);
-	wait1Msec(1300);
-
-	stopTask(tArmMoGoPIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE, true);
-	waitForTClaw();
-
-	startTDrivePID(-400);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 600);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(0);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(0);
-	startTArmConePID(CLAW_HALF_POTENTIOMETER_VALUE + 300);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE);
-	waitForTGyroPID();
-
-	stopTask(tArmConePIDControl);
-	startTKeepArmDown();
-	startTDrivePID(1000);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(90);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(-90);
-	waitForTGyroPID();
-
-	startTDrivePID(200);
-	waitForTDrive();
-
-	wait1Msec(300);
-
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
-
-	stopTask(tClawPIDControl);
-	grab(127);
-	wait1Msec(500);
-	grab(35);
-
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, true);
-	startTDrivePID(-400);
-	waitForTDrive();
-	waitForTArm();
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(0);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(0);
-	waitForTGyroPID();
-
-	startTDrivePID(-800);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(-135);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(135);
-	waitForTGyroPID();
-
-	startTDrivePID(400);
-	waitForTDrive();
-
-	stopTask(tArmMoGoPIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE, true);
-	waitForTClaw();
-
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 200);
-	startTDrivePID(-100);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(-45);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(45);
-	waitForTGyroPID();
-
-	startTDrivePID(-500);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(45);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(-45);
-	startTKeepArmDown();
-	waitForTGyroPID();
-
-	startTDrivePID(900);
-	waitForTDrive();
-
-	setDriveMotorPower(127);
-	wait1Msec(100);
-	setDriveMotorPower(0);
-
-	grab(127);
-	wait1Msec(400);
-	grab(35);
-
-	startTDrivePID(-500);
-	startTArmMoGoPID(LOW_CARRY_ARM_POTENTIOMETER_VALUE - 150, false);
-	waitForTDrive();
-
-	if (autonomousSide == SIDE_RED) startTGyroPID(225);
-	else if (autonomousSide == SIDE_BLUE) startTGyroPID(-225);
-	waitForTGyroPID();
-
-	startTDrivePID(300);
-	waitForTDrive();
-
-	stopTask(tArmMoGoPIDControl);
-	setArmMotorPower(0);
-	setDriveMotorPower(0);
-	startTClawPID(CLAW_OPEN_POTENTIOMETER_VALUE, true);
-	waitForTClaw();
-
-	startTDrivePID(-400);
-	startTArmConePID(MIN_ARM_POTENTIOMETER_VALUE + 600);
-	waitForTDrive();
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 
 	}
-	if (!isCompetitionMode)
-	{
-	selectedProgram = &menuItemUserControl;
-	stopTasks();
-	startTask(usercontrol);
-	} */
 }
 
 
