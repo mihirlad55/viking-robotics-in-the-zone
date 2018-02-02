@@ -1816,7 +1816,7 @@ task tMoGoLift()
 
 	if (tMoGoLiftGoalState == STATE_EXTENSION_EXTENDED) moGoExtend();
 	else if (tMoGoLiftGoalState == STATE_EXTENSION_RETRACTED) moGoRetract();
-	else if (tMogoLiftGoalState == STATE_EXTENSION_HALFWAY) moGoHalfway();
+	else if (tMoGoLiftGoalState == STATE_EXTENSION_HALFWAY) moGoHalfway();
 
 	isTMoGoLiftReady = true;
 }
