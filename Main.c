@@ -2178,7 +2178,6 @@ void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet);
 short goalPoint;
 void PIDMode()
 {
-	goalPoint;
 	if ( (*selectedProgram).id == menuItemPIDDrive.id)
 	{
 		goalPoint = 0;
