@@ -3434,7 +3434,7 @@ void startUp()
 	if ((*selectedProgram).id == menuItemUserControl.id) startTask(usercontrol);
 	else if ( (*selectedProgram).id == menuItemAutonRecorder.id) startTask(AutonRecorder);
 	else if ( (*selectedProgram).id == menuItemMotorCheckAuto.id || (*selectedProgram).id == menuItemMotorCheckManual.id) startTask(MiscellaneousTask);
-	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
+	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id)
 	{
 		/* Countdown if autonomous is selected */
 		programName += " PID";
@@ -3449,7 +3449,7 @@ void startUp()
 
 		startTask(MiscellaneousTask);
 	}
-	else if ((*selectedProgram).idx < MENU_LIST_AUTON_LENGTH - 1 && (*menuListAuton[ (*selectedProgram).idx ]).id == (*selectedProgram).id )
+	else if ((*selectedProgram).idx < MENU_LIST_AUTON_LENGTH && (*menuListAuton[ (*selectedProgram).idx ]).id == (*selectedProgram).id )
 	{
 		/* Countdown if autonomous is selected */
 		displayLCDCenteredString(0, programName);
