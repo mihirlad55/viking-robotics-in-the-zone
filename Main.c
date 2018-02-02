@@ -1674,9 +1674,9 @@ void mini4BarParallel(WaitForAction stopWhenMet)
 
 void moGoRetract()
 {
-	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
+	while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
 	{
-		setMoGoLiftMotorPower(127);
+		setMoGoLiftMotorPower(-127);
 	}
 	setMoGoLiftMotorPower(0);
 }
@@ -1688,7 +1688,7 @@ void moGoExtend()
 	short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
 	short errorDifference = 0;
 
-	while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) )
+	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) )
 	{
 		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
 		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
