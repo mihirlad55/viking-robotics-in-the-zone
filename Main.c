@@ -1653,19 +1653,21 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	setMini4BarMotorPower(-20);
 }
 
+void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet);
+
 void mini4BarRetract(WaitForAction stopWhenMet)
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet);
+	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet);
 }
 
 void mini4BarExtend(WaitForAction stopWhenMet)
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, stopWhenMet);
+	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, stopWhenMet);
 }
 
 void mini4BarParallel(WaitForAction stopWhenMet)
 {
-	mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, stopWhenMet);
+	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, stopWhenMet);
 }
 
 
