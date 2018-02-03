@@ -171,7 +171,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton20P, menuItemAuton10P, menuItemAuton5P, menuItemAuton20PRT, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton10P, menuItemAuton22PWC, menuItemAuton22PRT, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -260,17 +260,17 @@ void populateMenuItems() {
 	menuItemAutonGoBack.LCDAction = "Select";
 	menuListAuton[i] = &menuItemAutonGoBack;
 
-	menuItemAuton20P.name = "Auton20P";
-	menuItemAuton20P.id = ++id;
-	menuItemAuton20P.idx = ++i;
-	menuItemAuton20P.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton20P;
+	menuItemAuton22P.name = "Auton22P";
+	menuItemAuton22P.id = ++id;
+	menuItemAuton22P.idx = ++i;
+	menuItemAuton22P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton22P;
 
-	menuItemAuton5P.name = "Auton5P";
-	menuItemAuton5P.id = ++id;
-	menuItemAuton5P.idx = ++i;
-	menuItemAuton5P.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton5P;
+	menuItemAuton7P.name = "Auton7P";
+	menuItemAuton7P.id = ++id;
+	menuItemAuton7P.idx = ++i;
+	menuItemAuton7P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton7P;
 
 	menuItemAuton10P.name = "Auton10P";
 	menuItemAuton10P.id = ++id;
@@ -278,11 +278,11 @@ void populateMenuItems() {
 	menuItemAuton10P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton10P;
 
-	menuItemAuton20PRT.name = "Auton2Cone";
-	menuItemAuton20PRT.id = ++id;
-	menuItemAuton20PRT.idx = ++i;
-	menuItemAuton20PRT.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton20PRT;
+	menuItemAuton22PRT.name = "Auton2Cone";
+	menuItemAuton22PRT.id = ++id;
+	menuItemAuton22PRT.idx = ++i;
+	menuItemAuton22PRT.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton22PRT;
 
 	menuItemAutonNone.name = "AutonNone";
 	menuItemAutonNone.id = ++id;
@@ -2036,7 +2036,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton20P.id)
+	if ( (*selectedProgram).id == menuItemAuton22P.id)
 	{
 		setMini4BarMotorPower(-20);
 		setArmMotorPower(-20);
