@@ -3733,6 +3733,8 @@ void stopTasks()
 	stopTask(tMini4Bar);
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
+	stopTask(AutonRecorder);
+	stopTask(playMissionImpossibleMusic)
 	stopTask(tMacro);
 	stopTask(MiscellaneousTask);
 }
