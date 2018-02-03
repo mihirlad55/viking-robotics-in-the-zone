@@ -3066,6 +3066,7 @@ task Mini4Bar()
 				while (vexRT[BTN_SENSOR_OVERRIDE] == 1) { }
 				areSensorsOverridden = !areSensorsOverridden;
 			}
+			/*
 			else if (vexRT[BTN_MOGO_STACK_MACRO] == 1)
 			{
 				isMoGoStackConeMacroActive = true;
@@ -3108,7 +3109,7 @@ task Mini4Bar()
 				setArmMotorPower(0);
 				isArmReadyMacroActive = false;
 			}
-
+*/
 			if (!areSensorsOverridden)
 			{
 				if (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1)
