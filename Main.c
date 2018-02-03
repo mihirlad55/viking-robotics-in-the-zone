@@ -3550,7 +3550,7 @@ task AutonRecorder()
 		else if (actions[i] == A_GYRO)
 		{
 			debugLine1 = "startTGyroPID(";
-			debugLine2 = ConvertIntegerToString(goalPoints[i]);
+			debugLine2 = ConvertIntegerToString(goalPoints[i] / 10);
 			debugLine2 += ");";
 			debugLine3 = "";
 			debugLine4 = "";
@@ -3762,7 +3762,7 @@ void stopTasks()
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
 	stopTask(AutonRecorder);
-	stopTask(playMissionImpossibleMusic)
+	stopTask(playMissionImpossibleMusic);
 	stopTask(tMacro);
 	stopTask(MiscellaneousTask);
 }
