@@ -116,7 +116,7 @@
 
 
 #define IS_MINI_4_BAR_ENABLED						true
-#define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2300
+#define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	2200
 #define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	430
 #define MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE		1600
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
@@ -2038,6 +2038,10 @@ task autonomous()
 	}
 	if ( (*selectedProgram).id == menuItemAuton20P.id)
 	{
+		setMini4BarMotorPower(-20);
+		setArmMotorPower(-20);
+		wait1Msec(300);
+
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
 
@@ -2074,16 +2078,15 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
 		waitForTGyroPID();
 
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+		wait1Msec(200);
+
 		actionTimed(A_DRIVE, 1200, 127);
 		setDriveMotorPower(0);
-
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		waitForTMoGoLift();
 
 		setDriveMotorPower(-127);
 		wait1Msec(300);
 
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		startTDrivePID(-373);
 
 	}
