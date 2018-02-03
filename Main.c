@@ -171,7 +171,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton10P, menuItemAuton22PWC, menuItemAuton22PRT, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton10P, menuItemAuton7P, menuItemAuton22PRT, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -2124,7 +2124,7 @@ task autonomous()
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
 
-		startDrivePID(200);
+		startTDrivePID(200);
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTMoGoLift();
 		waitForTDrive();
