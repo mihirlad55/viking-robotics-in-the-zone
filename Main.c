@@ -59,6 +59,7 @@
 #define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn5U
 #define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
 #define BTN_MOGO_LIFT_RETRACT_MANUAL	Btn5D
+#define BTN_MOGO_LIFT_HALFWAY_AUTO		Btn7L
 
 #define BTN_MINI_4_BAR_HOLD_AUTO		Btn6D
 #define BTN_MINI_4_BAR_EXTEND_MANUAL	Btn8D
@@ -3177,6 +3178,33 @@ task MoGoLift()
 		{
 			if (!areSensorsOverridden)
 			{
+				if (vexRT[BTN_MOGO_LIFT_HALFWAY_AUTO] == 1)
+				{
+					stateMoGoLiftCurrent = STATE_EXTENSION_HALFWAY;
+					float pGain = 0.08;
+					float iGain = 0.0003;
+					float dGain = 2.0;
+
+					short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
+					short errorDifference = 0;
+					int errorSum = 0;
+					int timeInitial = time1[T4];
+
+					while (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 0 && vexRT[BTN_MOGO_LIFT_EXTEND_MANUAL] == 0 && vexRT[BTN_MOGO_LIFT_RETRACT_MANUAL] == 0 && vexRT[BTN_SENSOR_OVERRIDE] == 0)
+					{
+						errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue());
+						error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
+						errorSum += error;
+
+						if (abs(error) < 30) errorSum = 0;
+						else if (abs(error) >= 30) timeInitial = time1[T4];
+
+						setMoGoLiftMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+
+						wait1Msec(5);
+					}
+					setMoGoLiftMotorPower(0);
+				}
 				if (isToggleActive)
 				{
 					if (vexRT[BTN_MOGO_LIFT_TOGGLE_AUTO] == 1)
