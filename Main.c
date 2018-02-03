@@ -2090,6 +2090,49 @@ task autonomous()
 		startTDrivePID(-373);
 
 	}
+	else if ( (*selectedProgram).id == menuItemAuton7P.id)
+	{
+		setMini4BarMotorPower(-20);
+		setArmMotorPower(-20);
+		wait1Msec(300);
+
+		setGoliathMotorPower(50);
+		mini4BarRetract(WAIT_NONE);
+
+		startTDrivePID(200);
+		waitForTDrive();
+
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		startTDrivePID(1155);
+		waitForTDrive();
+
+		actionTimed(A_DRIVE, 200, 127);
+
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(5);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-5);
+		waitForTGyroPID();
+		waitForTMoGoLift();
+
+		setGoliathMotorPower(-50);
+		wait1Msec(500);
+		setGoliathMotorPower(0);
+
+		startTDrivePID(-500);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+
+		startDrivePID(200);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		waitForTMoGoLift();
+		waitForTDrive();
+
+		startTDrivePID(-300);
+		waitForTDrive();
+
+	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
 		setGoliathMotorPower(50);
