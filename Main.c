@@ -3316,10 +3316,11 @@ task usercontrol()
 #define FLAG_BIT_MINI_4_BAR_RETRACTED			16
 #define FLAG_BIT_MOGO_LIFT_EXTENDED				32
 #define FLAG_BIT_MOGO_LIFT_RETRACTED			64
-#define FLAG_BIT_GOLIATH_INTAKE					128
-#define FLAG_BIT_GOLIATH_OUTTAKE				256
-#define FLAG_BIT_ARM_READY_MACRO_ACTIVE			512
-#define FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE	1024
+#define FLAG_BIT_MOGO_LIFT_HALFWAY				128
+#define FLAG_BIT_GOLIATH_INTAKE					256
+#define FLAG_BIT_GOLIATH_OUTTAKE				512
+#define FLAG_BIT_ARM_READY_MACRO_ACTIVE			1024
+#define FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE	2048
 
 short lastFlag;
 short currentFlag;
@@ -3342,6 +3343,7 @@ short getCurrentFlag()
 
 	if (stateMoGoLiftCurrent == STATE_EXTENSION_EXTENDED) flag += FLAG_BIT_MOGO_LIFT_EXTENDED;
 	else if (stateMoGoLiftCurrent == STATE_EXTENSION_RETRACTED) flag += FLAG_BIT_MOGO_LIFT_RETRACTED;
+	else if (stateMoGoLiftCurrent == STATE_EXTENSION_HALFWAY) flag += FLAG_BIT_MOGO_LIFT_HALFWAY;
 
 	if (isArmReadyMacroActive) flag += FLAG_BIT_ARM_READY_MACRO_ACTIVE;
 	else if (isMoGoStackConeMacroActive) flag += FLAG_BIT_MOGO_STACK_CONE_MACRO_ACTIVE;
@@ -3482,6 +3484,11 @@ task AutonRecorder()
 			actions[idx] = A_MOGO_LIFT;
 			goalPoints[idx++] = STATE_EXTENSION_RETRACTED;
 		}
+		else if (isFlagBitChangedToTrue(FLAG_BIT_MOGO_LIFT_HALFWAY))
+		{
+			actions[idx] = A_MOGO_LIFT;
+			goalPoints[idx++] = STATE_EXTENSION_HALFWAY;
+		}
 
 
 		if (isFlagBitChangedToTrue(FLAG_BIT_ARM_READY_MACRO_ACTIVE))
@@ -3564,6 +3571,7 @@ task AutonRecorder()
 		{
 			if (goalPoints[i] == (short) STATE_EXTENSION_EXTENDED) { debugLine1 = "startTMoGoLift(ST"; debugLine2 = "ATE_EXTENSION_EXTEN"; debugLine3 = "DED);"; debugLine4 = ""; }
 			else if (goalPoints[i] == (short) STATE_EXTENSION_RETRACTED) { debugLine1 = "startTMoGoLift(ST"; debugLine2 = "ATE_EXTENSION_RETR"; debugLine3 = "ACTED);"; debugLine4 = ""; }
+			else if (goalPoints[i] == (short) STATE_EXTENSION_HALFWAY) { debugLine1 = "startTMoGoLift(ST"; debugLine2 = "ATE_EXTENSION_HALF"; debugLine3 = "WAY);"; debugLine4 = ""; }
 		}
 		else if (actions[i] == A_MINI_4_BAR)
 		{
