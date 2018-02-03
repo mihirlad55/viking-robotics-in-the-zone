@@ -2135,6 +2135,10 @@ task autonomous()
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
+		setMini4BarMotorPower(-20);
+		setArmMotorPower(-20);
+		wait1Msec(300);
+
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
 
