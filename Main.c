@@ -2139,107 +2139,117 @@ task autonomous()
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
-		setMini4BarMotorPower(-20);
-		setArmMotorPower(-20);
+		setGoliathMotorPower(40);
+		setMini4BarMotorPower(-40);
+		setArmMotorPower(-40);
 		wait1Msec(300);
+		setArmMotorPower(0);
 
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
 
-		startTDrivePID(200);
-		waitForTDrive();
-
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1155);
+		startTDrivePID(1355);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		startTGyroPID(5);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
-		startTDrivePID(-1422);
+		startTDrivePID(-1420);
 		waitForTDrive();
 
 		setGoliathMotorPower(-50);
 		wait1Msec(500);
 		setGoliathMotorPower(50);
 
-		startTGyroPID(-145);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
 		waitForTGyroPID();
 
-		startTDrivePID(820);
+		startTDrivePID(665);
 		waitForTDrive();
 
-		startTGyroPID(-243);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
 		waitForTGyroPID();
+
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+		wait1Msec(200);
 
 		actionTimed(A_DRIVE, 1200, 127);
 		setDriveMotorPower(0);
 
+		startTDrivePID(-300);
+		waitForTDrive();
+
+		startTDrivePID(-100);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+		waitForTGyroPID();
+
+		startTDrivePID(-660);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-2);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(2);
+		waitForTGyroPID();
+
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		startTDrivePID(360);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-90);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(90);
+		waitForTGyroPID();
+
+		startTDrivePID(400);
+		waitForTDrive();
+
+		actionTimed(A_DRIVE, 200, 127);
+
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTMoGoLift();
+
+		startTDrivePID(-500);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+		waitForTGyroPID();
+
+		startTDrivePID(550);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+		waitForTGyroPID();
+
+		startTDrivePID(300);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
+		waitForTGyroPID();
+
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+		wait1Msec(200);
+
+		actionTimed(A_DRIVE, 600, 127);
+		setDriveMotorPower(0);
 
 		setDriveMotorPower(-127);
 		wait1Msec(300);
 
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTDrivePID(-373);
 
-		startTDrivePID(-572);
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-
-		waitForTDrive();
-
-		startTGyroPID(33);
-		waitForTGyroPID();
-
-		startTDrivePID(463);
-		waitForTDrive();
-
-		startTGyroPID(-670);
-		waitForTGyroPID();
-
-		startTDrivePID(392);
-		waitForTDrive();
-
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		waitForTMoGoLift();
-		startTDrivePID(-783);
-		waitForTDrive();
-
-		startTGyroPID(-157);
-		waitForTGyroPID();
-
-		startTDrivePID(444);
-		waitForTDrive();
-
-		startTGyroPID(-2539);
-		waitForTGyroPID();
-
-		startTDrivePID(117);
-		waitForTDrive();
-
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		waitForTMoGoLift();
-
-		startTDrivePID(-356);
-		waitForTDrive();
-
-		startTGyroPID(-1483);
-		waitForTGyroPID();
-
-		startTDrivePID(445);
-		waitForTDrive();
-
-		startTGyroPID(-641);
-		waitForTGyroPID();
-
-		startTDrivePID(358);
-		waitForTDrive();
-
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 
 	}
 }
