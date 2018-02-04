@@ -2040,29 +2040,28 @@ task autonomous()
 	}
 	if ( (*selectedProgram).id == menuItemAuton22P.id)
 	{
-		setMini4BarMotorPower(-20);
-		setArmMotorPower(-20);
+		setGoliathMotorPower(40);
+		setMini4BarMotorPower(-40);
+		setArmMotorPower(-40);
 		wait1Msec(300);
+		setArmMotorPower(0);
 
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
 
-		startTDrivePID(200);
-		waitForTDrive();
-
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1155);
+		startTDrivePID(1355);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(5);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-5);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
-		startTDrivePID(-1322);
+		startTDrivePID(-1420);
 		waitForTDrive();
 
 		setGoliathMotorPower(-50);
@@ -2073,7 +2072,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
 		waitForTGyroPID();
 
-		startTDrivePID(820);
+		startTDrivePID(665);
 		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
@@ -2094,9 +2093,11 @@ task autonomous()
 	}
 	else if ( (*selectedProgram).id == menuItemAuton7P.id)
 	{
-		setMini4BarMotorPower(-20);
-		setArmMotorPower(-20);
+		setGoliathMotorPower(40);
+		setMini4BarMotorPower(-40);
+		setArmMotorPower(-40);
 		wait1Msec(300);
+		setArmMotorPower(0);
 
 		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE);
@@ -2111,8 +2112,8 @@ task autonomous()
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(5);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-5);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
@@ -2125,9 +2126,10 @@ task autonomous()
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+		waitForTGyroPID();
 
-		startTDrivePID(200);
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTDrivePID(700);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTMoGoLift();
 		waitForTDrive();
 
