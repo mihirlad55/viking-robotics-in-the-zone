@@ -294,6 +294,7 @@ void populateMenuItems() {
 	menuItemProgSkills1.name = "Prog. Skills 1";
 	menuItemProgSkills1.id = ++id;
 	menuItemProgSkills1.idx = ++i;
+	menuItemProgSkills1.isDirectional = true;
 	menuListAuton[i] = &menuItemProgSkills1;
 
 	i = 0;
