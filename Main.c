@@ -1103,6 +1103,7 @@ void pre_auton()
 const float leftDriveMultiplier = (10.0/10.0);
 const float rightDriveMultiplier = (10.0/10.0);
 short potentiometerArmLimit = 0;
+short gyroSoftOffset = 0;
 ubyte numOfInternalCones = 0;
 
 
@@ -1117,8 +1118,17 @@ short correctArmGoalPoint(short goalPoint) { return goalPoint * ARM_POTENTIOMETE
 short correctDriveLeftGoalPoint(short goalPoint) { return goalPoint * DRIVE_ENCODER_LEFT_MULTIPLIER; }
 short correctDriveRightGoalPoint(short goalPoint) { return goalPoint * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
 short correctMini4BarGoalPoint(short goalPoint) { return goalPoint * MINI_4_BAR_POTENTIOMETER_MULTIPLIER; }
-short correctGyroGoalPoint(short goalPoint) { return goalPoint * GYRO_MULTIPLIER; }
 short correctMoGoLiftGoalPoint(short goalPoint) { return goalPoint * MOGO_LIFT_POTENTIOMETER_MULTIPLIER; }
+short correctGyroGoalPoint(short goalPoint)
+{
+	goalPoint += gyroSoftOffset;
+	if (goalPoint < -3600) goalPoint += 3600;
+	else if (goalPoint > 3600) goalPoint -= 3600;
+
+	return goalPoint * GYRO_MULTIPLIER;
+}
+
+
 
 bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
 {
