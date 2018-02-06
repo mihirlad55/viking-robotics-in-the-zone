@@ -2197,7 +2197,11 @@ task autonomous()
 		startTDrivePID(-300);
 		waitForTDrive();
 
-		startTDrivePID(-100);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-200);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200);
+		waitForTDrive();
+
+		startTDrivePID(-200);
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTDrive();
 
@@ -2205,22 +2209,21 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
 		waitForTGyroPID();
 
-		startTDrivePID(-660);
+		startTDrivePID(-450);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-2);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(2);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
 		waitForTGyroPID();
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(360);
-		waitForTDrive();
+		actionTimed(A_DRIVE, 500, -127);
+		SensorValue[gyro] = 0;
+		wait1Msec(200):
+		if (autonomousSide == SIDE_LEFT) gyroSoftOffset = 450;
+		else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = -450;
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-90);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(90);
-		waitForTGyroPID();
-
-		startTDrivePID(400);
+		startTDrivePID(780);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
@@ -2228,21 +2231,7 @@ task autonomous()
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTMoGoLift();
 
-		startTDrivePID(-500);
-		waitForTDrive();
-
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
-		waitForTGyroPID();
-
-		startTDrivePID(550);
-		waitForTDrive();
-
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
-		waitForTGyroPID();
-
-		startTDrivePID(300);
+		startTDrivePID(-550);
 		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
@@ -2252,14 +2241,35 @@ task autonomous()
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 		wait1Msec(200);
 
-		actionTimed(A_DRIVE, 600, 127);
+		actionTimed(A_DRIVE, 400, 127);
 		setDriveMotorPower(0);
 
-		setDriveMotorPower(-127);
-		wait1Msec(300);
+		startTDrivePID(-300);
+		waitForTDrive();
 
-		startTDrivePID(-373);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTDrivePID(-650);
+		waitForTDrive();
 
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-135);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(135);
+		wait1Msec(400);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		waitForTGyroPID();
+
+		startTDrivePID(600);
+		waitForTDrive();
+
+		actionTimed(A_DRIVE, 200, 127);
+
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-250);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(250);
+		waitForTGyroPID();
+
+		startTDrivePID(1300);
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+		waitForTDrive();
 
 	}
 }
