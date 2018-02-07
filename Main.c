@@ -2216,6 +2216,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(90);
 		waitForTGyroPID();
 
+		//go for second mogo
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		actionTimed(A_DRIVE, 800, -127);
 		SensorValue[gyro] = 0;
@@ -2234,6 +2235,7 @@ task autonomous()
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
+		//drop off second mogo
 		startTDrivePID(1050);
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 		wait1Msec(200);
@@ -2249,6 +2251,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-225);
 		waitForTGyroPID();
 
+		//grab third mogo
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		startTDrivePID(-650);
 		waitForTDrive();
@@ -2269,6 +2272,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(250);
 		waitForTGyroPID();
 
+		//drop off third mogo
 		startTDrivePID(1300);
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 		waitForTDrive();
@@ -2277,13 +2281,14 @@ task autonomous()
 		waitForTDrive();
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-57);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(57);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-52);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(52);
 		waitForTGyroPID();
 
 		startTDrivePID(1250);
 		waitForTDrive();
 
+		//pick up fourth mogo
 		actionTimed(A_DRIVE, 200, 127);
 		setDriveMotorPower(0);
 
@@ -2295,6 +2300,7 @@ task autonomous()
 		startTDrivePID(1200);
 		waitForTDrive();
 
+		//drop off fourth mogo
 		actionTimed(A_DRIVE, 500, 127);
 
 		startTDrivePID(-200);
@@ -2304,26 +2310,74 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45);
 		waitForTGyroPID();
 
-		startTDrivePID(650);
+		startTDrivePID(850);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(135);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-135);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(136);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-136);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTGyroPID();
 
 		startTDrivePID(600);
 		waitForTDrive();
 
+		//pick up fifth mogo
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		wait1Msec(200);
+		startTDrivePID(-830);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(45);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45);
+		waitForTGyroPID();
+
+		startTDrivePID(-300);
+		waitForTDrive();
+
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
 		waitForTGyroPID();
 
+		startTDrivePID(100);
+		waitForTDrive();
 
+		//drop off fifth mogo
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+		actionTimed(A_DRIVE, 1200, 127);
+		setDriveMotorPower(0);
 
+		startTDrivePID(-300);
+		waitForTDrive();
+
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		startTDrivePID(-250);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-155);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(155);
+		waitForTGyroPID();
+
+		startTDrivePID(-635);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+		waitForTGyroPID();
+
+		actionTimed(A_DRIVE, 900, -127);
+		SensorValue[gyro] = 0;
+		wait1Msec(200):
+		if (autonomousSide == SIDE_LEFT) gyroSoftOffset = 1800;
+		else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = -1800;
+
+		startTDrivePID(200);
+		waitForTDrive();
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-270);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(270);
+		waitForTGyroPID();
 	}
 }
 
