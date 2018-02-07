@@ -2253,8 +2253,8 @@ task autonomous()
 		startTDrivePID(-650);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-140);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(150);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-145);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(145);
 		wait1Msec(400);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTGyroPID();
@@ -2304,7 +2304,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45);
 		waitForTGyroPID();
 
-		startTDrivePID(580);
+		startTDrivePID(650);
 		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(135);
