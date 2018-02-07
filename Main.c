@@ -8,7 +8,7 @@
 #pragma config(Sensor, dgtl8,  limitSwitchArm1, sensorTouch)
 #pragma config(Sensor, dgtl9,  encoderDriveLeft, sensorQuadEncoder)
 #pragma config(Sensor, dgtl11, encoderDriveRight, sensorQuadEncoder)
-#pragma config(Motor,  port1,           motorGoliath,  tmotorServoContinuousRotation, openLoop, reversed)
+#pragma config(Motor,  port1,           motorGoliath,  tmotorServoContinuousRotation, openLoop)
 #pragma config(Motor,  port2,           motorArmLeft,  tmotorServoContinuousRotation, openLoop, reversed)
 #pragma config(Motor,  port3,           motorArmRight, tmotorServoContinuousRotation, openLoop)
 #pragma config(Motor,  port4,           motorMoGoLiftRight, tmotorServoContinuousRotation, openLoop)
