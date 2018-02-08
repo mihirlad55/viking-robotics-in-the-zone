@@ -3536,10 +3536,12 @@ bool isFlagBitChangedToFalse(short flagBit)
 	return ( (lastFlag & flagBit) && !(currentFlag & flagBit) );
 }
 
-	Action actions[70];
+
 
 task AutonRecorder()
 {
+	Action actions[70];
+
 	startTask(usercontrol);
 	isAutonRecorderEnabled = true;
 
