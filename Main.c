@@ -1373,7 +1373,7 @@ void drivePIDControl(short goalPoint, Mode mode)
 	short errorDifference = 0;
 	int newPower = 0;
 	int errorSum = 0;
-
+	int timeInitial = time1[T4];
 
 	if (mode == MODE_ACCURATE)
 	{
@@ -1381,7 +1381,7 @@ void drivePIDControl(short goalPoint, Mode mode)
 		iGain = (0.01);
 		dGain = (2.5);
 
-		int timeInitial = time1[T4];
+
 
 		while (time1[T4] - timeInitial < 150)
 		{
@@ -1405,6 +1405,8 @@ void drivePIDControl(short goalPoint, Mode mode)
 				else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 			}
 
+			setDriveMotorPower(newPower);
+
 			wait1Msec(15);
 		}
 	}
@@ -1414,14 +1416,13 @@ void drivePIDControl(short goalPoint, Mode mode)
 		iGain = (0.001);
 		dGain = (0.5);
 
-		while (abs(error) > 30)
+		while (time1[T4] - timeInitial < 150)
 		{
 			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 			error = goalPoint - getDriveLeftSensorValue();
 			errorSum += error;
 
-			if (abs(errorDifference) > 15) errorSum = 0;
-
+			if (abs(error) >= 30) timeInitial = time1[T4];
 			if (abs(error) < 30) errorSum = 0;
 
 			if (error > 0) newPower = 20 + error * pGain + errorSum * iGain - errorDifference * dGain;
