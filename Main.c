@@ -2095,7 +2095,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton22P.id)
+	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton12P.id)
 	{
 		setGoliathMotorPower(40);
 		setMini4BarMotorPower(-40);
@@ -2118,81 +2118,96 @@ task autonomous()
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
-		startTDrivePID(-1420, MODE_ACCURATE);
-		waitForTDrive();
+		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id)
+		{
+			setGoliathMotorPower(-50);
+			wait1Msec(500);
+			setGoliathMotorPower(50);
 
-		setGoliathMotorPower(-50);
-		wait1Msec(500);
-		setGoliathMotorPower(50);
+			startTDrivePID(100);
+			waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
-		waitForTGyroPID();
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE);
+			wait1Msec(400);
+			actionTimed(A_ARM, 400, -40);
 
-		startTDrivePID(665, MODE_ACCURATE);
-		waitForTDrive();
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE);
+			waitForTMini4Bar();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
-		waitForTGyroPID();
+		}
 
-		startTMoGoLift(STATE_EXTENSION_HALFWAY);
-		wait1Msec(200);
 
-		actionTimed(A_DRIVE, 1200, 127);
-		setDriveMotorPower(0);
+		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
+		{
+			startTDrivePID(-1420, MODE_ACCURATE);
+			waitForTDrive();
 
-		setDriveMotorPower(-127);
-		wait1Msec(300);
+			setGoliathMotorPower(-50);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+			wait1Msec(500);
+			setGoliathMotorPower(0);
+			waitForTGyroPID();
 
-		startTDrivePID(-373, MODE_ACCURATE);
+			startTDrivePID(665, MODE_ACCURATE);
+			waitForTDrive();
 
-	}
-	else if ( (*selectedProgram).id == menuItemAuton7P.id)
-	{
-		setGoliathMotorPower(40);
-		setMini4BarMotorPower(-40);
-		setArmMotorPower(-40);
-		wait1Msec(300);
-		setArmMotorPower(0);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
+			waitForTGyroPID();
 
-		setGoliathMotorPower(50);
-		mini4BarRetract(WAIT_NONE);
+			startTMoGoLift(STATE_EXTENSION_HALFWAY);
+			wait1Msec(200);
 
-		startTDrivePID(200, MODE_ACCURATE);
-		waitForTDrive();
+			actionTimed(A_DRIVE, 1200, 127);
+			setDriveMotorPower(0);
 
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1155, MODE_ACCURATE);
-		waitForTDrive();
+			setDriveMotorPower(-127);
+			wait1Msec(300);
 
-		actionTimed(A_DRIVE, 200, 127);
+			startTDrivePID(-373, MODE_ACCURATE);
+		}
+		else if ( (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton14P.id )
+		{
+			startTDrivePID(-500, MODE_ACCURATE);
+			waitForTDrive();
 
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
-		waitForTGyroPID();
-		waitForTMoGoLift();
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+			setGoliathMotorPower(-50);
+			wait1Msec(500);
+			setGoliathMotorPower(0);
+			waitForTGyroPID();
 
-		setGoliathMotorPower(-50);
-		wait1Msec(500);
-		setGoliathMotorPower(0);
+			startTDrivePID(700, MODE_ACCURATE);
+			startTMoGoLift(STATE_EXTENSION_HALFWAY);
+			waitForTMoGoLift();
+			waitForTDrive();
 
-		startTDrivePID(-500, MODE_ACCURATE);
-		waitForTDrive();
+			actionTimed(A_DRIVE, 500, 127);
+			startTDrivePID(-300, MODE_ACCURATE);
+			waitForTDrive();
+		}
+		else if ( (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id )
+		{
+			startTDrivePID(-500, MODE_ACCURATE);
+			waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
-		waitForTGyroPID();
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+			setGoliathMotorPower(-50);
+			wait1Msec(500);
+			setGoliathMotorPower(0);
+			waitForTGyroPID();
 
-		startTDrivePID(700, MODE_ACCURATE);
-		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		waitForTMoGoLift();
-		waitForTDrive();
+			startTDrivePID(700, MODE_ACCURATE);
+			startTMoGoLift(STATE_EXTENSION_EXTENDED);
+			waitForTMoGoLift();
+			waitForTDrive();
 
-		startTDrivePID(-300, MODE_ACCURATE);
-		waitForTDrive();
-
+			startTDrivePID(-300, MODE_ACCURATE);
+			waitForTDrive();
+		}
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
