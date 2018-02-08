@@ -2130,15 +2130,14 @@ task autonomous()
 			wait1Msec(500);
 			setGoliathMotorPower(50);
 
-			startTDrivePID(100);
+			startTDrivePID(100, MODE_ACCURATE);
 			waitForTDrive();
 
-			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE);
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
 			wait1Msec(400);
-			actionTimed(A_ARM, 400, -40);
+			actionTimed(A_ARM, 1000, -40);
 
-			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE);
-			waitForTMini4Bar();
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
 
 		}
 
