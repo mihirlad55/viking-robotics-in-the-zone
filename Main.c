@@ -1119,8 +1119,8 @@ void pre_auton()
 /*---------------------------------------------------------------------------*/
 
 
-const float leftDriveMultiplier = (10.0/10.0);
-const float rightDriveMultiplier = (10.0/10.0);
+float leftDriveMultiplier = (10.0/10.0);
+float rightDriveMultiplier = (10.0/10.0);
 short potentiometerArmLimit = 0;
 short gyroSoftOffset = 0;
 ubyte numOfInternalCones = 0;
@@ -2101,7 +2101,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton12P.id)
+	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
 	{
 		setGoliathMotorPower(40);
 		setMini4BarMotorPower(-40);
@@ -2213,6 +2213,26 @@ task autonomous()
 			startTDrivePID(-300, MODE_ACCURATE);
 			waitForTDrive();
 		}
+	}
+	else if ( (*selectedProgram).id == menuItemAutonR10P.id)
+	{
+		if (autonomousSide == SIDE_LEFT) gyroSoftOffset = 2000;
+		else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = -2000;
+
+		leftDriveMultiplier = 0.7;
+		startTDrivePID(-2000, MODE_ACCURATE):
+		waitForTDrive();
+		leftDriveMultiplier = 1.0;
+
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-225);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(225);
+		waitForTGyroPID();
+
+		startTDrivePID(300, MODE_ACCURATE);
+		waitForTDrive();
+
+		startTDrivePID(-300, MODE_ACCURATE);
+
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
