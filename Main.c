@@ -173,7 +173,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton10P, menuItemAuton7P, menuItemAuton22PRT, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -268,23 +268,35 @@ void populateMenuItems() {
 	menuItemAuton22P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton22P;
 
+	menuItemAuton24P.name = "Auton24P";
+	menuItemAuton24P.id = ++id;
+	menuItemAuton24P.idx = ++i;
+	menuItemAuton24P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton24P;
+
 	menuItemAuton7P.name = "Auton7P";
 	menuItemAuton7P.id = ++id;
 	menuItemAuton7P.idx = ++i;
 	menuItemAuton7P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton7P;
 
-	menuItemAuton10P.name = "Auton10P";
-	menuItemAuton10P.id = ++id;
-	menuItemAuton10P.idx = ++i;
-	menuItemAuton10P.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton10P;
+	menuItemAuton9P.name = "Auton9P";
+	menuItemAuton9P.id = ++id;
+	menuItemAuton9P.idx = ++i;
+	menuItemAuton9P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton9P;
 
-	menuItemAuton22PRT.name = "Auton2Cone";
-	menuItemAuton22PRT.id = ++id;
-	menuItemAuton22PRT.idx = ++i;
-	menuItemAuton22PRT.isDirectional = true;
-	menuListAuton[i] = &menuItemAuton22PRT;
+	menuItemAuton12P.name = "Auton12P";
+	menuItemAuton12P.id = ++id;
+	menuItemAuton12P.idx = ++i;
+	menuItemAuton12P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton12P;
+
+	menuItemAuton14P.name = "Auton14P";
+	menuItemAuton14P.id = ++id;
+	menuItemAuton14P.idx = ++i;
+	menuItemAuton14P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton14P;
 
 	menuItemAutonNone.name = "AutonNone";
 	menuItemAutonNone.id = ++id;
