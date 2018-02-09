@@ -159,7 +159,7 @@ enum StateExtension { STATE_EXTENSION_EXTENDED, STATE_EXTENSION_RETRACTED, STATE
 enum StateGoliath { STATE_GOLIATH_INTAKE, STATE_GOLIATH_OUTTAKE, STATE_OFF };
 enum WaitForAction { WAIT, WAIT_NONE };
 enum Macro { MACRO_ARM_READY, MACRO_MOGO_STACK_CONE };
-enum Mode { MODE_ACCURATE, MODE_FAST };
+enum Mode { MODE_ACCURATE, MODE_FAST, MODE_MOGO };
 
 struct MenuItem {
 	short id;
@@ -1393,11 +1393,20 @@ void drivePIDControl(short goalPoint, Mode mode)
 	int errorSum = 0;
 	int timeInitial = time1[T4];
 
-	if (mode == MODE_ACCURATE)
+	if (mode == MODE_ACCURATE || mode == MODE_MOGO)
 	{
-		pGain = (0.55);
-		iGain = (0.01);
-		dGain = (2.5);
+		if (mode == MODE_ACCURATE)
+		{
+			pGain = (0.55);
+			iGain = (0.01);
+			dGain = (2.5);
+		}
+		else if (mode == MODE_MOGO)
+		{
+			pGain = (0.65);
+			iGain = (0.01);
+			dGain = (2.5);
+		}
 
 
 
