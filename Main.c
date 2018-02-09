@@ -2100,7 +2100,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
+	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
 	{
 		setGoliathMotorPower(40);
 		setMini4BarMotorPower(-40);
@@ -2219,7 +2219,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = -2000;
 
 		leftDriveMultiplier = 0.7;
-		startTDrivePID(-2000, MODE_ACCURATE):
+		startTDrivePID(-2000, MODE_ACCURATE);
 		waitForTDrive();
 		leftDriveMultiplier = 1.0;
 
@@ -2231,6 +2231,27 @@ task autonomous()
 		waitForTDrive();
 
 		startTDrivePID(-300, MODE_ACCURATE);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
+		waitForTDrive();
+		waitForTMoGoLift();
+
+		startTDrivePID(300, MODE_ACCURATE);
+		waitForTDrive();
+
+		actionTimed(A_DRIVE, 200, 127);
+
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(180);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-180);
+		waitForTGyroPID();
+		startTMoGoLift(STATE_EXTENSION_HALFWAY);
+
+		startTDrivePID(1000, MODE_ACCURATE);
+		waitForTDrive();
+
+		actionTimed(A_DRIVE, 200, 127);
+
+		startTDrivePID(-500, MODE_ACCURATE);
 
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
@@ -2259,12 +2280,12 @@ task autonomous()
 		startTDrivePID(-1420, MODE_ACCURATE);
 		waitForTDrive();
 
-		setGoliathMotorPower(-50);
-		wait1Msec(500);
-		setGoliathMotorPower(50);
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+		setGoliathMotorPower(-50);
+		wait1Msec(500);
+		setGoliathMotorPower(50);
 		waitForTGyroPID();
 
 		startTDrivePID(665, MODE_ACCURATE);
