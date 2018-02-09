@@ -2119,7 +2119,7 @@ task autonomous()
 		mini4BarRetract(WAIT_NONE);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1355, MODE_ACCURATE);
+		startTDrivePID(1250, MODE_FAST);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
@@ -2132,8 +2132,10 @@ task autonomous()
 
 		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id)
 		{
+			setArmMotorPower(-40);
 			setGoliathMotorPower(-50);
 			wait1Msec(500);
+			setArmMotorPower(0);
 			setGoliathMotorPower(50);
 
 			startTDrivePID(100, MODE_ACCURATE);
@@ -2296,12 +2298,13 @@ task autonomous()
 		startTDrivePID(-1420, MODE_ACCURATE);
 		waitForTDrive();
 
-
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
 		setGoliathMotorPower(-50);
+		setArmMotorPower(-40);
 		wait1Msec(500);
 		setGoliathMotorPower(50);
+		setArmMotorPower(0);
 		waitForTGyroPID();
 
 		startTDrivePID(665, MODE_ACCURATE);
