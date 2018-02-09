@@ -2497,6 +2497,7 @@ task autonomous()
 		waitForTGyroPID();
 
 		actionTimed(A_DRIVE, 900, -127);
+		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		SensorValue[gyro] = 0;
 		wait1Msec(200);
 		if (autonomousSide == SIDE_LEFT) gyroSoftOffset = 1800;
@@ -2509,14 +2510,14 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(270);
 		waitForTGyroPID();
 
-		startTDrivePID(1200, MODE_ACCURATE);
+		startTDrivePID(1200, MODE_FAST);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(100);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-100);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
