@@ -1403,12 +1403,10 @@ void drivePIDControl(short goalPoint, Mode mode)
 		}
 		else if (mode == MODE_MOGO)
 		{
-			pGain = (0.65);
-			iGain = (0.01);
-			dGain = (2.5);
+			pGain = 0.55;
+			iGain = 0.005;
+			dGain = 5.0;
 		}
-
-
 
 		while (time1[T4] - timeInitial < 150)
 		{
@@ -1418,14 +1416,14 @@ void drivePIDControl(short goalPoint, Mode mode)
 
 			if (abs(errorDifference) > 9) errorSum = 0;
 
-			if (abs(error) < 15) errorSum = 0;
-			if (abs(error) >= 15) timeInitial = time1[T4];
+			if (abs(error) < 30) errorSum = 0;
+			if (abs(error) >= 30) timeInitial = time1[T4];
 
 			/* Prevent wind-up. Set maximum integral gain to 127 power. */
 			if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 			else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-			if (abs(error) < 15) newPower = 0;
+			if (abs(error) < 30) newPower = 0;
 			else
 			{
 				if (abs(errorDifference) > 9) newPower = error * pGain;
