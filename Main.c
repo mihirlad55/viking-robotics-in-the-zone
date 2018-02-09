@@ -2288,7 +2288,7 @@ task autonomous()
 		mini4BarRetract(WAIT_NONE);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1355, MODE_ACCURATE);
+		startTDrivePID(1250, MODE_FAST);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
@@ -2339,7 +2339,7 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(175);
 		waitForTGyroPID();
 
-		startTDrivePID(-1165, MODE_ACCURATE);
+		startTDrivePID(-1050, MODE_ACCURATE);
 		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-90);
@@ -2443,8 +2443,8 @@ task autonomous()
 		startTDrivePID(850, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(136);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-136);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(142);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-142);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTGyroPID();
 
