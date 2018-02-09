@@ -2572,19 +2572,19 @@ void PIDMode()
 			goalPoint = (1 + random(15)) * 100;
 			displayLCDCenteredString(1, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			drivePIDControl(goalPoint, MODE_FAST);
+			drivePIDControl(goalPoint, MODE_MOGO);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
 
 			clearTimer(T4);
 			SensorValue[LED] = 1;
-			drivePIDControl(-goalPoint, MODE_FAST);
+			drivePIDControl(-goalPoint, MODE_MOGO);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
 
-			clearTimer(T4);
+/*			clearTimer(T4);
 			SensorValue[LED] = 1;
 			drivePIDControl(goalPoint, MODE_ACCURATE);
 			SensorValue[LED] = 0;
@@ -2596,7 +2596,7 @@ void PIDMode()
 			drivePIDControl(-goalPoint, MODE_ACCURATE);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
-			wait1Msec(5000);
+			wait1Msec(5000);*/
 		}
 	}
 	else if ( (*selectedProgram).id == menuItemPIDGyro.id)
