@@ -1434,14 +1434,13 @@ void drivePIDControl(short goalPoint, Mode mode)
 		iGain = (0.001);
 		dGain = (0.5);
 
-		while (time1[T4] - timeInitial < 150)
+		while (abs(error) >= 15)
 		{
 			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 			error = goalPoint - getDriveLeftSensorValue();
 			errorSum += error;
 
-			if (abs(error) >= 30) timeInitial = time1[T4];
-			if (abs(error) < 30) errorSum = 0;
+			if (abs(error) < 15) errorSum = 0;
 
 			if (error > 0) newPower = 20 + error * pGain + errorSum * iGain - errorDifference * dGain;
 			else if (error < 0) newPower = -20 + error * pGain + errorSum * iGain - errorDifference * dGain;
