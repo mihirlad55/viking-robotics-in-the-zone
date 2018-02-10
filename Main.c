@@ -2110,7 +2110,6 @@ task autonomous()
 	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
 	{
 		setGoliathMotorPower(40);
-		setMini4BarMotorPower(-40);
 		setArmMotorPower(-40);
 		wait1Msec(300);
 		setArmMotorPower(0);
@@ -2230,7 +2229,6 @@ task autonomous()
 	{
 
 		setGoliathMotorPower(40);
-		setMini4BarMotorPower(-40);
 		setArmMotorPower(-40);
 		wait1Msec(300);
 		setArmMotorPower(0);
@@ -2279,7 +2277,6 @@ task autonomous()
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
 		setGoliathMotorPower(40);
-		setMini4BarMotorPower(-40);
 		setArmMotorPower(-40);
 		wait1Msec(300);
 		setArmMotorPower(0);
