@@ -3113,13 +3113,16 @@ task Arm()
 	}
 }
 
-
+short axisX;
+short axisY;
 
 task Drive()
 {
 
-
-	short axisX, axisY;
+	float a = (0.00022419);
+	float ax = (0.000053321);
+	float h = (-48.851);
+	short x = 0, y = 0;
 
 	while (true)
 	{
@@ -3130,8 +3133,10 @@ task Drive()
 				/* Drive if joystick is greater than deadzone */
 				if (abs(vexRT[JOY_DRIVE_X]) > DRIVE_JOYSTICK_DEADZONE || abs(vexRT[JOY_DRIVE_Y]) > DRIVE_JOYSTICK_DEADZONE)
 				{
-					axisY = 0.0000635768 * pow(vexRT[Ch2], 3) - 0.0254307 * vexRT[Ch2];
-					axisX = 0.0002 * pow(vexRT[Ch1], 3) - 0.0254307 * vexRT[Ch1];
+					x = vexRT[Ch2];
+					y = vexRT[Ch1];
+					axisY = a * pow(vexRT[Ch2] - (h * (vexRT[Ch2] / (-abs(vexRT[Ch2] + 0.1)))), 3) + (20 * (vexRT[Ch2] / (abs(vexRT[Ch2] + 0.1))));
+					axisX = ax * pow(vexRT[Ch1] - (2 * (vexRT[Ch1] / (-abs(vexRT[Ch1] + 0.1)))), 3) + (20 * (vexRT[Ch1] / (abs(vexRT[Ch1] + 0.1))));
 
 					setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], axisY + axisX), SlewRate(motor[motorDriveRightFront], axisY - axisX) );
 				}
