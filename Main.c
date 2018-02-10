@@ -2148,12 +2148,19 @@ task autonomous()
 
 		}
 
-
-		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
+		if ( (*selectedProgram).id == menuItemAuton22P.id)
 		{
 			startTDrivePID(-1420, MODE_ACCURATE);
 			waitForTDrive();
+		}
+		else if ( (*selectedProgram).id == menuItemAuton24P.id)
+		{
+			startTDrivePID(-1520, MODE_ACCURATE);
+			waitForTDrive();
+		}
 
+		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
+		{
 			setGoliathMotorPower(-50);
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
