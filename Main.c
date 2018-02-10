@@ -2321,21 +2321,15 @@ task autonomous()
 		actionTimed(A_DRIVE, 1200, 127);
 		setDriveMotorPower(0);
 
-		startTDrivePID(-300, MODE_ACCURATE);
+		startTDrivePID(-500, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-200);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200);
-		waitForTDrive();
-
-		startTDrivePID(-200, MODE_ACCURATE);
-		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-175);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(175);
 		waitForTGyroPID();
 
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		startTDrivePID(-1050, MODE_ACCURATE);
 		waitForTDrive();
 
