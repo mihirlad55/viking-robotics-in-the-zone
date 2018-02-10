@@ -2175,8 +2175,9 @@ task autonomous()
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
 			waitForTGyroPID();
 
+			actionTimed(A_DRIVE, 500, 127);
 			startTMoGoLift(STATE_EXTENSION_HALFWAY);
-			wait1Msec(200);
+			actionTimed(A_DRIVE, 700, 127);
 
 			actionTimed(A_DRIVE, 1200, 127);
 			setDriveMotorPower(0);
