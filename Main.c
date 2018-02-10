@@ -2118,7 +2118,11 @@ task autonomous()
 		mini4BarRetract(WAIT_NONE);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1250, MODE_FAST);
+		startTDrivePID(750, MODE_FAST);
+		waitForTDrive();
+		waitForTMoGoLift();
+
+		startTDrivePID(500, MODE_FAST);
 		waitForTDrive();
 
 		actionTimed(A_DRIVE, 200, 127);
