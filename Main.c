@@ -2172,7 +2172,7 @@ task autonomous()
 			setGoliathMotorPower(0);
 			waitForTGyroPID();
 
-			startTDrivePID(665, MODE_ACCURATE);
+			startTDrivePID(500, MODE_ACCURATE);
 			waitForTDrive();
 
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
