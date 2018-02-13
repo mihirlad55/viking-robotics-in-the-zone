@@ -1418,7 +1418,7 @@ void drivePIDControl(short goalPoint, Mode mode)
 		{
 			pGain = (0.55);
 			iGain = (0.01);
-			dGain = (2.5);
+			dGain = (3.2);
 		}
 		else if (mode == MODE_MOGO)
 		{
