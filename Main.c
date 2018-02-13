@@ -2313,10 +2313,10 @@ task autonomous()
 		mini4BarRetract(WAIT_NONE);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		startTDrivePID(1250, MODE_FAST);
+		startTDrivePID(1250, MODE_ACCURATE);
 		waitForTDrive();
 
-		actionTimed(A_DRIVE, 200, 127);
+		actionTimed(A_DRIVE, 200, 80);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
