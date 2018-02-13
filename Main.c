@@ -1,6 +1,7 @@
 #pragma config(Sensor, in1,    secondaryBattery, sensorAnalog)
-#pragma config(Sensor, in2,    gyro,           sensorGyro)
-#pragma config(Sensor, in6,    potentiometerMoGoLift,           sensorPotentiometer)
+#pragma config(Sensor, in2,    gyro1,          sensorGyro)
+#pragma config(Sensor, in3,    gyro2,          sensorGyro)
+#pragma config(Sensor, in6,    potentiometerMoGoLift, sensorPotentiometer)
 #pragma config(Sensor, in7,    potentiometerMini4Bar, sensorPotentiometer)
 #pragma config(Sensor, in8,    potentiometerArm, sensorPotentiometer)
 #pragma config(Sensor, dgtl2,  limitSwitchArm2, sensorTouch)
@@ -677,6 +678,8 @@ void displayBatteryLevelOnLCD()
 	displayNextLCDString(backupBattery);
 }
 
+short getGyroSensorValue();
+
 void reconfigureMenu(void* menuList, ubyte newLCDScreen, ubyte newLCDScreenMin, ubyte newLCDScreenMax)
 {
 	currentMenu = menuList;
@@ -730,7 +733,7 @@ void displayProgram()
 		/* Get value of gyro sensor and print it to the LCD Screen */
 		while (nLCDButtons == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0 && vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0)
 		{
-			sprintf(gyroValue, "%4.0f%c", SensorValue[gyro]); //convert to string format to 4 digits
+			sprintf(gyroValue, "%4.0f%c", getGyroSensorValue()); //convert to string format to 4 digits
 			gyroValue += ")";
 			displayLCDString(1, 9, gyroValue);
 			displayLCDString(1, 15, ">");
@@ -823,7 +826,8 @@ void displayProgram()
 		/* If the current screen is the reset gyro screen, reset the gyro and notify the user */
 		else if (currentMenu[LCDScreen].id == menuItemResetGyro.id)
 		{
-			SensorValue[gyro] = 0;
+			SensorValue[gyro1] = 0;
+			SensorValue[gyro2] = 0;
 			displayLCDCenteredString(0, "Gyro Reset!");
 			clearLCDLine(1);
 			wait1Msec(1000);
@@ -1129,7 +1133,7 @@ ubyte numOfInternalCones = 0;
 short getArmSensorValue() { return (SensorValue[potentiometerArm] + ARM_POTENTIOMETER_OFFSET) * ARM_POTENTIOMETER_MULTIPLIER; }
 short getMini4BarSensorValue() { return (SensorValue[potentiometerMini4Bar] + MINI_4_BAR_POTENTIOMETER_OFFSET) * MINI_4_BAR_POTENTIOMETER_MULTIPLIER; }
 short getMoGoLiftSensorValue() { return (SensorValue[potentiometerMoGoLift] + MOGO_LIFT_POTENTIOMETER_OFFSET) * MOGO_LIFT_POTENTIOMETER_MULTIPLIER; }
-short getGyroSensorValue() { return SensorValue[gyro] * GYRO_MULTIPLIER; }
+short getGyroSensorValue() { return (SensorValue[gyro1] + SensorValue[gyro2] * (-1)) / 2; }
 short getDriveLeftSensorValue() { return SensorValue[encoderDriveLeft] * DRIVE_ENCODER_LEFT_MULTIPLIER; }
 short getDriveRightSensorValue() { return SensorValue[encoderDriveRight] * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
 
@@ -1152,7 +1156,8 @@ void resetGyro(short leftSidedOffset)
 {
 	if (autonomousSide == SIDE_LEFT) gyroSoftOffset = leftSidedOffset;
 	else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = leftSidedOffset * (-1);
-	SensorValue[gyro] = 0;
+	SensorValue[gyro1] = 0;
+	SensorValue[gyro2] = 0;
 }
 
 
@@ -2516,10 +2521,8 @@ task autonomous()
 
 		actionTimed(A_DRIVE, 900, -127);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		SensorValue[gyro] = 0;
+		resetGyro(1800);
 		wait1Msec(200);
-		if (autonomousSide == SIDE_LEFT) gyroSoftOffset = 1800;
-		else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = -1800;
 
 		startTDrivePID(200, MODE_ACCURATE);
 		waitForTDrive();
@@ -3711,7 +3714,8 @@ task AutonRecorder()
 
 	SensorValue[encoderDriveLeft] = 0;
 	SensorValue[encoderDriveRight] = 0;
-	SensorValue[gyro] = 0;
+	SensorValue[gyro1] = 0;
+	SensorValue[gyro2] = 0;
 
 
 	short goalPoints[70];
@@ -3758,7 +3762,7 @@ task AutonRecorder()
 		else if (isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE)) isGyroDone = true;
 		else if (!isFlagBitChangedToTrue(FLAG_BIT_GYRO_ACTIVE) && !isFlagBitChangedToFalse(FLAG_BIT_GYRO_ACTIVE) && isGyroDone)
 		{
-			goalPoints[lastGyroIdx] = SensorValue[gyro];
+			goalPoints[lastGyroIdx] = getGyroSensorValue();
 			if (actions[idx - 1] != A_GYRO)
 			{
 				Action tempAction = actions[idx - 1];
