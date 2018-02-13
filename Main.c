@@ -1148,6 +1148,13 @@ short correctGyroGoalPoint(short goalPoint)
 }
 
 
+void resetGyro(short leftSidedOffset)
+{
+	if (autonomousSide == SIDE_LEFT) gyroSoftOffset = leftSidedOffset;
+	else if (autonomousSide == SIDE_RIGHT) gyroSoftOffset = leftSidedOffset * (-1);
+	SensorValue[gyro] = 0;
+}
+
 
 bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
 {
