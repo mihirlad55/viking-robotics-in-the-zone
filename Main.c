@@ -2337,7 +2337,7 @@ task autonomous()
 		setArmMotorPower(0);
 		waitForTGyroPID();
 
-		startTDrivePID(665, MODE_ACCURATE);
+		startTDrivePID(550, MODE_ACCURATE);
 		waitForTDrive();
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
@@ -2359,7 +2359,7 @@ task autonomous()
 		waitForTGyroPID();
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		startTDrivePID(-390, MODE_ACCURATE);
+		startTDrivePID(-500, MODE_ACCURATE);
 		waitForTDrive();
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
@@ -2367,15 +2367,16 @@ task autonomous()
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
 		waitForTGyroPID();
 
-		actionTimed(A_DRIVE, 1000, -127);
+		actionTimed(A_DRIVE, 400, -127);
+		actionTimed(A_DRIVE, 200, -40);
 		resetGyro(500);
 		wait1Msec(200);
 
 		//go for second mogo
-		startTDrivePID(800, MODE_ACCURATE);
+		startTDrivePID(900, MODE_ACCURATE);
 		waitForTDrive();
 
-		actionTimed(A_DRIVE, 200, 127);
+		actionTimed(A_DRIVE, 200, 80);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(-235);
@@ -2389,7 +2390,7 @@ task autonomous()
 		wait1Msec(200);
 		waitForTDrive();
 
-		actionTimed(A_DRIVE, 700, 60);
+		actionTimed(A_DRIVE, 400, 60);
 		resetGyro(2300);
 		wait1Msec(200);
 
