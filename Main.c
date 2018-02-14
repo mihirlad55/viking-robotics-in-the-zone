@@ -1089,6 +1089,9 @@ void pre_auton()
 #endif
 
 		ResetAllSensors();
+		stopTask(loadLCDScreen);
+		startTask(loadLCDScreen);
+
 		SensorValue[gyro1] = sensorNone;
 		SensorValue[gyro2] = sensorNone;
 		wait1Msec(1000);
@@ -1096,8 +1099,6 @@ void pre_auton()
 		SensorValue[gyro2] = sensorGyro;
 		wait1Msec(2000);
 
-		stopTask(loadLCDScreen);
-		startTask(loadLCDScreen);
 	}
 }
 
