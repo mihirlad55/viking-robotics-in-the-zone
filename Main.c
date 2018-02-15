@@ -1610,8 +1610,19 @@ void gyroFace(short degrees)
 
 
 /* Face an absolute directional bearing */
-void gyroPIDControl(short goalPoint)
+void gyroPIDControl(short goalPoint, Mode mode)
 {
+	if (mode == MODE_ACCURATE)
+	{
+		leftDriveMultiplier = 1.0;
+		rightDriveMultiplier = 1.0;
+	}
+	else if (mode == MODE_MOGO)
+	{
+		leftDriveMultiplier = 2.0/3.0;
+		rightDriveMultiplier = 2.0/3.0;
+	}
+
 	float pGain = (1.5);
 	float iGain = (0.01);
 	float dGain = (20.0);
@@ -1838,6 +1849,7 @@ StateExtension tMoGoLiftGoalState = STATE_EXTENSION_EXTENDED;
 Macro tMacroGoalPoint;
 
 Mode tDriveMode;
+Mode tGyroMode;
 
 void MacroArmReady();
 void MacroMoGoStackCone();
@@ -1874,7 +1886,7 @@ task tGyroPIDControl()
 {
 	isTGyroPIDReady = false;
 
-	gyroPIDControl(tGyroPIDGoalPoint);
+	gyroPIDControl(tGyroPIDGoalPoint, tGyroMode);
 
 	isTGyroPIDReady = true;
 }
@@ -1953,12 +1965,13 @@ void startTArmPID(short goalPoint, WaitForAction stopWhenMet)
 }
 
 
-void startTGyroPID(short goalPoint)
+void startTGyroPID(short goalPoint, Mode mode)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
 	tGyroPIDGoalPoint = goalPoint;
+	tGyroMode = mode;
 	startTask(tGyroPIDControl);
 }
 
@@ -2157,8 +2170,8 @@ task autonomous()
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(2, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2, MODE_MOGO);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
@@ -2195,8 +2208,8 @@ task autonomous()
 		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
 		{
 			setGoliathMotorPower(-50);
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-142, MODE_MOGO);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142, MODE_MOGO);
 			wait1Msec(500);
 			setGoliathMotorPower(0);
 			waitForTGyroPID();
@@ -2204,8 +2217,8 @@ task autonomous()
 			startTDrivePID(500, MODE_ACCURATE);
 			waitForTDrive();
 
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-243, MODE_MOGO);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243, MODE_MOGO);
 			waitForTGyroPID();
 
 			actionTimed(A_DRIVE, 500, 127);
@@ -2225,8 +2238,8 @@ task autonomous()
 			startTDrivePID(-500, MODE_ACCURATE);
 			waitForTDrive();
 
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-191);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(191);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-191, MODE_MOGO);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(191, MODE_MOGO);
 			setGoliathMotorPower(-50);
 			setArmMotorPower(-40);
 			wait1Msec(500);
@@ -2249,8 +2262,8 @@ task autonomous()
 			else if ( (*selectedProgram).id == menuItemAuton9P.id) startTDrivePID(-600, MODE_ACCURATE);
 			waitForTDrive();
 
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-200);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-200, MODE_MOGO);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200, MODE_MOGO);
 			setArmMotorPower(-40);
 			setGoliathMotorPower(-50);
 			wait1Msec(500);
@@ -2285,8 +2298,8 @@ task autonomous()
 		waitForTDrive();
 		leftDriveMultiplier = 1.0;
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-245);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(245);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-245, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(245, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTDrivePID(200, MODE_ACCURATE);
@@ -2303,8 +2316,8 @@ task autonomous()
 		actionTimed(A_DRIVE, 400, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(165);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-165);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(165, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-165, MODE_MOGO);
 		waitForTGyroPID();
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 
@@ -2333,16 +2346,17 @@ task autonomous()
 		actionTimed(A_DRIVE, 200, 80);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(2);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2);
+		wait1Msec(400);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(2, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2, MODE_MOGO);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
 		startTDrivePID(-1420, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-142);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-50, MODE_MOGO);
 		setGoliathMotorPower(-50);
 		setArmMotorPower(-40);
 		wait1Msec(500);
@@ -2353,8 +2367,8 @@ task autonomous()
 		startTDrivePID(550, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(140, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-140, MODE_MOGO);
 		waitForTGyroPID();
 
 		actionTimed(A_DRIVE, 500, 127);
@@ -2367,8 +2381,8 @@ task autonomous()
 		startTDrivePID(-500, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-135);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(135);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-135, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(135, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
@@ -2376,8 +2390,8 @@ task autonomous()
 		waitForTDrive();
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-27, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(27, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		actionTimed(A_DRIVE, 400, -127);
@@ -2392,8 +2406,9 @@ task autonomous()
 		actionTimed(A_DRIVE, 200, 80);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-235);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(235);
+		wait1Msec(900);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-225, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(225, MODE_MOGO);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
@@ -2410,16 +2425,17 @@ task autonomous()
 		startTDrivePID(-150, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-138);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(138);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-135, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(135, MODE_ACCURATE);
+		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTGyroPID();
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		startTDrivePID(1000, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-50);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(50);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-50, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(50, MODE_ACCURATE);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTGyroPID();
 
@@ -2438,8 +2454,8 @@ task autonomous()
 		startTDrivePID(-400, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243, MODE_MOGO);
 		waitForTGyroPID();
 
 		//drop off third mogo
@@ -2456,8 +2472,8 @@ task autonomous()
 		waitForTDrive();
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTDrivePID(1250, MODE_ACCURATE);
@@ -2481,15 +2497,15 @@ task autonomous()
 		startTDrivePID(-200, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(45);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(45, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTDrivePID(850, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(142);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-142);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(142, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-142, MODE_ACCURATE);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED);
 		waitForTGyroPID();
 
@@ -2504,15 +2520,15 @@ task autonomous()
 		startTDrivePID(-830, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(45);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(45, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-45, MODE_MOGO);
 		waitForTGyroPID();
 
 		startTDrivePID(-300, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-45, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45, MODE_MOGO);
 		waitForTGyroPID();
 
 		startTDrivePID(150, MODE_ACCURATE);
@@ -2530,15 +2546,15 @@ task autonomous()
 		startTDrivePID(-200, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-155);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(155);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-155, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(155, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTDrivePID(-635, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-180, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(180, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		actionTimed(A_DRIVE, 900, -127);
@@ -2549,8 +2565,8 @@ task autonomous()
 		startTDrivePID(200, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-270);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(270);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-270, MODE_ACCURATE);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(270, MODE_ACCURATE);
 		waitForTGyroPID();
 
 		startTDrivePID(1200, MODE_FAST);
@@ -2559,16 +2575,16 @@ task autonomous()
 		actionTimed(A_DRIVE, 200, 127);
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(100);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-100);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(100, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-100, MODE_MOGO);
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
 		startTDrivePID(-1200, MODE_ACCURATE);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-90);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(90);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-90, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(90, MODE_MOGO);
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 		waitForTGyroPID();
 
@@ -2649,7 +2665,7 @@ void PIDMode()
 			goalPoint = (-35 + random(70)) * 10;
 			displayLCDCenteredString(0, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			gyroPIDControl(goalPoint);
+			gyroPIDControl(goalPoint, MODE_ACCURATE);
 			SensorValue[LED] = 0;
 			wait1Msec(1500);
 		}
