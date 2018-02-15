@@ -1430,15 +1430,23 @@ void drivePIDControl(short goalPoint, Mode mode)
 	{
 		if (mode == MODE_ACCURATE)
 		{
+			leftDriveMultiplier = (1.0);
+			rightDriveMultiplier = (1.0);
+
 			pGain = (0.55);
 			iGain = (0.01);
 			dGain = (3.2);
 		}
 		else if (mode == MODE_MOGO)
 		{
-			pGain = 0.55;
-			iGain = 0.005;
-			dGain = 5.0;
+			pGain = (0.55);
+			iGain = (0.01);
+			dGain = (3.2);
+			//pGain = 0.55;
+			//iGain = 0.005;
+			//dGain = 5.0;
+			leftDriveMultiplier = (2.0/3.0);
+			rightDriveMultiplier = (2.0/3.0);
 		}
 
 		while (time1[T4] - timeInitial < 150)
@@ -1459,6 +1467,7 @@ void drivePIDControl(short goalPoint, Mode mode)
 			if (abs(errorDifference) > 9) newPower = error * pGain;
 			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 
+			//if (abs(error) > 80) newPower = SlewRate(motor[motorDriveLeftBack], newPower, 0.03, 5);
 			setDriveMotorPower(newPower);
 
 			wait1Msec(15);
