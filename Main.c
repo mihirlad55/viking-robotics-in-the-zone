@@ -131,8 +131,6 @@
 
 
 #define IS_SLEW_RATE_ENABLED	true
-#define MAX_SPEED_DIFFERENCE	20
-#define SLEW_RATE				0.15
 
 #define GYRO_MULTIPLIER	1
 
@@ -1214,6 +1212,21 @@ void setMoGoLiftMotorPower(int motorPower)
 {
 	motor[motorMoGoLiftLeft] = motorPower;
 	motor[motorMoGoLiftRight] = motorPower;
+}
+
+
+
+byte SlewRate(int lastPower, int newPower, float rate, int maxSpeedDifference) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
+{
+	int speedDifference = lastPower - newPower;
+	if (abs(speedDifference) < maxSpeedDifference)
+	{
+		return newPower;
+	}
+	else
+	{
+		return (lastPower - speedDifference * rate);
+	}
 }
 
 
