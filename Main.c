@@ -3107,19 +3107,6 @@ StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
 
 
-byte SlewRate(int lastPower, int newPower) // Prevent large accelerations by reducing speed change if greater than MAX_SPEED_DIFFERENCE
-{
-	int speedDifference = lastPower - newPower;
-	if (abs(speedDifference) < MAX_SPEED_DIFFERENCE)
-	{
-		return newPower;
-	}
-	else
-	{
-		return (lastPower - speedDifference * SLEW_RATE);
-	}
-}
-
 
 task Arm()
 {
@@ -3206,9 +3193,9 @@ task Drive()
 					axisY = a * pow(vexRT[Ch2] - (h * (vexRT[Ch2] / (-abs(vexRT[Ch2] + 0.1)))), 3) + (20 * (vexRT[Ch2] / (abs(vexRT[Ch2] + 0.1))));
 					axisX = ax * pow(vexRT[Ch1] - (2 * (vexRT[Ch1] / (-abs(vexRT[Ch1] + 0.1)))), 3) + (20 * (vexRT[Ch1] / (abs(vexRT[Ch1] + 0.1))));
 
-					setDriveMotorPower( SlewRate(motor[motorDriveLeftFrontMiddle], axisY + axisX), SlewRate(motor[motorDriveRightFrontMiddle], axisY - axisX) );
+					setDriveMotorPower( SlewRate(motor[motorDriveLeftFrontMiddle], axisY + axisX, 0.15, 20), SlewRate(motor[motorDriveRightFrontMiddle], axisY - axisX, 0.15, 20) );
 				}
-				else setDriveMotorPower( SlewRate(motor[motorDriveLeftFrontMiddle], 0), SlewRate(motor[motorDriveRightFrontMiddle], 0) );
+				else setDriveMotorPower( SlewRate(motor[motorDriveLeftFrontMiddle], 0, 0.15, 20), SlewRate(motor[motorDriveRightFrontMiddle], 0, 0.15, 20) );
 			}
 			wait1Msec(25);
 		}
