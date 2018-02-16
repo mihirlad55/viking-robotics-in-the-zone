@@ -1419,8 +1419,8 @@ void drivePIDControl(short goalPoint, Mode mode)
 	leftDriveMultiplier = 1.0;
 	rightDriveMultiplier = 1.0;
 
-	float pGain = 0.2;
-	float iGain = 0.05;
+	float pGain = 0.1;
+	float iGain = 0.1;
 	float dGain = 8;
 
 	goalPoint = getDriveLeftSensorValue() + correctDriveLeftGoalPoint(goalPoint);
@@ -1468,15 +1468,15 @@ void drivePIDControl(short goalPoint, Mode mode)
 
 		if (mode == MODE_ACCURATE)
 		{
-			while (abs(error) > 250)
+			while (abs(error) > 220)
 			{
 				error = goalPoint - getDriveLeftSensorValue();
-				if (error != 0) setDriveMotorPower(127 * error / abs(error));
+				setDriveMotorPower(127 * error / abs(error));
 			}
 		}
 		else if (mode == MODE_MOGO)
 		{
-			while (abs(error) > 250)
+			while (abs(error) > 220)
 			{
 				error = goalPoint - getDriveLeftSensorValue();
 				setDriveMotorPower( slewRate(motor[motorDriveLeftBack], 127 * 0.67 * error / abs(error), 0.05, 5) );
@@ -1490,7 +1490,7 @@ void drivePIDControl(short goalPoint, Mode mode)
 			error = goalPoint - getDriveLeftSensorValue();
 			errorSum += error / 10.0;
 
-			if ((abs(errorDifference) > 4 && mode == MODE_ACCURATE) || (abs(errorDifference) > 2 && mode == MODE_MOGO) || (errorSum > 0 && error < 0) || (errorSum < 0 && error > 0) || abs(error) < 15) errorSum = 0;
+			if ((abs(errorDifference) > 4 && mode == MODE_ACCURATE) || (abs(errorDifference) > 2 && mode == MODE_MOGO) || (errorSum > 0 && error < 0) || (errorSum < 0 && error > 0) || abs(error) < 14) errorSum = 0;
 
 			if (abs(error) >= 15) timeInitial = time1[T4];
 
@@ -1500,11 +1500,11 @@ void drivePIDControl(short goalPoint, Mode mode)
 
 
 			//if (abs(errorDifference) > 9) newPower = error * pGain;
-			pPower = error * pGain;
-			iPower = errorSum * iGain;
-			dPower = -errorDifference * dGain;
+			//pPower = error * pGain;
+			//iPower = errorSum * iGain;
+			//dPower = -errorDifference * dGain;
 
-			if (abs(error) >= 30) sPower = -sGain / error;
+			//if (abs(error) >= 30) sPower = -sGain / error;
 			newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 
 			if (mode == MODE_MOGO && newPower < 0) newPower = newPower * 2.0 / 3.0;
