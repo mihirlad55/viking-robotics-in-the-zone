@@ -1836,9 +1836,11 @@ void mini4BarParallel(WaitForAction stopWhenMet)
 
 void moGoRetract()
 {
-	while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) )
+	int timeInitial = time1[T4];
+	while (time1[T4] - timeInitial < 150)
 	{
 		setMoGoLiftMotorPower(-127);
+		if (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE)) timeInitial = time1[T4];
 	}
 	setMoGoLiftMotorPower(0);
 }
