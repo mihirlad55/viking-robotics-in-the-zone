@@ -1416,15 +1416,21 @@ void drivePIDControl(short goalPoint, Mode mode)
 {
 	autonomousReady = false;
 
-	float pGain, iGain, dGain;
+	leftDriveMultiplier = 1.0;
+	rightDriveMultiplier = 1.0;
+
+	float pGain = 0.2;
+	float iGain = 0.05;
+	float dGain = 8;
 
 	goalPoint = getDriveLeftSensorValue() + correctDriveLeftGoalPoint(goalPoint);
 
 	short error = goalPoint - getDriveLeftSensorValue();
-	short errorDifference = 0;
+
 	int newPower = 0;
 	int errorSum = 0;
-	int timeInitial = time1[T4];
+	short errorDifference = 0;
+
 
 	if (mode == MODE_ACCURATE || mode == MODE_MOGO)
 	{
@@ -1433,29 +1439,58 @@ void drivePIDControl(short goalPoint, Mode mode)
 			leftDriveMultiplier = (1.0);
 			rightDriveMultiplier = (1.0);
 
-			pGain = (0.55);
-			iGain = (0.01);
-			dGain = (3.2);
+			//pGain = (0.55);
+			//iGain = (0.01);
+		//	dGain = (3.2);
 		}
 		else if (mode == MODE_MOGO)
 		{
-			pGain = (0.55);
-			iGain = (0.01);
-			dGain = (3.2);
+//			pGain = (0.55);
+//			iGain = (0.01);
+//			dGain = (3.2);
 			//pGain = 0.55;
 			//iGain = 0.005;
 			//dGain = 5.0;
-			leftDriveMultiplier = (2.0/3.0);
-			rightDriveMultiplier = (2.0/3.0);
+			//leftDriveMultiplier = (2.0/3.0);
+			//rightDriveMultiplier = (2.0/3.0);
 		}
 
+		/*while (errorDifference == 0)
+		{
+			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
+			error = goalPoint - getDriveLeftSensorValue();
+			newPower += 5;
+			if (error != 0) setDriveMotorPower(newPower * (error / abs(error)) );
+			wait1Msec(30);
+		}
+
+		minPower = newPower - 10;*/
+
+		if (mode == MODE_ACCURATE)
+		{
+			while (abs(error) > 250)
+			{
+				error = goalPoint - getDriveLeftSensorValue();
+				if (error != 0) setDriveMotorPower(127 * error / abs(error));
+			}
+		}
+		else if (mode == MODE_MOGO)
+		{
+			while (abs(error) > 250)
+			{
+				error = goalPoint - getDriveLeftSensorValue();
+				setDriveMotorPower( slewRate(motor[motorDriveLeftBack], 127 * 0.67 * error / abs(error), 0.05, 5) );
+			}
+		}
+
+		int timeInitial = time1[T4];
 		while (time1[T4] - timeInitial < 150)
 		{
 			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 			error = goalPoint - getDriveLeftSensorValue();
-			errorSum += error;
+			errorSum += error / 10.0;
 
-			if (abs(errorDifference) > 9 || (errorSum > 0 && error < 0) || (errorSum < 0 && error > 0) ) errorSum = 0;
+			if ((abs(errorDifference) > 4 && mode == MODE_ACCURATE) || (abs(errorDifference) > 2 && mode == MODE_MOGO) || (errorSum > 0 && error < 0) || (errorSum < 0 && error > 0) || abs(error) < 15) errorSum = 0;
 
 			if (abs(error) >= 15) timeInitial = time1[T4];
 
@@ -1464,13 +1499,22 @@ void drivePIDControl(short goalPoint, Mode mode)
 			else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
 
-			if (abs(errorDifference) > 9) newPower = error * pGain;
-			else newPower = newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+			//if (abs(errorDifference) > 9) newPower = error * pGain;
+			pPower = error * pGain;
+			iPower = errorSum * iGain;
+			dPower = -errorDifference * dGain;
+
+			if (abs(error) >= 30) sPower = -sGain / error;
+			newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+
+			if (mode == MODE_MOGO && newPower < 0) newPower = newPower * 2.0 / 3.0;
+
+			//if (abs(newPower) < abs(minPower) && abs(error) >= 15) newPower = abs(minPower) * (error / abs(error) );
 
 			//if (abs(error) > 80) newPower = SlewRate(motor[motorDriveLeftBack], newPower, 0.03, 5);
 			setDriveMotorPower(newPower);
 
-			wait1Msec(15);
+			wait1Msec(5);
 		}
 	}
 	else if (mode == MODE_FAST)
