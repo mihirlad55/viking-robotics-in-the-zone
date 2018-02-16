@@ -2197,6 +2197,7 @@ task playMissionImpossibleMusic;
 
 task autonomous()
 {
+	clearTimer(T4);
 	startTask(playMissionImpossibleMusic);
 	if (isLCDEnabled)
 	{
