@@ -3201,7 +3201,7 @@ task Drive()
 				if (abs(vexRT[JOY_DRIVE_X]) > DRIVE_JOYSTICK_DEADZONE || abs(vexRT[JOY_DRIVE_Y]) > DRIVE_JOYSTICK_DEADZONE)
 				{
 					axisY = 0.0000635768 * pow(vexRT[Ch2], 3) - 0.0254307 * vexRT[Ch2];
-					axisX = 0.0002 * pow(vexRT[Ch1], 3) - 0.0254307 * vexRT[Ch1];
+					axisX = 0.00006 * pow(vexRT[Ch1], 3) - 0.0254307 * vexRT[Ch1];
 
 					setDriveMotorPower( SlewRate(motor[motorDriveLeftFrontMiddle], axisY + axisX, 0.15, 20), SlewRate(motor[motorDriveRightFrontMiddle], axisY - axisX, 0.15, 20) );
 				}
