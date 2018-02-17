@@ -113,7 +113,7 @@
 #define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	3380
 #define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	1420
 #define MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE	2020
-#define	MOGO_LIFT_POTENTIOMETER_OFFSET 			0
+#define	MOGO_LIFT_POTENTIOMETER_OFFSET 			-30
 #define MOGO_LIFT_POTENTIOMETER_MULTIPLIER		1
 
 
@@ -2335,6 +2335,12 @@ task autonomous()
 			startTDrivePID(-300, MODE_ACCURATE);
 			waitForTDrive();
 		}
+	}
+	else if ( (*selectedProgram).id == menuItemAutonNone.id)
+	{
+		setDriveMotorPower(127);
+		wait1Msec(5000);
+		setDriveMotorPower(0);
 	}
 	else if ( (*selectedProgram).id == menuItemAutonR10P.id)
 	{
