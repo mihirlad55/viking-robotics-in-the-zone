@@ -3116,7 +3116,7 @@ bool isAutonRecorderEnabled = false;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
-bool isToggleActive = false;
+bool isToggleActive = true;
 StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
 StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
@@ -3483,12 +3483,6 @@ task Mini4Bar()
 */
 			if (!areSensorsOverridden)
 			{
-				if (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1)
-				{
-					isToggleActive = !isToggleActive;
-					while (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1) { }
-				}
-
 				if (!isToggleActive)
 				{
 					if (vexRT[BTN_MINI_4_BAR_HOLD_AUTO] == 1)
@@ -3550,6 +3544,11 @@ task MoGoLift()
 		{
 			if (!areSensorsOverridden)
 			{
+				if (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1)
+				{
+					isToggleActive = !isToggleActive;
+					while (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1) { }
+				}
 				if (vexRT[BTN_MOGO_LIFT_HALFWAY_AUTO] == 1)
 				{
 					stateMoGoLiftCurrent = STATE_EXTENSION_HALFWAY;
