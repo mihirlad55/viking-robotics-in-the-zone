@@ -1672,8 +1672,8 @@ void gyroPIDControl(short goalPoint, Mode mode)
 	}
 	else if (mode == MODE_MOGO)
 	{
-		leftDriveMultiplier = 2.0/3.0;
-		rightDriveMultiplier = 2.0/3.0;
+		leftDriveMultiplier = 1.0;
+		rightDriveMultiplier = 1.0;
 	}
 
 	float pGain = (1.5);
@@ -1719,6 +1719,11 @@ void gyroPIDControl(short goalPoint, Mode mode)
 		//if (newPower > -minPower && error < 0) newPower = -minPower;
 		//else if (newPower < minPower && error > 0) newPower = minPower;
 
+		if (mode == MODE_MOGO)
+		{
+			if (newPower > 85) newPower = 85;
+			else if (newPower < -85) newPower = -85;
+		}
 		setDriveMotorPower(newPower * (-1), newPower);
 
 		wait1Msec(5);
