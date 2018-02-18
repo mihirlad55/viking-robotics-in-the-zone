@@ -2500,15 +2500,15 @@ task autonomous()
 		startTMoGoLift(STATE_EXTENSION_RETRACTED);
 		waitForTMoGoLift();
 
-		startTDrivePID(-650, MODE_MOGO);
+		startTDrivePID(-300, MODE_MOGO);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(-243, MODE_MOGO);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243, MODE_MOGO);
+		if (autonomousSide == SIDE_LEFT) startTGyroPID(-245, MODE_MOGO);
+		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(245, MODE_MOGO);
 		waitForTGyroPID();
 
 		//drop off third mogo
-		startTDrivePID(320, MODE_ACCURATE);
+		startTDrivePID(330, MODE_ACCURATE);
 		startTMoGoLift(STATE_EXTENSION_HALFWAY);
 		waitForTDrive();
 
