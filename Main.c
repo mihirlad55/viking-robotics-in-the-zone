@@ -1132,7 +1132,6 @@ void pre_auton()
 
 float leftDriveMultiplier = (10.0/10.0);
 float rightDriveMultiplier = (10.0/10.0);
-short potentiometerArmLimit = 0;
 short gyroSoftOffset = 0;
 ubyte numOfInternalCones = 0;
 
@@ -1167,16 +1166,6 @@ void resetGyro(short leftSidedOffset)
 	SensorValue[gyro2] = 0;
 }
 
-
-bool SetArmLimit() // Set new arm limit everytime limitswitch is pressed.
-{
-	if ((SensorValue[limitSwitchArm1] == 1 || SensorValue[limitSwitchArm2] == 1) && (getArmSensorValue() < ARM_POTENTIOMETER_MIN_VALUE + 200) * ARM_POTENTIOMETER_MULTIPLIER)
-	{
-		potentiometerArmLimit = SensorValue[potentiometerArm];
-		return true;
-	}
-	return false;
-}
 
 void setDriveMotorPower(int leftMotorPower, int rightMotorPower) // Set Drive motor power with seperate power for each side
 {
@@ -1244,7 +1233,6 @@ void actionTimed(Action action, short time, byte leftMotorPower, byte rightMotor
 {
 	autonomousReady = false;
 
-	SetArmLimit();
 	clearTimer(T1);
 	if (action == A_DRIVE) setDriveMotorPower(leftMotorPower, rightMotorPower);
 	else if (action == A_ARM) setArmMotorPower(leftMotorPower);
@@ -1252,7 +1240,7 @@ void actionTimed(Action action, short time, byte leftMotorPower, byte rightMotor
 	else if (action == A_MINI_4_BAR) setMini4BarMotorPower(leftMotorPower);
 	else if (action == A_MOGO_LIFT) setMoGoLiftMotorPower(leftMotorPower);
 
-	while (time1[T1] <= time) SetArmLimit();
+	while (time1[T1] <= time) { }
 
 	if (action == A_DRIVE) setDriveMotorPower(0,0);
 	else if (action == A_ARM) setArmMotorPower(0);
@@ -1277,7 +1265,6 @@ void actionUntilAtGoalPoint(Action action, short goalPoint, byte motorPower)
 {
 	autonomousReady = false;
 
-	SetArmLimit();
 	byte multiplier = 1;
 
 	if (SensorValue[encoderDriveLeft] > goalPoint ||
@@ -1295,7 +1282,7 @@ void actionUntilAtGoalPoint(Action action, short goalPoint, byte motorPower)
 	else if (action == A_ARM)
 	{
 		setArmMotorPower(motorPower);
-		while (getArmSensorValue() * multiplier < goalPoint * multiplier) { SetArmLimit(); }
+		while (getArmSensorValue() * multiplier < goalPoint * multiplier) { }
 	}
 	else if (action == A_MINI_4_BAR)
 	{
@@ -1322,7 +1309,6 @@ void actionUntilOverGoalPoint(Action action, short goalPoint, byte leftMotorPowe
 {
 	autonomousReady = false;
 
-	SetArmLimit();
 	if (action == A_DRIVE)
 	{
 		SensorValue[encoderDriveLeft] = 0;
@@ -1332,10 +1318,7 @@ void actionUntilOverGoalPoint(Action action, short goalPoint, byte leftMotorPowe
 	else if (action == A_ARM)
 	{
 		setArmMotorPower(leftMotorPower);
-		while (getArmSensorValue() < goalPoint)
-		{
-			SetArmLimit();
-		}
+		while (getArmSensorValue() < goalPoint)	{ }
 	}
 	else if (action == A_MINI_4_BAR)
 	{
@@ -1369,7 +1352,6 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte leftMotorPow
 {
 	autonomousReady = false;
 
-	SetArmLimit();
 	if (action == A_DRIVE)
 	{
 		SensorValue[encoderDriveLeft] = 0;
@@ -1379,10 +1361,7 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte leftMotorPow
 	else if (action == A_ARM)
 	{
 		setArmMotorPower(leftMotorPower);
-		while (getArmSensorValue() > goalPoint)
-		{
-			SetArmLimit();
-		}
+		while (getArmSensorValue() > goalPoint)	{ }
 	}
 	else if (action == A_MINI_4_BAR)
 	{
@@ -1769,7 +1748,6 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 
 	autonomousReady = false;
 
-	SetArmLimit();
 	goalPoint = correctArmGoalPoint(goalPoint);
 
 	int errorSum = 0;
@@ -1782,7 +1760,6 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 
 	while ( (time1[T4] - timeInitialPID < 300 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
-		SetArmLimit();
 		errorDifference = error - (goalPoint - getArmSensorValue());
 		error = goalPoint - getArmSensorValue();
 		errorSum = errorSum + error / 10.0;
@@ -2008,7 +1985,6 @@ task tArmPIDControl()
 {
 	isTArmReady = false;
 
-	SetArmLimit();
 	armPIDControl(tArmPIDGoalPoint, waitForTArmPID, tArmPIDOnStall);
 
 	isTArmReady = true;
@@ -3194,7 +3170,6 @@ task Arm()
 
 	while (true)
 	{
-		SetArmLimit();
 		if (!lockControls && !isJoystickLCDMode())
 		{
 			/* Allow joystick control of arm if less than upper limit of sensors are overriden */
@@ -3202,11 +3177,9 @@ task Arm()
 			{
 				while (!isMoGoStackConeMacroActive && !isArmReadyMacroActive && (areSensorsOverridden || abs(vexRT[JOY_ARM]) > ARM_JOYSTICK_DEADZONE))
 				{
-					SetArmLimit();
 					setArmMotorPower(vexRT[JOY_ARM]);
 				}
 				setArmMotorPower(0);
-				SetArmLimit();
 
 				/* while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 && getArmSensorValue() > correctGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 200, ARM_POTENTIOMETER_MULTIPLIER) )
 				{
