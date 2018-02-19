@@ -159,7 +159,7 @@ enum StateGoliath { STATE_GOLIATH_INTAKE, STATE_GOLIATH_OUTTAKE, STATE_OFF };
 enum WaitForAction { WAIT, WAIT_NONE };
 enum Macro { MACRO_ARM_READY, MACRO_MOGO_STACK_CONE };
 enum Mode { MODE_ACCURATE, MODE_FAST, MODE_MOGO };
-enum OnStall { ON_STALL_EXIT, ON_STALL_CONTINUE };
+enum OnStall { ON_STALL_EXIT, ON_STALL_NOTHING };
 
 struct MenuItem {
 	short id;
@@ -1469,7 +1469,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 
 		if (mode == MODE_ACCURATE)
 		{
-			while (abs(error) > 220 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+			while (abs(error) > 220 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 			{
 				errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 				error = goalPoint - getDriveLeftSensorValue();
@@ -1480,7 +1480,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 		}
 		else if (mode == MODE_MOGO)
 		{
-			while (abs(error) > 220 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+			while (abs(error) > 220 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 			{
 				errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 				if (errorDifference != 0) timeInitialOnStall = time1[T4];
@@ -1491,7 +1491,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 		}
 
 		int timeInitialPID = time1[T4];
-		while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+		while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 		{
 			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 			error = goalPoint - getDriveLeftSensorValue();
@@ -1533,7 +1533,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 
 		int timeInitialOnStall = time1[T4];
 
-		while (abs(error) >= 15 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+		while (abs(error) >= 15 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 		{
 			errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 			error = goalPoint - getDriveLeftSensorValue();
@@ -1705,7 +1705,7 @@ void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall)
 	int timeInitialPID = time1[T4];
 	int timeInitialOnStall = time1[T4];
 
-	while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (goalPoint  - getGyroSensorValue());
 		error = goalPoint  - getGyroSensorValue();
@@ -1780,7 +1780,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 	int timeInitialPID = time1[T4];
 	int timeInitialOnStall = time1[T4];
 
-	while ( (time1[T4] - timeInitialPID < 300 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while ( (time1[T4] - timeInitialPID < 300 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		SetArmLimit();
 		errorDifference = error - (goalPoint - getArmSensorValue());
@@ -1821,7 +1821,7 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onSt
 	int timeInitialOnStall = time1[T4];
 	int newPower = 0;
 
-	while ( (time1[T4] - timeInitialPID < 150 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while ( (time1[T4] - timeInitialPID < 150 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (goalPoint - getMini4BarSensorValue());
 		error = goalPoint - getMini4BarSensorValue();
@@ -1867,7 +1867,7 @@ void moGoRetract(OnStall onStall)
 	int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) - getMoGoLiftSensorValue();
 	int errorDifference = 0;
 
-	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) - getMoGoLiftSensorValue());
 		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE) - getMoGoLiftSensorValue();
@@ -1887,7 +1887,7 @@ void moGoExtend(OnStall onStall)
 	short errorDifference = 0;
 	int timeInitialOnStall = time1[T4];
 
-	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
 		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
@@ -1916,7 +1916,7 @@ void moGoHalfway(OnStall onStall)
 	int timeInitialOnStall = time1[T4];
 	int newPower = 0;
 
-	while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_CONTINUE) )
+	while (time1[T4] - timeInitialPID < 150 && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue());
 		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
@@ -2708,14 +2708,14 @@ void PIDMode()
 			goalPoint = (1 + random(15)) * 100;
 			displayLCDCenteredString(1, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			drivePIDControl(goalPoint, MODE_ACCURATE, ON_STALL_CONTINUE);
+			drivePIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
 
 			clearTimer(T4);
 			SensorValue[LED] = 1;
-			drivePIDControl(-goalPoint, MODE_ACCURATE, ON_STALL_CONTINUE);
+			drivePIDControl(-goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
@@ -2742,7 +2742,7 @@ void PIDMode()
 			goalPoint = (-35 + random(70)) * 10;
 			displayLCDCenteredString(0, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			gyroPIDControl(goalPoint, MODE_ACCURATE, ON_STALL_CONTINUE);
+			gyroPIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1500);
 		}
@@ -2752,12 +2752,12 @@ void PIDMode()
 		while (true)
 		{
 			SensorValue[LED] = 1;
-			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_CONTINUE);
+			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_CONTINUE);
+			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
@@ -2770,13 +2770,13 @@ void PIDMode()
 		while (true)
 		{
 			SensorValue[LED] = 1;
-			mini4BarExtend(WAIT, ON_STALL_CONTINUE);
+			mini4BarExtend(WAIT, ON_STALL_NOTHING);
 			waitForTMini4Bar();
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			mini4BarRetract(WAIT, ON_STALL_CONTINUE);
+			mini4BarRetract(WAIT, ON_STALL_NOTHING);
 			waitForTMini4Bar();
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
@@ -2787,32 +2787,32 @@ void PIDMode()
 		while (true)
 		{
 			SensorValue[LED] = 1;
-			moGoExtend(ON_STALL_CONTINUE);
+			moGoExtend(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			moGoRetract(ON_STALL_CONTINUE);
+			moGoRetract(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			moGoHalfway(ON_STALL_CONTINUE);
+			moGoHalfway(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			moGoRetract(ON_STALL_CONTINUE);
+			moGoRetract(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			moGoExtend(ON_STALL_CONTINUE);
+			moGoExtend(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
-			moGoHalfway(ON_STALL_CONTINUE);
+			moGoHalfway(ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 		}
