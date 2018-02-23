@@ -3163,7 +3163,7 @@ bool isAutonRecorderEnabled = false;
 bool areSensorsOverridden = false;
 bool isArmReadyMacroActive = false;
 bool isMoGoStackConeMacroActive = false;
-bool isToggleActive = true;
+bool isToggleActive = false;
 StateExtension stateMoGoLiftCurrent = STATE_EXTENSION_RETRACTED;
 StateExtension stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
 
