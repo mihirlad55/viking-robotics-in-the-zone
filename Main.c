@@ -1162,6 +1162,7 @@ byte getDriveRightMotorPower() { return motor[motorDriveRightFrontBack]; }
 byte getArmMotorPower() { return motor[motorArmLeftBottom]; }
 byte getMini4BarMotorPower() { return motor[motorMini4Bar]; }
 byte getMoGoLiftMotorPower() { return motor[motorMoGoLiftLeft]; }
+byte getGoliathMotorPower() { return motor[motorGoliath]; }
 
 
 void resetGyro(short leftSidedOffset)
