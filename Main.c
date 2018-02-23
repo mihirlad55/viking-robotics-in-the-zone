@@ -1157,6 +1157,12 @@ short correctGyroGoalPoint(short goalPoint)
 	return goalPoint * GYRO_MULTIPLIER;
 }
 
+byte getDriveLeftMotorPower() { return motor[motorDriveLeftBack]; }
+byte getDriveRightMotorPower() { return motor[motorDriveRightFrontBack]; }
+byte getArmMotorPower() { return motor[motorArmLeftBottom]; }
+byte getMini4BarMotorPower() { return motor[motorMini4Bar]; }
+byte getMoGoLiftMotorPower() { return motor[motorMoGoLiftLeft]; }
+
 
 void resetGyro(short leftSidedOffset)
 {
