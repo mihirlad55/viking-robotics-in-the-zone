@@ -3245,9 +3245,9 @@ task Drive()
 					axisY = 0.0000635768 * pow(vexRT[Ch2], 3) - 0.0254307 * vexRT[Ch2];
 					axisX = 0.00006 * pow(vexRT[Ch1], 3) - 0.0254307 * vexRT[Ch1];
 
-					setDriveMotorPower( SlewRate(motor[motorDriveLeftBack], axisY + axisX, 0.15, 20), SlewRate(motor[motorDriveRightFrontBack], axisY - axisX, 0.15, 20) );
+					setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), axisY + axisX, 0.15, 20), SlewRate(getDriveRightMotorPower(), axisY - axisX, 0.15, 20) );
 				}
-				else setDriveMotorPower( SlewRate(motor[motorDriveLeftBack], 0, 0.15, 20), SlewRate(motor[motorDriveRightFrontBack], 0, 0.15, 20) );
+				else setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 0, 0.15, 20), SlewRate(getDriveRightMotorPower(), 0, 0.15, 20) );
 			}
 			wait1Msec(25);
 		}
@@ -3459,8 +3459,8 @@ task Goliath()
 			}
 			else if (!areSensorsOverridden)
 			{
-				if (motor[motorArmRightTop] <= 0) setGoliathMotorPower(50);
-				else if (motor[motorArmRightTop] > 0) setGoliathMotorPower(15);
+				if (getArmMotorPower() <= 0) setGoliathMotorPower(50);
+				else if (getArmMotorPower() > 0) setGoliathMotorPower(15);
 
 			}
 		}
@@ -3742,14 +3742,14 @@ short getCurrentFlag()
 {
 	short flag = 0;
 
-	if (motor[motorDriveLeftFront] > 0 && motor[motorDriveRightFrontBack] < 0) flag += FLAG_BIT_GYRO_ACTIVE;
-	else if (motor[motorDriveLeftFront] < 0 && motor[motorDriveRightFrontBack] > 0) flag += FLAG_BIT_GYRO_ACTIVE;
-	else if (abs(motor[motorDriveLeftFront]) > 0) flag += FLAG_BIT_DRIVE_ACTIVE;
+	if (getDriveLeftMotorPower() > 0 && getDriveRightMotorPower() < 0) flag += FLAG_BIT_GYRO_ACTIVE;
+	else if (getDriveLeftMotorPower() < 0 && getDriveRightMotorPower() > 0) flag += FLAG_BIT_GYRO_ACTIVE;
+	else if (abs(getDriveLeftMotorPower()) > 0) flag += FLAG_BIT_DRIVE_ACTIVE;
 
-	if (abs(motor[motorArmRightTop]) > 0) flag += FLAG_BIT_ARM_ACTIVE;
+	if (abs(getArmMotorPower()) > 0) flag += FLAG_BIT_ARM_ACTIVE;
 
-	if (motor[motorGoliath] > 0) flag += FLAG_BIT_GOLIATH_INTAKE;
-	else if (motor[motorGoliath] < 0) flag += FLAG_BIT_GOLIATH_OUTTAKE;
+	if (getGoliathMotorPower() > 0) flag += FLAG_BIT_GOLIATH_INTAKE;
+	else if (getGoliathMotorPower() < 0) flag += FLAG_BIT_GOLIATH_OUTTAKE;
 
 	if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED) flag += FLAG_BIT_MINI_4_BAR_EXTENDED;
 	else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) flag += FLAG_BIT_MINI_4_BAR_RETRACTED;
