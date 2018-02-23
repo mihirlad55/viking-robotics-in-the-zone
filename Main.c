@@ -125,9 +125,9 @@
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
 
 #define IS_GOLIATH_ENABLED		true
-#define GOLIATH_INTAKE_POWER	50
-#define GOLIATH_REST_POWER		45
-#define GOLIATH_OUTTAKE_POWER	-50
+#define GOLIATH_INTAKE_POWER	75
+#define GOLIATH_REST_POWER		65
+#define GOLIATH_OUTTAKE_POWER	-127
 
 
 #define IS_SLEW_RATE_ENABLED	true
@@ -3454,15 +3454,15 @@ task Goliath()
 			if (vexRT[BTN_SENSOR_OVERRIDE] == 1) setGoliathMotorPower(0);
 			else if (vexRT[BTN_GOLIATH_REVERSE] == 1)
 			{
-				setGoliathMotorPower(-50);
+				setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 				while (vexRT[BTN_GOLIATH_REVERSE] == 1) { }
 
-				setGoliathMotorPower(50);
+				setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 			}
 			else if (!areSensorsOverridden)
 			{
-				if (getArmMotorPower() <= 0) setGoliathMotorPower(50);
-				else if (getArmMotorPower() > 0) setGoliathMotorPower(15);
+				if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+				else if (getArmMotorPower() > 0) setGoliathMotorPower(GOLIATH_REST_POWER);
 
 			}
 		}
