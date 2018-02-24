@@ -1866,19 +1866,18 @@ void moGoRetract(OnStall onStall)
 
 void moGoExtend(OnStall onStall)
 {
-	float dGain = 2.0;
-
-	short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
-	short errorDifference = 0;
+	int timeInitial = time1[T4];
 	int timeInitialOnStall = time1[T4];
+	int error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+	int errorDifference = 0;
 
-	while (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
+	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 2000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue());
 		error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE) - getMoGoLiftSensorValue();
+		setMoGoLiftMotorPower(127);
 		if (abs(errorDifference) > 5) timeInitialOnStall = time1[T4];
-
-		setMoGoLiftMotorPower(50 - dGain * abs(errorDifference) );
+		if (getMoGoLiftSensorValue() < correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE)) timeInitial = time1[T4];
 		wait1Msec(20);
 	}
 	setMoGoLiftMotorPower(0);
