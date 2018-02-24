@@ -2777,13 +2777,14 @@ void PIDMode()
 	{
 		while (true)
 		{
+			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
 			SensorValue[LED] = 1;
-			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_NOTHING);
+			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
-			SensorValue[LED] = 1;
-			armPIDControl(ARM_POTENTIOMETER_MIN_VALUE + random(ARM_POTENTIOMETER_MAX_VALUE), WAIT, ON_STALL_NOTHING);
+			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
+			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
