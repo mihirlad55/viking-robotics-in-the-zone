@@ -1785,7 +1785,9 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		if (error > 0) newPower = 15 + error * pGain + errorSum * iGain - errorDifference * dGain;
+		else if (error < 0) newPower = -12 + error * pGain + errorSum * iGain - errorDifference * dGain;
+
 
 		setArmMotorPower(newPower);
 		wait1Msec(15);
