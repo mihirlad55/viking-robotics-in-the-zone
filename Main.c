@@ -55,7 +55,7 @@
 
 #define BTN_GOLIATH_REVERSE				Btn6U
 
-#define BTN_ARM_HIGH_GOAL_PID     		Btn7D
+#define BTN_ARM_STATIONARY_GOAL_PID     		Btn7D
 
 #define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn5U
 #define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
@@ -100,7 +100,6 @@
 #define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
 #define IS_ARM_ENABLED								true
-#define ARM_POTENTIOMETER_HIGH_GOAL_VALUE			1850
 #define ARM_POTENTIOMETER_MIN_VALUE					1000
 #define ARM_POTENTIOMETER_MAX_VALUE					2700
 #define ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE		2500
@@ -1924,7 +1923,7 @@ void moGoHalfway(OnStall onStall)
 
 /* Variables used by tasks */
 short tDrivePIDGoalPoint = 0;
-short tArmPIDGoalPoint = ARM_POTENTIOMETER_HIGH_GOAL_VALUE;
+short tArmPIDGoalPoint = ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE;
 short tGyroPIDGoalPoint = 0;
 short tMini4BarGoalPoint = MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE;
 StateExtension tMoGoLiftGoalState = STATE_EXTENSION_EXTENDED;
@@ -3179,24 +3178,24 @@ task Arm()
 				}
 				setArmMotorPower(0);
 
-				/* while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 && getArmSensorValue() > correctGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 200, ARM_POTENTIOMETER_MULTIPLIER) )
+				/* while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_STATIONARY_GOAL_PID] == 0 && getArmSensorValue() > correctGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 200, ARM_POTENTIOMETER_MULTIPLIER) )
 				{
 				setArmMotorPower(20);
 				}*/
 			}
 			/* If PID button is pressed, bring arm to carry value */
-			else if (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1)
+			else if (vexRT[BTN_ARM_STATIONARY_GOAL_PID] == 1)
 			{
-				while (vexRT[BTN_ARM_HIGH_GOAL_PID] == 1) { }
+				while (vexRT[BTN_ARM_STATIONARY_GOAL_PID] == 1) { }
 				int errorSum = 0;
-				short goalPoint = correctArmGoalPoint(ARM_POTENTIOMETER_HIGH_GOAL_VALUE);
+				short goalPoint = correctArmGoalPoint(ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE);
 				byte error = goalPoint - getArmSensorValue();
 				byte errorDifference = 0;
 				int lastMotorPower = 0;
 				int newPower = 0;
 
 				/* Stay in PID mode until user uses joystick */
-				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0)
+				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_ARM_STATIONARY_GOAL_PID] == 0)
 				{
 					errorDifference = error - (goalPoint - getArmSensorValue());
 					error = goalPoint - getArmSensorValue();
@@ -3505,7 +3504,7 @@ task Mini4Bar()
 				stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
 				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT);
 				setArmMotorPower(127);
-				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_HIGH_GOAL_PID] == 0 &&
+				while (abs(vexRT[JOY_ARM]) < ARM_JOYSTICK_DEADZONE && vexRT[BTN_MOGO_STACK_MACRO] == 0 && vexRT[BTN_ARM_STATIONARY_GOAL_PID] == 0 &&
 					getArmSensorValue() < ( (numOfInternalCones >= 2) ? correctArmGoalPoint(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200) : correctArmGoalPoint(ARM_POTENTIOMETER_MIN_VALUE + 300) ) ) { }
 				setArmMotorPower(0);
 				stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
