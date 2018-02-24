@@ -2221,7 +2221,7 @@ void MacroArmReady()
 void MacroMoGoStackCone()
 {
 	setArmMotorPower(-30);
-	setGoliathMotorPower(50);
+	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 	wait1Msec(500);
 	startTArmPID( (numOfInternalCones > 4) ? ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200 : ARM_POTENTIOMETER_MIN_VALUE + 100, WAIT, ON_STALL_EXIT);
 	waitForTArm();
@@ -2231,9 +2231,9 @@ void MacroMoGoStackCone()
 	if (numOfInternalCones > 4) startTArmPID(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT, ON_STALL_EXIT);
 	waitForTArm();
 
-	setGoliathMotorPower(-50);
+	setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 	wait1Msec(800);
-	setGoliathMotorPower(50);
+	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 }
 
 
@@ -2336,7 +2336,7 @@ task autonomous()
 
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(-191, MODE_MOGO, ON_STALL_EXIT);
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(191, MODE_MOGO, ON_STALL_EXIT);
-			setGoliathMotorPower(-50);
+			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 			setArmMotorPower(-40);
 			wait1Msec(500);
 			setGoliathMotorPower(0);
@@ -2361,7 +2361,7 @@ task autonomous()
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(-200, MODE_MOGO, ON_STALL_EXIT);
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200, MODE_MOGO, ON_STALL_EXIT);
 			setArmMotorPower(-40);
-			setGoliathMotorPower(-50);
+			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 			wait1Msec(500);
 			setGoliathMotorPower(0);
 			setArmMotorPower(0);
@@ -2500,9 +2500,9 @@ task autonomous()
 
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO, ON_STALL_EXIT);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-50, MODE_MOGO, ON_STALL_EXIT);
-		setGoliathMotorPower(-50);
+		setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 		wait1Msec(500);
-		setGoliathMotorPower(50);
+		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 		waitForTGyroPID();
 
 		startTDrivePID(-900, MODE_MOGO, ON_STALL_EXIT);
@@ -3533,7 +3533,7 @@ task Mini4Bar()
 				startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
 				while (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE + 100)) setArmMotorPower(-60);
 				setArmMotorPower(-30);
-				setGoliathMotorPower(50);
+				setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 
 				wait1Msec(1000);
 				stopTask(tMini4Bar);
@@ -3545,9 +3545,9 @@ task Mini4Bar()
 
 				if (numOfInternalCones >= 2) userArmPIDControl(ARM_POTENTIOMETER_CONE_STACK_INITIAL_VALUE + numOfInternalCones * ARM_POTENTIOMETER_CONE_MULTIPLIER + 200, WAIT);
 
-				setGoliathMotorPower(-50);
+				setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 				wait1Msec(800);
-				setGoliathMotorPower(50);
+				setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 				numOfInternalCones++;
 				isMoGoStackConeMacroActive = false;
 			}
