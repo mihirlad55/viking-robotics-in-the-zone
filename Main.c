@@ -3380,6 +3380,7 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 	short error = goalPoint - getMini4BarSensorValue();
 	int errorSum = 0;
 	short errorDifference = 0;
+	int newPower = 0;
 
 	short oldFlag = getControllerStateFlag();
 	ubyte initialButtonState = vexRT[BTN_MINI_4_BAR_HOLD_AUTO];
@@ -3398,7 +3399,9 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 		if (abs(error) < 30) errorSum = 0;
 
-		setMini4BarMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
+		newPower = error * pGain + errorSum * iGain - errorDifference * dGain
+		if (abs(error) < 200 && goalPoint == correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE)) newPower = 0;
+		setMini4BarMotorPower(newPower);
 		wait1Msec(1);
 	}
 	setMini4BarMotorPower(0);
