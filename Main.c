@@ -1398,14 +1398,13 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 
 
 
-	float pGain = 0.008;
-	float iGain = 0.015;
-	float dGain = 5.0;
-
-
 void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 {
 	autonomousReady = false;
+
+	float pGain = 0.008;
+	float iGain = 0.015;
+	float dGain = 5.0;
 
 	leftDriveMultiplier = 1.0;
 	rightDriveMultiplier = 1.0;
