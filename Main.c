@@ -2246,23 +2246,19 @@ task autonomous()
 	}
 	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
 	{
-		setGoliathMotorPower(40);
-		setArmMotorPower(-40);
-		wait1Msec(300);
-		setArmMotorPower(0);
+		setGoliathMotorPower(127);
+		setArmMotorPower(127);
 
-		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE, ON_STALL_EXIT);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
-		startTDrivePID(750, MODE_FAST, ON_STALL_EXIT);
-		waitForTDrive();
-		waitForTMoGoLift();
 
-		startTDrivePID(500, MODE_FAST, ON_STALL_EXIT);
-		waitForTDrive();
+		wait1Msec(300);
+		setArmMotorPower(0);
+		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 
-		actionTimed(A_DRIVE, 200, 127);
+		startTDrivePID(1380, MODE_ACCURATE, ON_STALL_EXIT);
+		waitForTDrive();
 
 		startTMoGoLift(STATE_EXTENSION_RETRACTED, ON_STALL_EXIT);
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(2, MODE_MOGO, ON_STALL_EXIT);
@@ -2273,55 +2269,52 @@ task autonomous()
 		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id)
 		{
 			setArmMotorPower(-40);
-			setGoliathMotorPower(-50);
+			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 			wait1Msec(500);
 			setArmMotorPower(0);
-			setGoliathMotorPower(50);
 
-			startTDrivePID(100, MODE_ACCURATE, ON_STALL_EXIT);
-			waitForTDrive();
+			startTDrivePID(300, MODE_ACCURATE, ON_STALL_EXIT);
+			actionTimed(A_ARM, 200, 127);
+			setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 
 			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE, ON_STALL_EXIT);
 			wait1Msec(400);
 			actionTimed(A_ARM, 1000, -40);
 
+			actionTimed(A_ARM, 300, 127);
 			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE, ON_STALL_EXIT);
-
 		}
 
 		if ( (*selectedProgram).id == menuItemAuton22P.id)
 		{
-			startTDrivePID(-1420, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1280, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 		else if ( (*selectedProgram).id == menuItemAuton24P.id)
 		{
-			startTDrivePID(-1520, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1580, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 
 		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
 		{
-			setGoliathMotorPower(-50);
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-142, MODE_MOGO, ON_STALL_EXIT);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(142, MODE_MOGO, ON_STALL_EXIT);
+			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-50, MODE_MOGO, ON_STALL_EXIT);
 			wait1Msec(500);
 			setGoliathMotorPower(0);
 			waitForTGyroPID();
 
-			startTDrivePID(500, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-600, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 
-			if (autonomousSide == SIDE_LEFT) startTGyroPID(-243, MODE_MOGO, ON_STALL_EXIT);
-			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(243, MODE_MOGO, ON_STALL_EXIT);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(150, MODE_MOGO, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-150, MODE_MOGO, ON_STALL_EXIT);
 			waitForTGyroPID();
 
-			actionTimed(A_DRIVE, 500, 127);
+			actionTimed(A_DRIVE, 300, 127);
 			startTMoGoLift(STATE_EXTENSION_HALFWAY, ON_STALL_EXIT);
-			actionTimed(A_DRIVE, 700, 127);
-
-			actionTimed(A_DRIVE, 1200, 127);
-			setDriveMotorPower(0);
+			actionTimed(A_DRIVE, 900, 127);
 
 			setDriveMotorPower(-127);
 			wait1Msec(300);
