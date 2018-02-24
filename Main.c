@@ -2432,12 +2432,10 @@ task autonomous()
 	}
 	else if ( (*selectedProgram).id == menuItemProgSkills1.id)
 	{
-		setGoliathMotorPower(40);
-		setArmMotorPower(-40);
+		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+		setArmMotorPower(127);
 		wait1Msec(300);
 		setArmMotorPower(0);
-
-		setGoliathMotorPower(50);
 		mini4BarRetract(WAIT_NONE, ON_STALL_EXIT);
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
@@ -2457,10 +2455,8 @@ task autonomous()
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO, ON_STALL_EXIT);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-50, MODE_MOGO, ON_STALL_EXIT);
 		setGoliathMotorPower(-50);
-		setArmMotorPower(-40);
 		wait1Msec(500);
 		setGoliathMotorPower(50);
-		setArmMotorPower(0);
 		waitForTGyroPID();
 
 		startTDrivePID(-900, MODE_MOGO, ON_STALL_EXIT);
