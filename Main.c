@@ -2652,6 +2652,7 @@ task autonomous()
 
 		actionTimed(A_DRIVE, 1000, -127);
 	}
+	writeDebugStreamLine(ConvertIntegerToString(time1[T4]) );
 }
 
 
