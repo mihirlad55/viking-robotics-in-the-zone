@@ -1478,7 +1478,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 				if (errorDifference != 0) timeInitialOnStall = time1[T4];
 
 				error = goalPoint - getDriveLeftSensorValue();
-				setDriveMotorPower( SlewRate(motor[motorDriveLeftFront], 127 * 0.67 * error / abs(error), 0.05, 5) );
+				setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5) );
 			}
 		}
 
