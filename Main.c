@@ -33,17 +33,24 @@
 #define LCDCenterButton					2
 #define LCDRightButton					4
 
-//#define ENCODER_SCROLL_WHEEL_THRESHOLD	50
-//#define ENCODER_SCROLL_WHEEL_MULTIPLIER	1
 
+
+
+/* Definitions representing the different sides and colors on the field.
+Each Side/Color is represented by a boolean */
 #define COLOR_BLUE	false
 #define COLOR_RED	true
 #define SIDE_LEFT	false
 #define SIDE_RIGHT	true
 
-#define IS_PID_ENABLED				false
 #define IS_CONTROL_LOCK_ENABLED		false
 
+
+
+
+
+
+/* Button Definitions Associate Functional Name With Button Reference */
 #define BTN_JOY_LCD_SELECT				Btn6U
 #define BTN_JOY_LCD_PREVIOUS			Btn8L
 #define BTN_JOY_LCD_NEXT				Btn8R
@@ -55,7 +62,7 @@
 
 #define BTN_GOLIATH_REVERSE				Btn6U
 
-#define BTN_ARM_STATIONARY_GOAL_PID     		Btn7D
+#define BTN_ARM_STATIONARY_GOAL_PID    	Btn7D
 
 #define BTN_MOGO_LIFT_TOGGLE_AUTO		Btn5U
 #define BTN_MOGO_LIFT_EXTEND_MANUAL		Btn5U
@@ -71,7 +78,6 @@
 #define BTN_READY_ARM_MACRO				Btn8U
 #define BTN_MOGO_STACK_MACRO			Btn8L
 
-
 /* For Motor checker */
 #define BTN_NEXT_MOTOR			Btn8R
 #define BTN_PREVIOUS_MOTOR		Btn8L
@@ -80,8 +86,7 @@
 #define BTN_STOP_MOTOR			Btn7D
 #define BTN_STOP_ALL_MOTORS		Btn7U
 
-
-
+/* Joysticks */
 #define JOY_DRIVE_X		Ch1
 #define JOY_DRIVE_Y		Ch2
 #define JOY_ARM			Ch3
@@ -89,16 +94,21 @@
 #define JOY_LCD_X		Ch1
 #define JOY_LCD_Y		Ch2
 
-
+/* Deadzones */
 #define	LCD_JOYSTICK_DEADZONE	20
 #define DRIVE_JOYSTICK_DEADZONE	20
 #define ARM_JOYSTICK_DEADZONE	20
 #define CLAW_JOYSTICK_DEADZONE	20
 
+
+
+/* Drive Definitions and Sensor Multipliers */
 #define IS_DRIVE_ENABLED				true
 #define DRIVE_ENCODER_LEFT_MULTIPLIER	1
 #define DRIVE_ENCODER_RIGHT_MULTIPLIER	1
 
+
+/* Arm Definitions and SensorValue Definitions/Multipliers */
 #define IS_ARM_ENABLED								true
 #define ARM_POTENTIOMETER_MIN_VALUE					1390
 #define ARM_POTENTIOMETER_MAX_VALUE					2450
@@ -109,6 +119,8 @@
 #define ARM_POTENTIOMETER_OFFSET					0
 #define ARM_POTENTIOMETER_MULTIPLIER 				1
 
+
+/* MoGo Lift Definitions and SensorValue Definitions/Multipliers */
 #define IS_MOGO_LIFT_ENABLED					true
 #define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	3380
 #define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	1420
@@ -117,6 +129,7 @@
 #define MOGO_LIFT_POTENTIOMETER_MULTIPLIER		1
 
 
+/* Mini4Bar Definitions and SensorValue Definitions/Multipliers */
 #define IS_MINI_4_BAR_ENABLED						true
 #define MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE 	3470
 #define MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE 	1110
@@ -124,6 +137,8 @@
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
 
+
+/* Goliath Definitions and Power Definitions */
 #define IS_GOLIATH_ENABLED		true
 #define GOLIATH_INTAKE_POWER	65
 #define GOLIATH_REST_POWER		43
@@ -137,11 +152,16 @@
 #define PASSWORD_ENABLED 	false
 
 
+
+
 /* For motor checker */
 #define MOTOR_TEST_DURATION			2000	// Amount of time to power motors during autocheck
 #define MOTOR_TEST_POWER			-127	// Amount of power to give motors during autocheck
 #define ERROR_BOUNDS_ENCODER		0		// Amount encoder should change to indicate a working motor
 #define ERROR_BOUNDS_POTENTIOMETER	7		// Amount a potentiometer should change to indicate a working motor
+
+
+
 
 /* Number of items in each menu list */
 #define MENU_LIST_MAIN_LENGTH			9
@@ -152,6 +172,8 @@
 #define MENU_LIST_MOTOR_CHECK_LENGTH 	3
 
 
+
+/* Enumeration Definitions */
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT, A_GYRO, A_ARM_READY_MACRO, A_MOGO_CARRY_CONE_MACRO, A_NONE,
 	A_DRIVE_WAIT, A_ARM_WAIT, A_GOLIATH_WAIT, A_MINI_4_BAR_WAIT, A_MOGO_LIFT_WAIT, A_GYRO_WAIT, A_ARM_READY_MACRO_WAIT, A_MOGO_CARRY_CONE_MACRO_WAIT };
 enum StateExtension { STATE_EXTENSION_EXTENDED, STATE_EXTENSION_RETRACTED, STATE_EXTENSION_HALFWAY };
@@ -161,6 +183,9 @@ enum Macro { MACRO_ARM_READY, MACRO_MOGO_STACK_CONE };
 enum Mode { MODE_ACCURATE, MODE_FAST, MODE_MOGO };
 enum OnStall { ON_STALL_EXIT, ON_STALL_NOTHING };
 
+
+
+/* MenuItem Struct */
 struct MenuItem {
 	short id;
 	short idx;
@@ -194,6 +219,16 @@ MenuItem* menuListMotorCheck[MENU_LIST_MOTOR_CHECK_LENGTH];
 MenuItem* currentMenu;
 
 MenuItem *startupLCDProgram = &menuItemUserControl;
+
+
+
+
+
+
+
+
+
+
 
 /* add all the menuItems to their respective lists by reference
 and assign ids and indices to each item */
@@ -447,11 +482,12 @@ void populateMenuItems() {
 
 
 
+/************************/
+/*						*/
+/* VEX COMPETITION CODE */
+/*						*/
+/************************/
 
-
-
-
-/* competition code from VEX */
 #pragma platform(VEX2)
 #pragma competitionControl(Competition)
 
