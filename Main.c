@@ -3631,12 +3631,26 @@ task Mini4Bar()
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
 					{
-						if (getArmSensorValue() > ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
-						else userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE);
+						if (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) ) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
+						else if (getArmSensorValue() < correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) )
+						{
+							while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
+							{
+								setMini4BarMotorPower(127);
+							}
+							setMini4BarMotorPower(0);
+						}
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 					{
-						userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+						if (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+						{
+							while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+							{
+								setMini4BarMotorPower(-127);
+							}
+							setMini4BarMotorPower(0);
+						}
 					}
 				}
 			}
