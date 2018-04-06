@@ -3643,14 +3643,7 @@ task Mini4Bar()
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 					{
-						if (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
-						{
-							while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
-							{
-								setMini4BarMotorPower(-127);
-							}
-							setMini4BarMotorPower(0);
-						}
+          				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
 					}
 				}
 			}
