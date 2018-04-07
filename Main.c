@@ -1879,12 +1879,21 @@ void mini4BarRetract(WaitForAction stopWhenMet, OnStall onStall)
 
 void mini4BarExtend(WaitForAction stopWhenMet, OnStall onStall)
 {
-	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, stopWhenMet, onStall);
-}
+	int timeInitial = time1[T4];
+	int timeInitialOnStall = time1[T4];
+	int error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue();
+	int errorDifference = 0;
 
-void mini4BarParallel(WaitForAction stopWhenMet, OnStall onStall)
-{
-	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, stopWhenMet, onStall);
+	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 2000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
+	{
+		errorDifference = error - (correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue());
+		error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue();
+		setMini4BarMotorPower(127);
+		if (abs(errorDifference) > 5) timeInitialOnStall = time1[T4];
+		if (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE)) timeInitial = time1[T4];
+		wait1Msec(20);
+	}
+	setMini4BarMotorPower(0);
 }
 
 
