@@ -2810,11 +2810,13 @@ void PIDMode()
 	{
 		while (true)
 		{
+			clearDebugStream();
 			goalPoint = (-35 + random(70)) * 10;
-			displayLCDCenteredString(0, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			gyroPIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1500);
 		}
 	}
@@ -2822,14 +2824,19 @@ void PIDMode()
 	{
 		while (true)
 		{
+			clearDebugStream();
 			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
 			SensorValue[LED] = 0;
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1000);
 
 			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
+			clearTimer(T4);
 			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
@@ -2841,15 +2848,20 @@ void PIDMode()
 	{
 		while (true)
 		{
+			clearDebugStream();
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			mini4BarExtend(WAIT, ON_STALL_NOTHING);
 			waitForTMini4Bar();
 			SensorValue[LED] = 0;
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1000);
 
+			clearTimer(T4);
 			SensorValue[LED] = 1;
 			mini4BarRetract(WAIT, ON_STALL_NOTHING);
 			waitForTMini4Bar();
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 		}
@@ -2858,33 +2870,46 @@ void PIDMode()
 	{
 		while (true)
 		{
+			clearDebugStream();
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoExtend(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoRetract(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoHalfway(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoRetract(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoExtend(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			moGoHalfway(ON_STALL_NOTHING);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 		}
@@ -2893,13 +2918,18 @@ void PIDMode()
 	{
 		while (true)
 		{
+			clearDebugStream();
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
 			SensorValue[LED] = 1;
+			clearTimer(T4);
 			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
 
