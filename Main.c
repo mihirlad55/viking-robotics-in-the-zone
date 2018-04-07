@@ -3631,15 +3631,11 @@ task Mini4Bar()
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
 					{
-						if (getArmSensorValue() > correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) ) userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE, WAIT_NONE);
-						else if (getArmSensorValue() < correctArmGoalPoint(ARM_POTENTIOMETER_CONE_HEIGHT_VALUE) )
+						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
 						{
-							while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
-							{
-								setMini4BarMotorPower(127);
-							}
-							setMini4BarMotorPower(0);
+							setMini4BarMotorPower(127);
 						}
+						setMini4BarMotorPower(0);
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 					{
