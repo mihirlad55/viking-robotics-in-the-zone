@@ -2,7 +2,7 @@
 #pragma config(Sensor, in2,    gyro1,          sensorGyro)
 #pragma config(Sensor, in3,    gyro2,          sensorGyro) // NOT IN USE
 #pragma config(Sensor, in8,    potentiometerMini4Bar, sensorPotentiometer)
-#pragma config(Sensor, in6,    potentiometerMoGoLift, sensorPotentiometer) //NOT IN USE
+#pragma config(Sensor, in6,    potentiometerMoGoLift, sensorPotentiometer)
 #pragma config(Sensor, in7,    potentiometerArm, sensorPotentiometer)
 #pragma config(Sensor, dgtl2,  limitSwitchArm2, sensorTouch) // NOT IN USE
 #pragma config(Sensor, dgtl4,  LED,            sensorLEDtoVCC) // NOT IN USE
