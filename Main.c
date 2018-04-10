@@ -10,7 +10,7 @@
 #pragma config(Sensor, dgtl9,  encoderDriveLeft, sensorQuadEncoder)
 #pragma config(Sensor, dgtl11, encoderDriveRight, sensorQuadEncoder)
 #pragma config(Motor,  port1,           motorArmLeft, tmotorServoContinuousRotation, openLoop)
-#pragma config(Motor,  port2,           motorGoliath,  tmotorServoContinuousRotation, openLoop, reversed)
+#pragma config(Motor,  port2,           motorGoliath,  tmotorServoContinuousRotation, openLoop)
 #pragma config(Motor,  port3,           motorMini4BarLeft, tmotorServoContinuousRotation, openLoop)
 #pragma config(Motor,  port4,           motorDriveLeftFront, tmotorServoContinuousRotation, openLoop, reversed)
 #pragma config(Motor,  port6,           motorDriveRightMiddleBack, tmotorServoContinuousRotation, openLoop, reversed) //Expander C and D INVERTED WIRE
