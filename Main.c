@@ -4,7 +4,7 @@
 #pragma config(Sensor, in8,    potentiometerMini4Bar, sensorPotentiometer)
 #pragma config(Sensor, in6,    potentiometerMoGoLift, sensorPotentiometer)
 #pragma config(Sensor, in7,    potentiometerArm, sensorPotentiometer)
-#pragma config(Sensor, dgtl2,  limitSwitchArm2, sensorTouch) // NOT IN USE
+#pragma config(Sensor, dgtl1,  sonar,          sensorSONAR_cm)
 #pragma config(Sensor, dgtl4,  LED,            sensorLEDtoVCC) // NOT IN USE
 #pragma config(Sensor, dgtl8,  limitSwitchArm1, sensorTouch) // NOT IN USE
 #pragma config(Sensor, dgtl9,  encoderDriveLeft, sensorQuadEncoder)
@@ -144,6 +144,8 @@ Each Side/Color is represented by a boolean */
 #define GOLIATH_REST_POWER		43
 #define GOLIATH_OUTTAKE_POWER	-127
 
+
+#define SONAR_CONE_DISTANCE		15
 
 #define IS_SLEW_RATE_ENABLED	true
 
@@ -3845,6 +3847,15 @@ task usercontrol()
 		{
 			while (vexRT[BTN_CONTROL_LOCK_1] == 1 && vexRT[BTN_CONTROL_LOCK_2] == 1) wait1Msec(10);
 			lockControls = true;
+		}
+	}
+
+	while (true)
+	{
+		if (abs(SensorValue[sonar] - SONAR_CONE_DISTANCE) < 2)
+		{
+			playImmediateTone(200, 10);
+			wait1Msec(50);
 		}
 	}
 }
