@@ -175,6 +175,17 @@ Each Side/Color is represented by a boolean */
 #define MENU_LIST_MOTOR_CHECK_LENGTH 	3
 
 
+#define DATALOG_ON true
+#define DATALOG_OFF false
+
+#define DATALOG_SERIES_ERROR			0
+#define DATALOG_SERIES_ERROR_SUM		1
+#define DATALOG_SERIES_ERROR_DIFFERENCE	2
+#define DATALOG_SERIES_PROPORTIONAL		3
+#define DATALOG_SERIES_INTEGRAL			4
+#define DATALOG_SERIES_DERIVATIVE		5
+#define DATALOG_SERIES_POWER			6
+
 
 /* Enumeration Definitions */
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT, A_GYRO, A_ARM_READY_MACRO, A_MOGO_CARRY_CONE_MACRO, A_NONE,
@@ -1453,9 +1464,26 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 
 
 
-
-void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
+void DataLogPID(float error, float errorSum, float errorDifference, float proportional, float integral, float derivative, float power, bool plotVars)
 {
+	datalogDataGroupStart();
+	if (plotVars)
+	{
+		datalogAddValue(DATALOG_SERIES_ERROR_DIFFERENCE, errorDifference);
+		datalogAddValue(DATALOG_SERIES_ERROR_SUM, errorSum);
+	}
+	datalogAddValue(DATALOG_SERIES_ERROR, error);
+	datalogAddValue(DATALOG_SERIES_INTEGRAL, integral);
+	datalogAddValue(DATALOG_SERIES_POWER, power);
+	datalogAddValue(DATALOG_SERIES_PROPORTIONAL, proportional);
+	datalogAddValue(DATALOG_SERIES_DERIVATIVE, derivative);
+	datalogDataGroupEnd();
+}
+
+
+void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
+{
+	datalogClear();
 	autonomousReady = false;
 
 	float pGain = 0.008;
@@ -1515,6 +1543,9 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 			{
 				errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 				error = goalPoint - getDriveLeftSensorValue();
+
+				DataLogPID(error, 0, errorDifference, 127 * error / abs(error), 0, 0, 127 * error / abs(error), false);
+
 				setDriveMotorPower(127 * error / abs(error));
 
 				if (errorDifference != 0) timeInitialOnStall = time1[T4];
@@ -1528,6 +1559,9 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 				if (errorDifference != 0) timeInitialOnStall = time1[T4];
 
 				error = goalPoint - getDriveLeftSensorValue();
+
+				DataLogPID(error, 0, errorDifference, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5), 0, 0, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5), false);
+
 				setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5) );
 			}
 		}
@@ -1563,6 +1597,9 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 			//if (abs(newPower) < abs(minPower) && abs(error) >= 15) newPower = abs(minPower) * (error / abs(error) );
 
 			//if (abs(error) > 80) newPower = SlewRate(motor[motorDriveLeftBack], newPower, 0.03, 5);
+
+			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+
 			setDriveMotorPower(newPower);
 
 			wait1Msec(5);
@@ -1593,6 +1630,9 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall)
 			else if (newPower < -127.0) errorSum = (-127.0 - error * pGain + errorDifference * dGain) * (1.0 / iGain);
 
 			setDriveMotorPower(newPower, newPower);
+
+			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+
 
 			wait1Msec(25);
 		}
@@ -1717,8 +1757,9 @@ void gyroFace(short degrees)
 
 
 /* Face an absolute directional bearing */
-void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall)
+void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
 {
+	datalogClear();
 	if (mode == MODE_ACCURATE)
 	{
 		leftDriveMultiplier = 1.0;
@@ -1783,6 +1824,8 @@ void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall)
 		}
 		setDriveMotorPower(newPower * (-1), newPower);
 
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+
 		wait1Msec(5);
 
 		//if (abs(getGyroSensorValue() - goalPoint) < 6 && abs(newPower) < 10) wait1Msec(100);
@@ -1804,8 +1847,9 @@ void gyroRotate(short deg)
 
 
 
-void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
+	datalogClear();
 	float pGain = (2.8/10.0);
 	float iGain = (3.0/1000.0);
 	float dGain = (11.0/10.0);
@@ -1838,6 +1882,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 		if (error > 0) newPower = 15 + error * pGain + errorSum * iGain - errorDifference * dGain;
 		else if (error < 0) newPower = -12 + error * pGain + errorSum * iGain - errorDifference * dGain;
 
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
 
 		setArmMotorPower(newPower);
 		wait1Msec(15);
@@ -1850,7 +1895,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
 
 
 
-void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
 	float pGain = 0.07;
 	float iGain = 0.001;
@@ -1878,6 +1923,9 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onSt
 		if (abs(error) <= 90) errorSum = 0;
 
 		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+
 		setMini4BarMotorPower(newPower);
 		wait1Msec(20);
 	}
@@ -1885,11 +1933,16 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onSt
 }
 
 
-void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall);
+void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged);
+
+void mini4BarRetract(WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
+{
+	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet, onStall, isDataLogged);
+}
 
 void mini4BarRetract(WaitForAction stopWhenMet, OnStall onStall)
 {
-	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet, onStall);
+	mini4BarRetract(stopWhenMet, onStall, DATALOG_OFF);
 }
 
 void mini4BarExtend(WaitForAction stopWhenMet, OnStall onStall)
@@ -1954,8 +2007,9 @@ void moGoExtend(OnStall onStall)
 
 
 
-void moGoHalfway(OnStall onStall)
+void moGoHalfway(OnStall onStall, bool isDataLogged)
 {
+	datalogClear();
 	float pGain = 0.25;
 	float iGain = 0.001;
 	float dGain = 0.7;
@@ -1978,6 +2032,9 @@ void moGoHalfway(OnStall onStall)
 		else if (abs(error) >= 80) timeInitialPID = time1[T4];
 
 		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+
 		setMoGoLiftMotorPower(newPower);
 
 		wait1Msec(20);
@@ -2021,6 +2078,11 @@ bool isTGyroFaceReady = true;
 bool isTGyroPIDReady = true;
 bool isTMacroReady = true;
 
+bool tDriveIsDataLogged;
+bool tArmIsDataLogged;
+bool tMoGoIsDataLogged;
+bool tMini4BarIsDataLogged;
+bool tGyroIsDataLogged;
 
 
 
@@ -2030,7 +2092,7 @@ task tDrivePIDControl()
 {
 	isTDriveReady = false;
 
-	drivePIDControl(tDrivePIDGoalPoint, tDriveMode, tDrivePIDOnStall);
+	drivePIDControl(tDrivePIDGoalPoint, tDriveMode, tDrivePIDOnStall, tDriveIsDataLogged);
 
 	isTDriveReady = true;
 }
@@ -2040,7 +2102,7 @@ task tGyroPIDControl()
 {
 	isTGyroPIDReady = false;
 
-	gyroPIDControl(tGyroPIDGoalPoint, tGyroMode, tDrivePIDOnStall);
+	gyroPIDControl(tGyroPIDGoalPoint, tGyroMode, tGyroPIDOnStall, tGyroIsDataLogged);
 
 	isTGyroPIDReady = true;
 }
@@ -2059,7 +2121,7 @@ task tArmPIDControl()
 {
 	isTArmReady = false;
 
-	armPIDControl(tArmPIDGoalPoint, waitForTArmPID, tArmPIDOnStall);
+	armPIDControl(tArmPIDGoalPoint, waitForTArmPID, tArmPIDOnStall, tArmIsDataLogged);
 
 	isTArmReady = true;
 }
@@ -2069,7 +2131,7 @@ task tMini4Bar()
 {
 	isTMini4BarReady = false;
 
-	mini4BarPIDControl(tMini4BarGoalPoint, waitForTMini4BarPID, tMini4BarPIDOnStall);
+	mini4BarPIDControl(tMini4BarGoalPoint, waitForTMini4BarPID, tMini4BarPIDOnStall, tMini4BarIsDataLogged);
 
 	isTMini4BarReady = true;
 }
@@ -2080,7 +2142,7 @@ task tMoGoLift()
 
 	if (tMoGoLiftGoalState == STATE_EXTENSION_EXTENDED) moGoExtend(tMoGoLiftPIDOnStall);
 	else if (tMoGoLiftGoalState == STATE_EXTENSION_RETRACTED) moGoRetract(tMoGoLiftPIDOnStall);
-	else if (tMoGoLiftGoalState == STATE_EXTENSION_HALFWAY) moGoHalfway(tMoGoLiftPIDOnStall);
+	else if (tMoGoLiftGoalState == STATE_EXTENSION_HALFWAY) moGoHalfway(tMoGoLiftPIDOnStall, tMoGoIsDataLogged);
 
 	isTMoGoLiftReady = true;
 }
@@ -2098,7 +2160,7 @@ task tMacro()
 
 /* Procedures for starting autonomous tasks */
 
-void startTDrivePID(short goalPoint, Mode mode, OnStall onStall)
+void startTDrivePID(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
@@ -2106,30 +2168,48 @@ void startTDrivePID(short goalPoint, Mode mode, OnStall onStall)
 	tDrivePIDGoalPoint = goalPoint;
 	tDriveMode = mode;
 	tDrivePIDOnStall = onStall;
+	tDriveIsDataLogged = isDataLogged;
 	startTask(tDrivePIDControl);
 }
 
-void startTArmPID(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+void startTDrivePID(short goalPoint, Mode mode, OnStall onStall)
+{
+	startTDrivePID(goalPoint, mode, onStall, DATALOG_OFF);
+}
+
+void startTArmPID(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tArmPIDControl);
 	tArmPIDGoalPoint = goalPoint;
+	tArmIsDataLogged = isDataLogged;
 	waitForTArmPID = stopWhenMet;
 	tArmPIDOnStall = onStall;
 
 	startTask(tArmPIDControl);
 }
 
+void startTArmPID(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+{
+	startTArmPID(goalPoint, stopWhenMet, onStall, DATALOG_OFF);
+}
 
-void startTGyroPID(short goalPoint, Mode mode, OnStall onStall)
+
+void startTGyroPID(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tDrivePIDControl);
 	stopTask(tGyroFace);
 	stopTask(tGyroPIDControl);
 	tGyroPIDGoalPoint = goalPoint;
+	tGyroIsDataLogged = isDataLogged;
 	tGyroMode = mode;
 	tGyroPIDOnStall = onStall;
 
 	startTask(tGyroPIDControl);
+}
+
+void startTGyroPID(short goalPoint, Mode mode, OnStall onStall)
+{
+	startTGyroPID(goalPoint, mode, onStall, DATALOG_OFF);
 }
 
 void startTGyroFace(short goalPoint)
@@ -2141,23 +2221,35 @@ void startTGyroFace(short goalPoint)
 	startTask(tGyroFace);
 }
 
-void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tMini4Bar);
 	tMini4BarGoalPoint = goalPoint;
 	waitForTMini4BarPID = stopWhenMet;
 	tMini4BarPIDOnStall = onStall;
+	tMini4BarIsDataLogged = isDataLogged;
 
 	startTask(tMini4Bar);
 }
 
-void startTMoGoLift(StateExtension GoalState, OnStall onStall)
+void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+{
+	startTMini4Bar(goalPoint, stopWhenMet, onStall, DATALOG_OFF);
+}
+
+void startTMoGoLift(StateExtension GoalState, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tMoGoLift);
 	tMoGoLiftGoalState = GoalState;
 	tMoGoLiftPIDOnStall = onStall;
+	tMoGoIsDataLogged = isDataLogged;
 
 	startTask(tMoGoLift);
+}
+
+void startTMoGoLift(StateExtension GoalState, OnStall onStall)
+{
+	startTMoGoLift(GoalState, onStall, DATALOG_OFF);
 }
 
 void startTMacro(Macro macroGoalPoint)
@@ -2793,14 +2885,14 @@ void PIDMode()
 			goalPoint = (1 + random(15)) * 100;
 			displayLCDCenteredString(1, ConvertIntegerToString(goalPoint));
 			SensorValue[LED] = 1;
-			drivePIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
+			drivePIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING, DATALOG_ON);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
 
 			clearTimer(T4);
 			SensorValue[LED] = 1;
-			drivePIDControl(-goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
+			drivePIDControl(-goalPoint, MODE_ACCURATE, ON_STALL_NOTHING, DATALOG_ON);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(5000);
@@ -2828,7 +2920,7 @@ void PIDMode()
 			goalPoint = (-35 + random(70)) * 10;
 			SensorValue[LED] = 1;
 			clearTimer(T4);
-			gyroPIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING);
+			gyroPIDControl(goalPoint, MODE_ACCURATE, ON_STALL_NOTHING, DATALOG_ON);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1500);
@@ -2842,14 +2934,14 @@ void PIDMode()
 			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
 			SensorValue[LED] = 1;
 			clearTimer(T4);
-			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
+			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING, DATALOG_ON);
 			SensorValue[LED] = 0;
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1000);
 
 			goalPoint = (ARM_POTENTIOMETER_MIN_VALUE / 100 + 1 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE) / 100 - 3)) * 100;
 			clearTimer(T4);
-			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING);
+			armPIDControl(goalPoint, WAIT, ON_STALL_NOTHING, DATALOG_ON);
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
@@ -2873,7 +2965,7 @@ void PIDMode()
 
 			clearTimer(T4);
 			SensorValue[LED] = 1;
-			mini4BarRetract(WAIT, ON_STALL_NOTHING);
+			mini4BarRetract(WAIT, ON_STALL_NOTHING, DATALOG_ON);
 			waitForTMini4Bar();
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
@@ -2901,7 +2993,7 @@ void PIDMode()
 
 			SensorValue[LED] = 1;
 			clearTimer(T4);
-			moGoHalfway(ON_STALL_NOTHING);
+			moGoHalfway(ON_STALL_NOTHING, DATALOG_ON);
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
@@ -2922,7 +3014,7 @@ void PIDMode()
 
 			SensorValue[LED] = 1;
 			clearTimer(T4);
-			moGoHalfway(ON_STALL_NOTHING);
+			moGoHalfway(ON_STALL_NOTHING, DATALOG_ON);
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
 			wait1Msec(1000);
