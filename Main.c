@@ -678,16 +678,33 @@ float getRadAngleFromTanRatio(float y, float x)
 }
 
 
+
+void reconfigureMenu(void* menuList, ubyte newLCDScreen, ubyte newLCDScreenMin, ubyte newLCDScreenMax)
+{
+	currentMenu = menuList;
+	LCDScreen = newLCDScreen;
+	LCDScreenMin = newLCDScreenMin;
+	LCDScreenMax = newLCDScreenMax;
+}
+
+
 void waitForLCDButtonPress()
 {
-	while (nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0  && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE) ))
+	int lastLCDPotValue = SensorValue[potentiometerLCD];
+	while (abs(SensorValue[potentiometerLCD] - lastLCDPotValue) < 6 && nLCDButtons == 0 && ( !isJoystickLCDMode() || (vexRT[BTN_JOY_LCD_PREVIOUS] == 0 && vexRT[BTN_JOY_LCD_SELECT] == 0 && vexRT[BTN_JOY_LCD_NEXT] == 0  && abs(vexRT[JOY_LCD_X]) < LCD_JOYSTICK_DEADZONE && abs(vexRT[JOY_LCD_Y]) < LCD_JOYSTICK_DEADZONE) ))
 	{
+		lastLCDPotValue = SensorValue[potentiometerLCD];
 		wait1Msec(10);
 	}
 
 	if (abs(vexRT[JOY_LCD_X]) > LCD_JOYSTICK_DEADZONE || abs(vexRT[JOY_LCD_Y]) > LCD_JOYSTICK_DEADZONE)
 	{
 		LCDScreen = floor( getRadAngleFromTanRatio(vexRT[JOY_LCD_Y], vexRT[JOY_LCD_X]) / (2.0*PI / (float)(LCDScreenMax - LCDScreenMin + 1) ) );
+	}
+	else if (abs(lastLCDPotValue - SensorValue[potentiometerLCD]) > 6)
+	{
+		reconfigureMenu(menuListAuton, 1, 0, MENU_LIST_AUTON_LENGTH - 1);
+		LCDScreen = LCDScreenMin + floor( (4095.0 - SensorValue[potentiometerLCD]) / (4095.0 / ((float)(LCDScreenMax - LCDScreenMin + 1))));
 	}
 }
 
@@ -724,13 +741,7 @@ void displayBatteryLevelOnLCD()
 
 short getGyroSensorValue();
 
-void reconfigureMenu(void* menuList, ubyte newLCDScreen, ubyte newLCDScreenMin, ubyte newLCDScreenMax)
-{
-	currentMenu = menuList;
-	LCDScreen = newLCDScreen;
-	LCDScreenMin = newLCDScreenMin;
-	LCDScreenMax = newLCDScreenMax;
-}
+
 
 void displayProgram()
 {
