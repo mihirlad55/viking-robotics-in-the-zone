@@ -1944,10 +1944,9 @@ void moGoExtend(OnStall onStall)
 
 void moGoHalfway(OnStall onStall)
 {
-
-	float pGain = 0.08;
-	float iGain = 0.0003;
-	float dGain = 2.0;
+	float pGain = 0.25;
+	float iGain = 0.001;
+	float dGain = 0.7;
 
 	short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
 	short errorDifference = 0;
@@ -1963,13 +1962,13 @@ void moGoHalfway(OnStall onStall)
 		errorSum += error;
 
 		if ( !(abs(errorDifference) < 5 && abs(newPower) >= 127.0)) timeInitialOnStall = time1[T4];
-		if (abs(error) < 30) errorSum = 0;
-		else if (abs(error) >= 30) timeInitialPID = time1[T4];
+		if (abs(error) < 80) errorSum = 0;
+		else if (abs(error) >= 80) timeInitialPID = time1[T4];
 
 		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 		setMoGoLiftMotorPower(newPower);
 
-		wait1Msec(5);
+		wait1Msec(20);
 	}
 	setMoGoLiftMotorPower(0);
 }
@@ -3520,7 +3519,7 @@ void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
 
 		if (abs(error) < 90) errorSum = 0;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain
+		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 		setMini4BarMotorPower(newPower);
 		wait1Msec(20);
 	}
@@ -3724,9 +3723,10 @@ task MoGoLift()
 				if (vexRT[BTN_MOGO_LIFT_HALFWAY_AUTO] == 1)
 				{
 					stateMoGoLiftCurrent = STATE_EXTENSION_HALFWAY;
-					float pGain = 0.08;
-					float iGain = 0.0003;
-					float dGain = 2.0;
+
+					float pGain = 0.25;
+					float iGain = 0.001;
+					float dGain = 0.7;
 
 					short error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
 					short errorDifference = 0;
@@ -3739,12 +3739,12 @@ task MoGoLift()
 						error = correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE) - getMoGoLiftSensorValue();
 						errorSum += error;
 
-						if (abs(error) < 30) errorSum = 0;
-						else if (abs(error) >= 30) timeInitial = time1[T4];
+						if (abs(error) < 80) errorSum = 0;
+						else if (abs(error) >= 80) timeInitial = time1[T4];
 
 						setMoGoLiftMotorPower(error * pGain + errorSum * iGain - errorDifference * dGain);
 
-						wait1Msec(5);
+						wait1Msec(20);
 					}
 					setMoGoLiftMotorPower(0);
 				}
