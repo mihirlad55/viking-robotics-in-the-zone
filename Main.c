@@ -3584,10 +3584,10 @@ task Goliath()
 	{
 		if (!lockControls && !isJoystickLCDMode() && !isMoGoStackConeMacroActive && !isArmReadyMacroActive)
 		{
-			if (vexRT[BTN_SENSOR_OVERRIDE] == 1) setGoliathMotorPower(0);
-			else if (vexRT[BTN_GOLIATH_REVERSE] == 1)
+			if (vexRT[BTN_GOLIATH_REVERSE] == 1)
 			{
 				setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+
 				while (vexRT[BTN_GOLIATH_REVERSE] == 1) { }
 
 				setGoliathMotorPower(GOLIATH_INTAKE_POWER);
@@ -3596,7 +3596,11 @@ task Goliath()
 			{
 				if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 				else if (getArmMotorPower() > 0) setGoliathMotorPower(GOLIATH_REST_POWER);
-
+			}
+			if (vexRT[BTN_SENSOR_OVERRIDE] == 1)
+			{
+				while (vexRT[BTN_SENSOR_OVERRIDE] == 1) { }
+				setGoliathMotorPower(0);
 			}
 		}
 	}
