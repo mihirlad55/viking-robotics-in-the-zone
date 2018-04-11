@@ -1,6 +1,7 @@
 #pragma config(Sensor, in1,    secondaryBattery, sensorAnalog)
 #pragma config(Sensor, in2,    gyro1,          sensorGyro)
-#pragma config(Sensor, in3,    gyro2,          sensorGyro) // NOT IN USE
+#pragma config(Sensor, in3,    potentiometerLCD, sensorPotentiometer)
+#pragma config(Sensor, in4,    gyro2,          sensorGyro) // NOT IN USE
 #pragma config(Sensor, in8,    potentiometerMini4Bar, sensorPotentiometer)
 #pragma config(Sensor, in6,    potentiometerMoGoLift, sensorPotentiometer)
 #pragma config(Sensor, in7,    potentiometerArm, sensorPotentiometer)
