@@ -186,6 +186,9 @@ Each Side/Color is represented by a boolean */
 #define DATALOG_SERIES_DERIVATIVE		5
 #define DATALOG_SERIES_POWER			6
 
+#define DATALOG_ERROR_ZOOM				0.01
+#define DATALOG_ERROR_SUM_ZOOM			0.001
+
 
 /* Enumeration Definitions */
 enum Action { A_DRIVE, A_ARM, A_GOLIATH, A_MINI_4_BAR, A_MOGO_LIFT, A_GYRO, A_ARM_READY_MACRO, A_MOGO_CARRY_CONE_MACRO, A_NONE,
@@ -1467,12 +1470,9 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 void DataLogPID(float error, float errorSum, float errorDifference, float proportional, float integral, float derivative, float power)
 {
 	datalogDataGroupStart();
-	if (plotVars)
-	{
-		datalogAddValue(DATALOG_SERIES_ERROR_DIFFERENCE, errorDifference);
-		datalogAddValue(DATALOG_SERIES_ERROR_SUM, errorSum);
-	}
-	datalogAddValue(DATALOG_SERIES_ERROR, error);
+	datalogAddValue(DATALOG_SERIES_ERROR_DIFFERENCE, errorDifference);
+	datalogAddValue(DATALOG_SERIES_ERROR_SUM, errorSum * DATALOG_ERROR_SUM_ZOOM);
+	datalogAddValue(DATALOG_SERIES_ERROR, error * DATALOG_ERROR_ZOOM);
 	datalogAddValue(DATALOG_SERIES_INTEGRAL, integral);
 	datalogAddValue(DATALOG_SERIES_POWER, power);
 	datalogAddValue(DATALOG_SERIES_PROPORTIONAL, proportional);
@@ -1882,7 +1882,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 		if (error > 0) newPower = 15 + error * pGain + errorSum * iGain - errorDifference * dGain;
 		else if (error < 0) newPower = -12 + error * pGain + errorSum * iGain - errorDifference * dGain;
 
-		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		setArmMotorPower(newPower);
 		wait1Msec(15);
