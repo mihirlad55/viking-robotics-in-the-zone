@@ -1846,13 +1846,14 @@ void gyroRotate(short deg)
 }
 
 
+	float pGain = (0.7);
+	float iGain = (0);
+	float dGain = (0.6);
 
 void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
-	datalogClear();
-	float pGain = (2.8/10.0);
-	float iGain = (3.0/1000.0);
-	float dGain = (11.0/10.0);
+
+
 
 	autonomousReady = false;
 
@@ -1879,13 +1880,12 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		if (error > 0) newPower = 15 + error * pGain + errorSum * iGain - errorDifference * dGain;
-		else if (error < 0) newPower = -12 + error * pGain + errorSum * iGain - errorDifference * dGain;
+		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 
 		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		setArmMotorPower(newPower);
-		wait1Msec(15);
+		wait1Msec(20);
 	}
 
 	autonomousReady = true;
