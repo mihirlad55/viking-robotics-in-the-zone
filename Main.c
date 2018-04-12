@@ -1464,7 +1464,7 @@ void actionUntilUnderGoalPoint(Action action, short goalPoint, byte motorPower)
 
 
 
-void DataLogPID(float error, float errorSum, float errorDifference, float proportional, float integral, float derivative, float power, bool plotVars)
+void DataLogPID(float error, float errorSum, float errorDifference, float proportional, float integral, float derivative, float power)
 {
 	datalogDataGroupStart();
 	if (plotVars)
@@ -1483,7 +1483,7 @@ void DataLogPID(float error, float errorSum, float errorDifference, float propor
 
 void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
 {
-	datalogClear();
+
 	autonomousReady = false;
 
 	float pGain = 0.008;
@@ -1544,7 +1544,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLog
 				errorDifference = error - (goalPoint - getDriveLeftSensorValue());
 				error = goalPoint - getDriveLeftSensorValue();
 
-				DataLogPID(error, 0, errorDifference, 127 * error / abs(error), 0, 0, 127 * error / abs(error), false);
+				DataLogPID(error, 0, errorDifference, 127 * error / abs(error), 0, 0, 127 * error / abs(error));
 
 				setDriveMotorPower(127 * error / abs(error));
 
@@ -1560,7 +1560,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLog
 
 				error = goalPoint - getDriveLeftSensorValue();
 
-				DataLogPID(error, 0, errorDifference, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5), 0, 0, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5), false);
+				DataLogPID(error, 0, errorDifference, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5), 0, 0, SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5));
 
 				setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 127 * 0.67 * error / abs(error), 0.05, 5) );
 			}
@@ -1598,7 +1598,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLog
 
 			//if (abs(error) > 80) newPower = SlewRate(motor[motorDriveLeftBack], newPower, 0.03, 5);
 
-			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 			setDriveMotorPower(newPower);
 
@@ -1631,7 +1631,7 @@ void drivePIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLog
 
 			setDriveMotorPower(newPower, newPower);
 
-			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+			DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 
 			wait1Msec(25);
@@ -1759,7 +1759,7 @@ void gyroFace(short degrees)
 /* Face an absolute directional bearing */
 void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLogged)
 {
-	datalogClear();
+
 	if (mode == MODE_ACCURATE)
 	{
 		leftDriveMultiplier = 1.0;
@@ -1824,7 +1824,7 @@ void gyroPIDControl(short goalPoint, Mode mode, OnStall onStall, bool isDataLogg
 		}
 		setDriveMotorPower(newPower * (-1), newPower);
 
-		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		wait1Msec(5);
 
@@ -1897,6 +1897,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 
 void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
+
 	float pGain = 0.07;
 	float iGain = 0.001;
 	float dGain = 0.7;
@@ -1924,7 +1925,7 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onSt
 
 		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 
-		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		setMini4BarMotorPower(newPower);
 		wait1Msec(20);
@@ -2009,7 +2010,7 @@ void moGoExtend(OnStall onStall)
 
 void moGoHalfway(OnStall onStall, bool isDataLogged)
 {
-	datalogClear();
+
 	float pGain = 0.25;
 	float iGain = 0.001;
 	float dGain = 0.7;
@@ -2033,7 +2034,7 @@ void moGoHalfway(OnStall onStall, bool isDataLogged)
 
 		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
 
-		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower, false);
+		DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		setMoGoLiftMotorPower(newPower);
 
