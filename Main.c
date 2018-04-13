@@ -1871,7 +1871,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 	{
 		errorDifference = error - (goalPoint - getArmSensorValue());
 		error = goalPoint - getArmSensorValue();
-		errorSum = errorSum + error / 10.0;
+		errorSum = errorSum + error;
 
 		if (abs(error) >= 50) timeInitialPID = time1[T4];
 		if ( !(abs(errorDifference) < 5 && abs(newPower) >= 127.0) ) timeInitialOnStall = time1[T4];
