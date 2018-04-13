@@ -2948,6 +2948,7 @@ void PIDMode()
 			wait1Msec(1000);
 
 			while (getArmSensorValue() > ARM_POTENTIOMETER_MIN_VALUE) { setArmMotorPower(-60); }
+			setArmMotorPower(0);
 			wait1Msec(1000);
 		}
 	}
