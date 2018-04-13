@@ -111,7 +111,7 @@ Each Side/Color is represented by a boolean */
 
 /* Arm Definitions and SensorValue Definitions/Multipliers */
 #define IS_ARM_ENABLED								true
-#define ARM_POTENTIOMETER_MIN_VALUE					1100
+#define ARM_POTENTIOMETER_MIN_VALUE					1240
 #define ARM_POTENTIOMETER_MAX_VALUE					2530
 #define ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE		2120 // UNTESTED
 #define ARM_POTENTIOMETER_CONE_HEIGHT_VALUE  		1530 // UNTESTED
