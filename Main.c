@@ -1935,16 +1935,24 @@ void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onSt
 }
 
 
-void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged);
-
-void mini4BarRetract(WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
-{
-	startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, stopWhenMet, onStall, isDataLogged);
-}
-
 void mini4BarRetract(WaitForAction stopWhenMet, OnStall onStall)
 {
-	mini4BarRetract(stopWhenMet, onStall, DATALOG_OFF);
+	int timeInitial = time1[T4];
+	int timeInitialOnStall = time1[T4];
+	int error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE) - getMini4BarSensorValue();
+	int errorDifference = 0;
+
+	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
+	{
+		errorDifference = error - (correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE) - getMini4BarSensorValue());
+		error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE) - getMini4BarSensorValue();
+		setMini4BarMotorPower(MINI_4_BAR_POWER_RETRACT);
+		if (abs(errorDifference) > 5) timeInitialOnStall = time1[T4];
+		if (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE)) timeInitial = time1[T4];
+		wait1Msec(20);
+	}
+	setMini4BarMotorPower(0);
+
 }
 
 void mini4BarExtend(WaitForAction stopWhenMet, OnStall onStall)
@@ -2968,7 +2976,7 @@ void PIDMode()
 
 			clearTimer(T4);
 			SensorValue[LED] = 1;
-			mini4BarRetract(WAIT, ON_STALL_NOTHING, DATALOG_ON);
+			mini4BarRetract(WAIT, ON_STALL_NOTHING);
 			waitForTMini4Bar();
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			SensorValue[LED] = 0;
@@ -3764,7 +3772,11 @@ task Mini4Bar()
 					if (vexRT[BTN_MINI_4_BAR_HOLD_AUTO] == 1)
 					{
 						stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
-						userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+						{
+							setMini4BarMotorPower(MINI_4_BAR_POWER_RETRACT);
+						}
+						setMini4BarMotorPower(0);
 					}
 					else
 					{
@@ -3793,7 +3805,11 @@ task Mini4Bar()
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 					{
-          				userMini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE);
+						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+						{
+							setMini4BarMotorPower(MINI_4_BAR_POWER_RETRACT);
+						}
+						setMini4BarMotorPower(0);
 					}
 				}
 			}
