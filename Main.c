@@ -3604,42 +3604,6 @@ short ConvertButtonToFlagBit(int btn)
 }
 
 
-void userMini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet)
-{
-	float pGain = 0.07;
-	float iGain = 0.001;
-	float dGain = 0.7;
-
-	goalPoint = correctMini4BarGoalPoint(goalPoint);
-
-	short error = goalPoint - getMini4BarSensorValue();
-	int errorSum = 0;
-	short errorDifference = 0;
-	int newPower = 0;
-
-	short oldFlag = getControllerStateFlag();
-	ubyte initialButtonState = vexRT[BTN_MINI_4_BAR_HOLD_AUTO];
-	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_HOLD_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_ENABLE);
-
-	while ( (stopWhenMet == WAIT && abs(error) > 90) || (stopWhenMet == WAIT_NONE
-		&& ( (initialButtonState == vexRT[BTN_MINI_4_BAR_HOLD_AUTO] && !isToggleActive) || isToggleActive)
-	&& !isControllerStateButtonPressed(oldFlag, buttonMask)
-	&& ( goalPoint == MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE || ( getArmSensorValue() < ARM_POTENTIOMETER_CONE_HEIGHT_VALUE
-	&& goalPoint != MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE) || (  getArmSensorValue() >= ARM_POTENTIOMETER_CONE_HEIGHT_VALUE && goalPoint == MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE ) ) ) )
-	{
-		oldFlag = getControllerStateFlag();
-		errorDifference = error - (goalPoint - getMini4BarSensorValue());
-		error = goalPoint - getMini4BarSensorValue();
-		errorSum += error;
-
-		if (abs(error) < 90) errorSum = 0;
-
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
-		setMini4BarMotorPower(newPower);
-		wait1Msec(20);
-	}
-	setMini4BarMotorPower(0);
-}
 
 
 void userArmPIDControl(short goalPoint, WaitForAction stopWhenMet)
