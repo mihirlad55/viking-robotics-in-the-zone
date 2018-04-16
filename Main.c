@@ -137,7 +137,8 @@ Each Side/Color is represented by a boolean */
 #define MINI_4_BAR_POTENTIOMETER_PARALLEL_VALUE		2950
 #define MINI_4_BAR_POTENTIOMETER_OFFSET				0
 #define MINI_4_BAR_POTENTIOMETER_MULTIPLIER 		1
-
+#define MINI_4_BAR_POWER_EXTEND						60
+#define MINI_4_BAR_POWER_RETRACT					-127
 
 /* Goliath Definitions and Power Definitions */
 #define IS_GOLIATH_ENABLED		true
@@ -1957,7 +1958,7 @@ void mini4BarExtend(WaitForAction stopWhenMet, OnStall onStall)
 	{
 		errorDifference = error - (correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue());
 		error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue();
-		setMini4BarMotorPower(127);
+		setMini4BarMotorPower(MINI_4_BAR_POWER_EXTEND);
 		if (abs(errorDifference) > 5) timeInitialOnStall = time1[T4];
 		if (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE)) timeInitial = time1[T4];
 		wait1Msec(20);
@@ -3770,7 +3771,7 @@ task Mini4Bar()
 						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
 						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
 						{
-							setMini4BarMotorPower(127);
+							setMini4BarMotorPower(MINI_4_BAR_POWER_EXTEND);
 						}
 						setMini4BarMotorPower(0);
 					}
@@ -3786,7 +3787,7 @@ task Mini4Bar()
 					{
 						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
 						{
-							setMini4BarMotorPower(127);
+							setMini4BarMotorPower(MINI_4_BAR_POWER_EXTEND);
 						}
 						setMini4BarMotorPower(0);
 					}
