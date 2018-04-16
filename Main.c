@@ -1954,7 +1954,7 @@ void mini4BarExtend(WaitForAction stopWhenMet, OnStall onStall)
 	int error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue();
 	int errorDifference = 0;
 
-	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 2000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
+	while (time1[T4] - timeInitial < 150  && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
 		errorDifference = error - (correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue());
 		error = correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) - getMini4BarSensorValue();
