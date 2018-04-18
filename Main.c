@@ -76,6 +76,8 @@ Each Side/Color is represented by a boolean */
 #define BTN_MINI_4_BAR_TOGGLE_ENABLE	Btn8D
 #define BTN_MINI_4_BAR_TOGGLE_AUTO		Btn6D
 
+#define IS_TOGGLE_ENABLED				false
+
 #define BTN_READY_ARM_MACRO				Btn8U
 #define BTN_MOGO_STACK_MACRO			Btn8L
 
@@ -3808,7 +3810,7 @@ task MoGoLift()
 			{
 				if (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1)
 				{
-					isToggleActive = !isToggleActive;
+					if (IS_TOGGLE_ENABLED) isToggleActive = !isToggleActive;
 					while (vexRT[BTN_MINI_4_BAR_TOGGLE_ENABLE] == 1) { }
 				}
 				if (vexRT[BTN_MOGO_LIFT_HALFWAY_AUTO] == 1)
