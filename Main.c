@@ -143,7 +143,7 @@ Each Side/Color is represented by a boolean */
 /* Goliath Definitions and Power Definitions */
 #define IS_GOLIATH_ENABLED		true
 #define GOLIATH_INTAKE_POWER	50
-#define GOLIATH_REST_POWER		43
+#define GOLIATH_REST_POWER		25
 #define GOLIATH_OUTTAKE_POWER	-127
 
 
