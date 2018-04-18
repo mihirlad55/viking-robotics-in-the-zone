@@ -171,7 +171,7 @@ Each Side/Color is represented by a boolean */
 
 /* Number of items in each menu list */
 #define MENU_LIST_MAIN_LENGTH			9
-#define MENU_LIST_AUTON_LENGTH 			11
+#define MENU_LIST_AUTON_LENGTH 			12
 #define MENU_LIST_SIDES_LENGTH 			3
 #define MENU_LIST_COLORS_LENGTH			3
 #define MENU_LIST_PID_LENGTH			7
@@ -218,7 +218,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCone, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton26P, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCone, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -328,6 +328,12 @@ void populateMenuItems() {
 	menuItemAuton24P.idx = ++i;
 	menuItemAuton24P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton24P;
+
+	menuItemAuton26P.name = "Auton26P";
+	menuItemAuton26P.id = ++id;
+	menuItemAuton26P.idx = ++i;
+	menuItemAuton26P.isDirectional = true;
+	menuListAuton[i] = &menuItemAuton26P;
 
 	menuItemAuton7P.name = "Auton7P";
 	menuItemAuton7P.id = ++id;
@@ -2415,7 +2421,7 @@ task autonomous()
 		displayLCDCenteredString(0, "Daud Jaan");
 		displayLCDCenteredString(1, (*selectedProgram).name);
 	}
-	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id)
+	if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton7P.id || (*selectedProgram).id == menuItemAuton9P.id || (*selectedProgram).id == menuItemAuton12P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton26P.id)
 	{
 		setGoliathMotorPower(127);
 		setArmMotorPower(127);
@@ -2424,8 +2430,10 @@ task autonomous()
 
 		startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
 
-		wait1Msec(300);
+		wait1Msec(100);
 		setArmMotorPower(0);
+
+		wait1Msec(500);
 		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 
 		startTDrivePID(1380, MODE_ACCURATE, ON_STALL_EXIT);
@@ -2437,7 +2445,29 @@ task autonomous()
 		waitForTGyroPID();
 		waitForTMoGoLift();
 
-		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id)
+		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id  || (*selectedProgram).id == menuItemAuton26P.id)
+		{
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-5, MODE_MOGO, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(5, MODE_MOGO, ON_STALL_EXIT);
+			setArmMotorPower(-40);
+			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+			wait1Msec(500);
+			setArmMotorPower(0);
+			waitForTGyroPID();
+
+			startTDrivePID(300, MODE_ACCURATE, ON_STALL_EXIT);
+			actionTimed(A_ARM, 200, 127);
+			setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE, WAIT_NONE, ON_STALL_EXIT);
+			wait1Msec(400);
+			actionTimed(A_ARM, 1000, -40);
+
+			actionTimed(A_ARM, 300, 127);
+			startTMini4Bar(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE, WAIT_NONE, ON_STALL_EXIT);
+		}
+
+		if ((*selectedProgram).id == menuItemAuton26P.id)
 		{
 			setArmMotorPower(-40);
 			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
@@ -2466,8 +2496,13 @@ task autonomous()
 			startTDrivePID(-1580, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
+		else if ( (*selectedProgram).id == menuItemAuton26P.id)
+		{
+			startTDrivePID(-1880, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTDrive();
+		}
 
-		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id )
+		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton26P.id)
 		{
 			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO, ON_STALL_EXIT);
