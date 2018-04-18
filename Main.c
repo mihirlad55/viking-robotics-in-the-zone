@@ -3678,6 +3678,10 @@ task Goliath()
 
 task Mini4Bar()
 {
+	short oldFlag;
+	ubyte initialButtonState;
+	short buttonMask = ConvertButtonToFlagBit(BTN_READY_ARM_MACRO) + ConvertButtonToFlagBit(BTN_MOGO_STACK_MACRO) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_HOLD_AUTO) + ConvertButtonToFlagBit(BTN_SENSOR_OVERRIDE) + ConvertButtonToFlagBit(BTN_MINI_4_BAR_TOGGLE_ENABLE);
+
 	while (true)
 	{
 		if (!lockControls && !isJoystickLCDMode())
@@ -3738,8 +3742,11 @@ task Mini4Bar()
 					if (vexRT[BTN_MINI_4_BAR_HOLD_AUTO] == 1)
 					{
 						stateMini4BarCurrent = STATE_EXTENSION_RETRACTED;
-						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+						oldFlag = getControllerStateFlag();
+						initialButtonState = 0;
+						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE) && !isControllerStateButtonPressed(oldFlag, buttonMask))
 						{
+							oldFlag = getControllerStateFlag();
 							setMini4BarMotorPower(MINI_4_BAR_POWER_RETRACT);
 						}
 						setMini4BarMotorPower(0);
@@ -3747,8 +3754,11 @@ task Mini4Bar()
 					else
 					{
 						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
-						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
+						oldFlag = getControllerStateFlag();
+						initialButtonState = 0;
+						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) && !isControllerStateButtonPressed(oldFlag, buttonMask))
 						{
+							oldFlag = getControllerStateFlag();
 							setMini4BarMotorPower(MINI_4_BAR_POWER_EXTEND);
 						}
 						setMini4BarMotorPower(0);
@@ -3763,15 +3773,20 @@ task Mini4Bar()
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_EXTENDED)
 					{
-						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE))
+						oldFlag = getControllerStateFlag();
+						initialButtonState = 0;
+						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) && !isControllerStateButtonPressed(oldFlag, buttonMask))
 						{
+							oldFlag = getControllerStateFlag();
 							setMini4BarMotorPower(MINI_4_BAR_POWER_EXTEND);
 						}
 						setMini4BarMotorPower(0);
 					}
 					else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED)
 					{
-						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE))
+						oldFlag = getControllerStateFlag();
+						initialButtonState = 0;
+						while (getMini4BarSensorValue() > correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_RETRACTED_VALUE) && !isControllerStateButtonPressed(oldFlag, buttonMask))
 						{
 							setMini4BarMotorPower(MINI_4_BAR_POWER_RETRACT);
 						}
