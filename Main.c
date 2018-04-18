@@ -3790,7 +3790,7 @@ task Mini4Bar()
 					{
 						stateMini4BarCurrent = STATE_EXTENSION_EXTENDED;
 						oldFlag = getControllerStateFlag();
-						initialButtonState = 0;
+						initialButtonState = BTN_MINI_4_BAR_HOLD_AUTO;
 						while (getMini4BarSensorValue() < correctMini4BarGoalPoint(MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE) && !isControllerStateButtonPressed(oldFlag, buttonMask))
 						{
 							oldFlag = getControllerStateFlag();
