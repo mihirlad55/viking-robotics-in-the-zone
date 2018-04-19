@@ -3449,7 +3449,7 @@ task MiscellaneousTask()
 {
 	if ( (*selectedProgram).id == menuItemMotorCheckAuto.id) MotorSelfCheck();
 	else if ( (*selectedProgram).id == menuItemMotorCheckManual.id) MotorManualCheck();
-	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH - 1 && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id) PIDMode();
+	else if ((*selectedProgram).idx < MENU_LIST_PID_LENGTH && (*menuListPID[ (*selectedProgram).idx ]).id == (*selectedProgram).id) PIDMode();
 }
 
 
