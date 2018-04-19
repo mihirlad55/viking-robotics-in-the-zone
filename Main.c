@@ -82,12 +82,11 @@ Each Side/Color is represented by a boolean */
 #define BTN_MOGO_STACK_MACRO			Btn8L
 
 /* For Motor checker */
-#define BTN_NEXT_MOTOR			Btn8R
-#define BTN_PREVIOUS_MOTOR		Btn8L
-#define BTN_POSITIVE_POWER		Btn6U
-#define BTN_NEGATIVE_POWER		Btn5U
-#define BTN_STOP_MOTOR			Btn7D
-#define BTN_STOP_ALL_MOTORS		Btn7U
+#define BTN_NEXT_MOTOR				Btn8R
+#define BTN_PREVIOUS_MOTOR			Btn8L
+#define JOY_MOTOR_POWER				Ch2
+#define JOY_MOTOR_POWER_DEADZONE	20
+#define BTN_ENABLE_MOTOR_SET		Btn7D
 
 /* Joysticks */
 #define JOY_DRIVE_X		Ch1
@@ -3147,7 +3146,7 @@ int directions[] = {
 	/* Port 10 */			-1,
 };
 
-
+int joystickButtons[] = { Btn5D, Btn6D, Btn5U, Btn6U, Btn7U, Btn8U, Btn7L, Btn7R, Btn8L, Btn8R };
 int motorPorts[] = { port1, port2, port3, port4, port5, port6, port7, port8, port9, port10 };
 ubyte motorPointer;
 short lastSensorValue;
@@ -3229,10 +3228,17 @@ void MotorManualCheck()
 					while (vexRT[BTN_JOY_LCD_PREVIOUS] == 1) { }
 					previousMotor();
 				}
-				else if (vexRT[BTN_POSITIVE_POWER] == 1) motor[motorPorts[motorPointer]] = 127;
-				else if (vexRT[BTN_NEGATIVE_POWER] == 1) motor[motorPorts[motorPointer]] = -127;
-				else if (vexRT[BTN_STOP_MOTOR] == 1) motor[motorPorts[motorPointer]] = 0;
-				else if (vexRT[BTN_STOP_ALL_MOTORS] == 1) allMotorsOff();
+
+				if (vexRT[BTN_ENABLE_MOTOR_SET] == 1)
+				{
+					while (vexRT[BTN_ENABLE_MOTOR_SET] == 1)
+					{
+						for (ubyte i = 0; i < 10; i++)
+						{
+							if (vexRT[joystickButtons[i]] == 1) motor[motorPorts[i]] = vexRT[JOY_MOTOR_POWER];
+						}
+					}
+				}
 			}
 		}
 	}
