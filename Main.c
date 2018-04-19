@@ -1854,14 +1854,13 @@ void gyroRotate(short deg)
 }
 
 
-	float pGain = (0.7);
-	float iGain = (0);
-	float dGain = (0.6);
+
 
 void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
-
-
+	float pGain = (0.35);
+	float iGain = (0.002);
+	float dGain = (1.0);
 
 	autonomousReady = false;
 
@@ -1874,6 +1873,28 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 
 	int timeInitialPID = time1[T4];
 	int timeInitialOnStall = time1[T4];
+
+	while (abs(error) > 135)
+	{
+		errorDifference = error - (goalPoint - getArmSensorValue());
+		error = goalPoint - getArmSensorValue();
+
+		if (error > 0) setArmMotorPower(127);
+		else if (error < 0) setArmMotorPower(-83);
+
+		if (isDataLogged) DataLogPID(error, 0, errorDifference, 0, 0, 0, getArmMotorPower());
+
+		wait1Msec(20);
+	}
+
+	if (errorDifference != 0)
+	{
+		if (errorDifference > 0) setArmMotorPower(60);
+		else if (errorDifference < 0) setArmMotorPower(-40);
+
+		wait1Msec(30);
+	}
+	setArmMotorPower(0);
 
 	while ( (time1[T4] - timeInitialPID < 300 || stopWhenMet == WAIT_NONE) && ( (time1[T4] - timeInitialOnStall < 1000 && onStall == ON_STALL_EXIT) || onStall == ON_STALL_NOTHING) )
 	{
@@ -1888,13 +1909,16 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 		if (errorSum * iGain > 127.0) errorSum = 127.0 / iGain;
 		else if (errorSum * iGain < -127.0) errorSum = -127.0 / iGain;
 
-		newPower = error * pGain + errorSum * iGain - errorDifference * dGain;
+		if (error > 0) newPower = 30 + error * pGain + errorSum * iGain - errorDifference * dGain;
+		else if (error < 0) newPower = -10 + error * pGain + errorSum * iGain - errorDifference * dGain;
 
 		if (isDataLogged) DataLogPID(error, errorSum, errorDifference, error * pGain, errorSum * iGain, errorDifference * dGain, newPower);
 
 		setArmMotorPower(newPower);
 		wait1Msec(20);
 	}
+
+	if (getArmMotorPower() < 15) setArmMotorPower(15);
 
 	autonomousReady = true;
 }
