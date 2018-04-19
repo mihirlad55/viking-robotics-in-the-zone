@@ -2090,8 +2090,8 @@ void moGoHalfway(OnStall onStall, bool isDataLogged)
 short tDrivePIDGoalPoint = 0;
 short tArmPIDGoalPoint = ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE;
 short tGyroPIDGoalPoint = 0;
-short tMini4BarGoalPoint = MINI_4_BAR_POTENTIOMETER_EXTENDED_VALUE;
 StateExtension tMoGoLiftGoalState = STATE_EXTENSION_EXTENDED;
+StateExtension tMini4BarGoalState = STATE_EXTENSION_RETRACTED;
 Macro tMacroGoalPoint;
 
 Mode tDriveMode;
@@ -2172,7 +2172,8 @@ task tMini4Bar()
 {
 	isTMini4BarReady = false;
 
-	mini4BarPIDControl(tMini4BarGoalPoint, waitForTMini4BarPID, tMini4BarPIDOnStall, tMini4BarIsDataLogged);
+	if (tMini4BarGoalState == STATE_EXTENSION_EXTENDED) mini4BarExtend(WAIT, ON_STALL_EXIT);
+	else if (tMini4BarGoalState == STATE_EXTENSION_RETRACTED) mini4BarRetract(WAIT, ON_STALL_EXIT);
 
 	isTMini4BarReady = true;
 }
@@ -2262,10 +2263,10 @@ void startTGyroFace(short goalPoint)
 	startTask(tGyroFace);
 }
 
-void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
+void startTMini4Bar(StateExtension state, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
 	stopTask(tMini4Bar);
-	tMini4BarGoalPoint = goalPoint;
+	tMini4BarGoalState = state;
 	waitForTMini4BarPID = stopWhenMet;
 	tMini4BarPIDOnStall = onStall;
 	tMini4BarIsDataLogged = isDataLogged;
@@ -2273,9 +2274,9 @@ void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall,
 	startTask(tMini4Bar);
 }
 
-void startTMini4Bar(short goalPoint, WaitForAction stopWhenMet, OnStall onStall)
+void startTMini4Bar(StateExtension state, WaitForAction stopWhenMet, OnStall onStall)
 {
-	startTMini4Bar(goalPoint, stopWhenMet, onStall, DATALOG_OFF);
+	startTMini4Bar(state, stopWhenMet, onStall, DATALOG_OFF);
 }
 
 void startTMoGoLift(StateExtension GoalState, OnStall onStall, bool isDataLogged)
