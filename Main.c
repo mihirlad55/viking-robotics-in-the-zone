@@ -124,7 +124,7 @@ Each Side/Color is represented by a boolean */
 
 /* MoGo Lift Definitions and SensorValue Definitions/Multipliers */
 #define IS_MOGO_LIFT_ENABLED					true
-#define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	800
+#define MOGO_LIFT_POTENTIOMETER_EXTENDED_VALUE	600
 #define MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE	2800
 #define MOGO_LIFT_POTENTIOMETER_HALFWAY_VALUE	2000
 #define	MOGO_LIFT_POTENTIOMETER_OFFSET 			0
