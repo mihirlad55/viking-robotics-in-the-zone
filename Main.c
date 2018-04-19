@@ -2429,6 +2429,8 @@ void MacroMoGoStackCone()
 	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 }
 
+ubyte numOfStackedCones = 0;
+short lastStackedConeSensorValue = ARM_POTENTIOMETER_MIN_VALUE;
 
 
 
@@ -2923,6 +2925,55 @@ task autonomous()
 
 
 
+void stack()
+{
+	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+	int lastSensorValue = getArmSensorValue();
+	int difference = getArmSensorValue() - lastSensorValue;
+	int timeInitial = time1[T4];
+
+	setArmMotorPower(-127);
+	while (time1[T4] - timeInitial < 150)
+	{
+		difference = getArmSensorValue() - lastSensorValue;
+		lastSensorValue = getArmSensorValue();
+
+		if (abs(difference) > 6) timeInitial = time1[T4];
+
+		wait1Msec(20);
+	}
+
+	setArmMotorPower(0);
+	setGoliathMotorPower(GOLIATH_REST_POWER);
+
+	startTArmPID(lastStackedConeSensorValue + 200, WAIT, ON_STALL_EXIT);
+	waitForTArm();
+
+	mini4BarRetract(WAIT, ON_STALL_EXIT);
+
+	setArmMotorPower(-127);
+	lastSensorValue = getArmSensorValue();
+	difference = getArmSensorValue() - lastSensorValue;
+	timeInitial = time1[T4];
+
+	while (time1[T4] - timeInitial < 150)
+	{
+		difference = getArmSensorValue() - lastSensorValue;
+		lastSensorValue = getArmSensorValue();
+
+		if ( abs(difference) > 6) timeInitial = time1[T4];
+
+		wait1Msec(20);
+	}
+	setArmMotorPower(0);
+	lastStackedConeSensorValue = getArmSensorValue();
+
+	setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+	startTArmPID(getArmSensorValue() + 200, WAIT, ON_STALL_EXIT);
+	waitForTArm();
+
+	mini4BarExtend(WAIT, ON_STALL_EXIT);
+}
 
 
 
