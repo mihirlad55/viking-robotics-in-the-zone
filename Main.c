@@ -1217,7 +1217,7 @@ ubyte numOfInternalCones = 0;
 short getArmSensorValue() { return (SensorValue[potentiometerArm] + ARM_POTENTIOMETER_OFFSET) * ARM_POTENTIOMETER_MULTIPLIER; }
 short getMini4BarSensorValue() { return (SensorValue[potentiometerMini4Bar] + MINI_4_BAR_POTENTIOMETER_OFFSET) * MINI_4_BAR_POTENTIOMETER_MULTIPLIER; }
 short getMoGoLiftSensorValue() { return (SensorValue[potentiometerMoGoLift] + MOGO_LIFT_POTENTIOMETER_OFFSET) * MOGO_LIFT_POTENTIOMETER_MULTIPLIER; }
-short getGyroSensorValue() { return (SensorValue[gyro1] /*+ SensorValue[gyro2] * (-1)) / 2*/; }
+short getGyroSensorValue() { return (SensorValue[gyro1] /*+ SensorValue[gyro2] * (-1)) / 2*/); }
 short getDriveLeftSensorValue() { return SensorValue[encoderDriveLeft] * DRIVE_ENCODER_LEFT_MULTIPLIER; }
 short getDriveRightSensorValue() { return SensorValue[encoderDriveRight] * DRIVE_ENCODER_RIGHT_MULTIPLIER; }
 
