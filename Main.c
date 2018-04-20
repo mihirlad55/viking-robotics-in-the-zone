@@ -2429,11 +2429,6 @@ void MacroMoGoStackCone()
 	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 }
 
-ubyte numOfStackedCones = 0;
-short lastStackedConeSensorValue = ARM_POTENTIOMETER_MIN_VALUE;
-
-
-
 
 task playMissionImpossibleMusic;
 
@@ -2923,56 +2918,81 @@ task autonomous()
 
 
 
-
+ubyte numOfStackedCones = 0;
+short lastStackedConeSensorValue = ARM_POTENTIOMETER_MIN_VALUE - 230;
 
 void stack()
 {
-	setGoliathMotorPower(GOLIATH_INTAKE_POWER);
-	int lastSensorValue = getArmSensorValue();
-	int difference = getArmSensorValue() - lastSensorValue;
-	int timeInitial = time1[T4];
-
-	setArmMotorPower(-127);
-	while (time1[T4] - timeInitial < 150)
+	if (lastStackedConeSensorValue + 230 < ARM_POTENTIOMETER_MAX_VALUE)
 	{
-		difference = getArmSensorValue() - lastSensorValue;
+		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT, ON_STALL_EXIT);
+		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+		int lastSensorValue = getArmSensorValue();
+		int difference = 5;
+
+
+		stopTask(tArmPIDControl);
+		waitForTMini4Bar();
+		setArmMotorPower(-127);
+		wait1Msec(150);
+		int timeInitial = time1[T4];
+		while (time1[T4] - timeInitial < 91)
+		{
+			wait1Msec(30);
+
+			difference = getArmSensorValue() - lastSensorValue;
+			lastSensorValue = getArmSensorValue();
+			writeDebugStreamLine(ConvertIntegerToString(difference));
+
+			if (abs(difference) > 1)
+			{
+				timeInitial = time1[T4];
+				setArmMotorPower(-127);
+			}
+		}
+
+		setArmMotorPower(0);
+		//wait1Msec(3000);
+		setGoliathMotorPower(GOLIATH_REST_POWER);
+
+
+		startTArmPID(lastStackedConeSensorValue + 230, WAIT, ON_STALL_EXIT);
+		while (getArmSensorValue() < lastStackedConeSensorValue - 100) { }
+		startTMini4Bar(STATE_EXTENSION_RETRACTED, WAIT, ON_STALL_EXIT);
+		waitForTArm();
+		waitForTMini4Bar();
+
 		lastSensorValue = getArmSensorValue();
+		difference = 5;
 
-		if (abs(difference) > 6) timeInitial = time1[T4];
+		stopTask(tArmPIDControl);
 
-		wait1Msec(20);
+		setArmMotorPower(-127);
+		wait1Msec(100);
+		timeInitial = time1[T4];
+		while (time1[T4] - timeInitial < 61)
+		{
+			wait1Msec(30);
+
+			difference = getArmSensorValue() - lastSensorValue;
+			lastSensorValue = getArmSensorValue();
+			writeDebugStreamLine(ConvertIntegerToString(difference));
+			if ( abs(difference) > 1)
+			{
+				timeInitial = time1[T4];
+				setArmMotorPower(-127);
+			}
+
+		}
+		setArmMotorPower(0);
+		//wait1Msec(3000);
+
+		lastStackedConeSensorValue = getArmSensorValue();
+
+		setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+		startTArmPID(getArmSensorValue() + 170, WAIT, ON_STALL_EXIT);
+		waitForTArm();
 	}
-
-	setArmMotorPower(0);
-	setGoliathMotorPower(GOLIATH_REST_POWER);
-
-	startTArmPID(lastStackedConeSensorValue + 200, WAIT, ON_STALL_EXIT);
-	waitForTArm();
-
-	mini4BarRetract(WAIT, ON_STALL_EXIT);
-
-	setArmMotorPower(-127);
-	lastSensorValue = getArmSensorValue();
-	difference = getArmSensorValue() - lastSensorValue;
-	timeInitial = time1[T4];
-
-	while (time1[T4] - timeInitial < 150)
-	{
-		difference = getArmSensorValue() - lastSensorValue;
-		lastSensorValue = getArmSensorValue();
-
-		if ( abs(difference) > 6) timeInitial = time1[T4];
-
-		wait1Msec(20);
-	}
-	setArmMotorPower(0);
-	lastStackedConeSensorValue = getArmSensorValue();
-
-	setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
-	startTArmPID(getArmSensorValue() + 200, WAIT, ON_STALL_EXIT);
-	waitForTArm();
-
-	mini4BarExtend(WAIT, ON_STALL_EXIT);
 }
 
 
@@ -3142,24 +3162,7 @@ void PIDMode()
 	{
 		while (true)
 		{
-			clearDebugStream();
-			SensorValue[LED] = 1;
-			clearTimer(T4);
-			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
-			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
-			SensorValue[LED] = 0;
-			wait1Msec(1000);
-
-			SensorValue[LED] = 1;
-			clearTimer(T4);
-			userArmPIDControl(( (ARM_POTENTIOMETER_MIN_VALUE + 200) / 100 + random( (ARM_POTENTIOMETER_MAX_VALUE - ARM_POTENTIOMETER_MIN_VALUE - 200) / 100) ) * 100, WAIT);
-			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
-			SensorValue[LED] = 0;
-			wait1Msec(1000);
-
-			while (getArmSensorValue() > ARM_POTENTIOMETER_MIN_VALUE + 100) { setArmMotorPower(-60); }
-			setArmMotorPower(0);
-			wait1Msec(1000);
+			stack();
 		}
 	}
 }
