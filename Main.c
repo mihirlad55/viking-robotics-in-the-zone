@@ -3841,11 +3841,6 @@ task Mini4Bar()
 	{
 		if (!lockControls && !isJoystickLCDMode())
 		{
-			if (vexRT[BTN_SENSOR_OVERRIDE] == 1)
-			{
-				while (vexRT[BTN_SENSOR_OVERRIDE] == 1) { }
-				areSensorsOverridden = !areSensorsOverridden;
-			}
 			/*
 			else if (vexRT[BTN_MOGO_STACK_MACRO] == 1)
 			{
@@ -4119,6 +4114,12 @@ task usercontrol()
 		{
 			playImmediateTone(200, 10);
 			wait1Msec(50);
+		}
+
+		if (vexRT[BTN_SENSOR_OVERRIDE] == 1)
+		{
+			while (vexRT[BTN_SENSOR_OVERRIDE] == 1) { allMotorsOff(); }
+			areSensorsOverridden = !areSensorsOverridden;
 		}
 	}
 }
