@@ -170,7 +170,7 @@ Each Side/Color is represented by a boolean */
 
 /* Number of items in each menu list */
 #define MENU_LIST_MAIN_LENGTH			9
-#define MENU_LIST_AUTON_LENGTH 			12
+#define MENU_LIST_AUTON_LENGTH 			13
 #define MENU_LIST_SIDES_LENGTH 			3
 #define MENU_LIST_COLORS_LENGTH			3
 #define MENU_LIST_PID_LENGTH			7
@@ -217,7 +217,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton26P, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCone, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton26P, menuItemAutonStack, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCone, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -333,6 +333,12 @@ void populateMenuItems() {
 	menuItemAuton26P.idx = ++i;
 	menuItemAuton26P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton26P;
+
+	menuItemAutonStack.name = "AutonStack";
+	menuItemAutonStack.id = ++id;
+	menuItemAutonStack.idx = ++i;
+	menuItemAutonStack.isDirectional = true;
+	menuListAuton[i] = &menuItemAutonStack;
 
 	menuItemAuton7P.name = "Auton7P";
 	menuItemAuton7P.id = ++id;
