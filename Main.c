@@ -3712,12 +3712,12 @@ task Drive()
 				/* Drive if joystick is greater than deadzone */
 				if (abs(vexRT[JOY_DRIVE_X]) > DRIVE_JOYSTICK_DEADZONE || abs(vexRT[JOY_DRIVE_Y]) > DRIVE_JOYSTICK_DEADZONE)
 				{
-					axisY = 0.0000635768 * pow(vexRT[Ch2], 3) - 0.0254307 * vexRT[Ch2];
-					axisX = 0.00006 * pow(vexRT[Ch1], 3) - 0.0254307 * vexRT[Ch1];
+					axisY = 0.0000334305 * pow(vexRT[Ch2], 3) + 0.447987 * vexRT[Ch2];
+					axisX = 0.0000334305 * pow(vexRT[Ch1], 3) + 0.447987 * vexRT[Ch1];
 
-					setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), axisY + axisX, 0.15, 20), SlewRate(getDriveRightMotorPower(), axisY - axisX, 0.15, 20) );
+					setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), axisY + axisX, 0.3, 20), SlewRate(getDriveRightMotorPower(), axisY - axisX, 0.15, 20) );
 				}
-				else setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 0, 0.15, 20), SlewRate(getDriveRightMotorPower(), 0, 0.15, 20) );
+				else setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 0, 0.3, 20), SlewRate(getDriveRightMotorPower(), 0, 0.15, 20) );
 			}
 			wait1Msec(25);
 		}
