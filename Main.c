@@ -2454,13 +2454,13 @@ void stack(StackEnd onEnd)
 		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT, ON_STALL_EXIT);
 		waitForTMini4Bar();
 
-		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+		setGoliathMotorPower(127);
 		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT_NONE, ON_STALL_EXIT);
 
 		stopTask(tArmPIDControl);
-		actionUntilUnderGoalPoint(A_ARM, ARM_POTENTIOMETER_MIN_VALUE + 50, -127);
+		actionUntilUnderGoalPoint(A_ARM, ARM_POTENTIOMETER_MIN_VALUE, -127);
 		setArmMotorPower(-40);
-		wait1Msec(500);
+		wait1Msec(250);
 
 		setGoliathMotorPower(GOLIATH_REST_POWER);
 
@@ -2503,7 +2503,7 @@ void stack(StackEnd onEnd)
 
 		if (onEnd == STACK_END_ON_OUTTAKE) return;
 
-		startTArmPID(getArmSensorValue() + 170, WAIT, ON_STALL_EXIT);
+		startTArmPID(getArmSensorValue() + 250, WAIT, ON_STALL_EXIT);
 		waitForTArm();
 	}
 }
