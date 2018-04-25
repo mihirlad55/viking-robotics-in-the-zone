@@ -145,7 +145,8 @@ Each Side/Color is represented by a boolean */
 /* Goliath Definitions and Power Definitions */
 #define IS_GOLIATH_ENABLED		true
 #define GOLIATH_INTAKE_POWER	50
-#define GOLIATH_REST_POWER		25
+#define GOLIATH_REST_POWER		15
+#define GOLIATH_RETRACTED_POWER	10
 #define GOLIATH_OUTTAKE_POWER	-127
 
 
@@ -3894,8 +3895,10 @@ task Goliath()
 			}
 			else if (!areSensorsOverridden)
 			{
-				if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
-				else if (getArmMotorPower() > 0 || stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) setGoliathMotorPower(GOLIATH_REST_POWER);
+				if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) setGoliathMotorPower(GOLIATH_RETRACTED_POWER);
+				else if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+				else if (getArmMotorPower() > 0) setGoliathMotorPower(GOLIATH_REST_POWER);
+
 			}
 			if (vexRT[BTN_SENSOR_OVERRIDE] == 1)
 			{
