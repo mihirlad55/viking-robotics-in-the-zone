@@ -171,7 +171,7 @@ Each Side/Color is represented by a boolean */
 
 /* Number of items in each menu list */
 #define MENU_LIST_MAIN_LENGTH			9
-#define MENU_LIST_AUTON_LENGTH 			13
+#define MENU_LIST_AUTON_LENGTH 			15
 #define MENU_LIST_SIDES_LENGTH 			3
 #define MENU_LIST_COLORS_LENGTH			3
 #define MENU_LIST_PID_LENGTH			7
@@ -218,7 +218,7 @@ struct MenuItem {
 //main screen menu items
 MenuItem menuItemUserControl, menuItemPIDMode, menuItemMotorCheck, menuItemAutonRecorder, menuItemSwitchCompetitionMode, menuItemGoToAuton, menuItemResetGyro, menuItemBatteryLevel, menuItemCurrentProgram;
 //autonomous menu items
-MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton26P, menuItemAutonStack, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCone, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
+MenuItem menuItemAutonGoBack, menuItemAuton22P, menuItemAuton24P, menuItemAuton26P, menuItemAutonStack, menuItemAuton12P, menuItemAuton14P, menuItemAuton7P, menuItemAuton9P, menuItemAutonCRam, menuItemAutonC20P, menuItemAutonC5P, menuItemAutonR10P, menuItemAutonNone, menuItemProgSkills1;
 //side menu items
 MenuItem menuItemSideGoBack, menuItemSideLeft, menuItemSideRight;
 //color menu items
@@ -353,11 +353,23 @@ void populateMenuItems() {
 	menuItemAuton9P.isDirectional = true;
 	menuListAuton[i] = &menuItemAuton9P;
 
-	menuItemAutonCone.name = "AutonCone";
-	menuItemAutonCone.id = ++id;
-	menuItemAutonCone.idx = ++i;
-	menuItemAutonCone.isDirectional = true;
-	menuListAuton[i] = &menuItemAutonCone;
+	menuItemAutonCRam.name = "AutonCRam";
+	menuItemAutonCRam.id = ++id;
+	menuItemAutonCRam.idx = ++i;
+	menuItemAutonCRam.isDirectional = true;
+	menuListAuton[i] = &menuItemAutonCRam;
+
+	menuItemAutonC20P.name = "AutonC20P";
+	menuItemAutonC20P.id = ++id;
+	menuItemAutonC20P.idx = ++i;
+	menuItemAutonC20P.isDirectional = true;
+	menuListAuton[i] = &menuItemAutonC20P;
+
+	menuItemAutonC5P.name = "AutonC5P";
+	menuItemAutonC5P.id = ++id;
+	menuItemAutonC5P.idx = ++i;
+	menuItemAutonC5P.isDirectional = true;
+	menuListAuton[i] = &menuItemAutonC5P;
 
 	menuItemAuton12P.name = "Auton12P";
 	menuItemAuton12P.id = ++id;
@@ -2514,7 +2526,7 @@ task autonomous()
 	{
 		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT, ON_STALL_EXIT);
-		wait1Msec(400);
+		wait1Msec(500);
 		stopTask(tMini4Bar);
 
 		startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 200, WAIT_NONE, ON_STALL_EXIT);
@@ -2533,6 +2545,7 @@ task autonomous()
 		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id  || (*selectedProgram).id == menuItemAuton26P.id)
 		{
 			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT, ON_STALL_EXIT);
+			lastStackedConeSensorValue = ARM_POTENTIOMETER_MIN_VALUE;
 			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 			waitForTArm();
 
@@ -2545,16 +2558,21 @@ task autonomous()
 
 		if ((*selectedProgram).id == menuItemAuton26P.id)
 		{
-			setArmMotorPower(-40);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(2, MODE_MOGO, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2, MODE_MOGO, ON_STALL_EXIT);
+			startTArmPID(lastStackedConeSensorValue + 150, WAIT, ON_STALL_EXIT);
+			wait1Msec(200);
 			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
-			wait1Msec(500);
-			setArmMotorPower(0);
+			wait1Msec(300);
+			waitForTGyroPID();
 
-			startTDrivePID(200, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(275, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 
 			stack(STACK_END_ON_CONE_RETRACTION);
 		}
+
+		startTArmPID(lastStackedConeSensorValue + 150, WAIT_NONE, ON_STALL_EXIT);
 
 		if ( (*selectedProgram).id == menuItemAuton22P.id)
 		{
@@ -2563,37 +2581,37 @@ task autonomous()
 		}
 		else if ( (*selectedProgram).id == menuItemAuton24P.id)
 		{
-			startTDrivePID(-1480, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1595, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 		else if ( (*selectedProgram).id == menuItemAuton26P.id)
 		{
-			startTDrivePID(-1680, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1695, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 
 		if ( (*selectedProgram).id == menuItemAuton22P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton26P.id)
 		{
-			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT, ON_STALL_EXIT);
+			startTArmPID(lastStackedConeSensorValue + 200, WAIT, ON_STALL_EXIT);
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(50, MODE_MOGO, ON_STALL_EXIT);
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-50, MODE_MOGO, ON_STALL_EXIT);
 			wait1Msec(300);
-			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+			setGoliathMotorPower(-70);
+			startTArmPID(lastStackedConeSensorValue + 400, WAIT, ON_STALL_EXIT);
 			waitForTGyroPID();
-			setGoliathMotorPower(0);
-
 
 			startTDrivePID(-600, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 
 			if (autonomousSide == SIDE_LEFT) startTGyroPID(150, MODE_MOGO, ON_STALL_EXIT);
 			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-150, MODE_MOGO, ON_STALL_EXIT);
-			waitForTGyroPID();
+			waitForTGyroPID()
 
 			actionTimed(A_DRIVE, 300, 127);
 			startTMoGoLift(STATE_EXTENSION_HALFWAY, ON_STALL_EXIT);
 			actionTimed(A_DRIVE, 900, 127);
 
+			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 200, WAIT, ON_STALL_EXIT);
 			setDriveMotorPower(-127);
 			wait1Msec(300);
 
@@ -2681,49 +2699,120 @@ task autonomous()
 		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT, ON_STALL_EXIT);
 		waitForTMini4Bar();
 	}
-	else if ( (*selectedProgram).id == menuItemAutonCone.id)
+	else if ( (*selectedProgram).id == menuItemAutonCRam.id || (*selectedProgram).id == menuItemAutonC20P.id || (*selectedProgram).id == menuItemAutonC5P.id )
 	{
-		setGoliathMotorPower(127);
-		setArmMotorPower(127);
-
-		mini4BarExtend(WAIT_NONE, ON_STALL_EXIT);
-
+		setGoliathMotorPower(GOLIATH_REST_POWER);
+		startTMini4Bar(STATE_EXTENSION_STATIONARY, WAIT, ON_STALL_EXIT);
 		wait1Msec(300);
-		setArmMotorPower(0);
-		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 
 		startTArmPID(ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE, WAIT, ON_STALL_EXIT);
-		startTDrivePID(200, MODE_ACCURATE, ON_STALL_NOTHING);
+		startTDrivePID(630, MODE_ACCURATE, ON_STALL_NOTHING);
 		waitForTArm();
 		waitForTDrive();
 
-		startTDrivePID(430, MODE_ACCURATE, ON_STALL_NOTHING);
-		waitForTDrive();
-
 		actionTimed(A_ARM, 400, -60);
-		setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+		setGoliathMotorPower(-40);
 		wait1Msec(700);
 
 		startTArmPID(ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE + 400, WAIT, ON_STALL_EXIT);
 		waitForTArm();
 
-		startTDrivePID(-400, MODE_ACCURATE, ON_STALL_EXIT);
+		startTDrivePID(-600, MODE_ACCURATE, ON_STALL_EXIT);
+		wait1Msec(600);
+		startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 50, WAIT, ON_STALL_EXIT);
 		waitForTDrive();
 
-		if (autonomousSide == SIDE_LEFT) startTGyroPID(45, MODE_ACCURATE, ON_STALL_EXIT);
-		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(45, MODE_ACCURATE, ON_STALL_EXIT);
-		waitForTGyroPID();
-
-		int lastDriveSensorValue = getDriveLeftSensorValue();
-		int timeInitial = time1[T4];
-		setDriveMotorPower(127);
-		while (time1[T4] - timeInitial < 500)
+		if ((*selectedProgram).id == menuItemAutonCRam.id)
 		{
-			if (abs(lastDriveSensorValue - getDriveLeftSensorValue()) > 2) timeInitial = time1[T4];
-			lastDriveSensorValue = getDriveLeftSensorValue();
-			wait1Msec(5);
+
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(-135, MODE_ACCURATE, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(135, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTGyroPID();
+
+			int lastDriveSensorValue = getDriveLeftSensorValue();
+			int timeInitial = time1[T4];
+			setDriveMotorPower(-127);
+			while (time1[T4] - timeInitial < 500)
+			{
+				if (abs(lastDriveSensorValue - getDriveLeftSensorValue()) > 2) timeInitial = time1[T4];
+				lastDriveSensorValue = getDriveLeftSensorValue();
+				wait1Msec(5);
+			}
+			actionTimed(A_DRIVE, 700, 127);
 		}
-		actionTimed(A_DRIVE, 700, -127);
+
+		if ((*selectedProgram).id == menuItemAutonC20P.id || (*selectedProgram).id == menuItemAutonC5P.id)
+		{
+			startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(97, MODE_ACCURATE, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-97, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTGyroPID();
+
+			startTMini4Bar(STATE_EXTENSION_RETRACTED, WAIT, ON_STALL_EXIT);
+			startTDrivePID(1300, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTDrive();
+
+			startTMoGoLift(STATE_EXTENSION_RETRACTED, ON_STALL_EXIT);
+			if (autonomousSide == SIDE_LEFT) startTGyroPID(97, MODE_ACCURATE, ON_STALL_EXIT);
+			else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-97, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTGyroPID();
+			waitForTMoGoLift();
+
+
+			if ((*selectedProgram).id == menuItemAutonC20P.id)
+			{
+
+				startTDrivePID(-1180, MODE_ACCURATE, ON_STALL_EXIT);
+				waitForTDrive();
+
+				startTArmPID(lastStackedConeSensorValue + 200, WAIT, ON_STALL_EXIT);
+				if (autonomousSide == SIDE_LEFT) startTGyroPID(140, MODE_MOGO, ON_STALL_EXIT);
+				else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-140, MODE_MOGO, ON_STALL_EXIT);
+				wait1Msec(300);
+				setGoliathMotorPower(-70);
+				startTArmPID(lastStackedConeSensorValue + 400, WAIT, ON_STALL_EXIT);
+				waitForTGyroPID();
+
+				startTDrivePID(-600, MODE_ACCURATE, ON_STALL_EXIT);
+				waitForTDrive();
+
+				if (autonomousSide == SIDE_LEFT) startTGyroPID(240, MODE_MOGO, ON_STALL_EXIT);
+				else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-240, MODE_MOGO, ON_STALL_EXIT);
+				waitForTGyroPID()
+
+				actionTimed(A_DRIVE, 300, 127);
+				startTMoGoLift(STATE_EXTENSION_HALFWAY, ON_STALL_EXIT);
+				actionTimed(A_DRIVE, 900, 127);
+
+				startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 200, WAIT, ON_STALL_EXIT);
+				setDriveMotorPower(-127);
+				wait1Msec(300);
+
+				startTDrivePID(-373, MODE_ACCURATE, ON_STALL_EXIT);
+			}
+			else if ((*selectedProgram).id == menuItemAutonC5P.id)
+			{
+				startTDrivePID(-500, MODE_ACCURATE, ON_STALL_EXIT);
+				waitForTDrive();
+
+				if (autonomousSide == SIDE_LEFT) startTGyroPID(-200, MODE_MOGO, ON_STALL_EXIT);
+				else if (autonomousSide == SIDE_RIGHT) startTGyroPID(200, MODE_MOGO, ON_STALL_EXIT);
+				setArmMotorPower(-40);
+				setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
+				wait1Msec(500);
+				setGoliathMotorPower(0);
+				setArmMotorPower(0);
+				waitForTGyroPID();
+
+				startTDrivePID(480, MODE_ACCURATE, ON_STALL_EXIT);
+				startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
+				waitForTMoGoLift();
+				waitForTDrive();
+
+				startTDrivePID(-300, MODE_ACCURATE, ON_STALL_EXIT);
+				waitForTDrive();
+			}
+		}
 	}
 	else if ( (*selectedProgram).id == menuItemAutonNone.id)
 	{
