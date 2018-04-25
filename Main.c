@@ -2704,13 +2704,13 @@ task autonomous()
 		wait1Msec(300);
 
 		startTArmPID(ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE, WAIT, ON_STALL_EXIT);
-		startTDrivePID(630, MODE_ACCURATE, ON_STALL_NOTHING);
+		startTDrivePID(600, MODE_ACCURATE, ON_STALL_NOTHING);
 		waitForTArm();
 		waitForTDrive();
 
 		actionTimed(A_ARM, 400, -60);
-		setGoliathMotorPower(-40);
-		wait1Msec(700);
+		setGoliathMotorPower(-60);
+		wait1Msec(550);
 
 		startTArmPID(ARM_POTENTIOMETER_STATIONARY_GOAL_VALUE + 400, WAIT, ON_STALL_EXIT);
 		waitForTArm();
@@ -2718,8 +2718,10 @@ task autonomous()
 		startTDrivePID(-300, MODE_ACCURATE, ON_STALL_EXIT);
 		waitForTDrive();
 
-		startTDrivePID(-300, MODE_ACCURATE, ON_STALL_EXIT);
 		startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 50, WAIT, ON_STALL_EXIT);
+		waitForTArm();
+
+		startTDrivePID(-300, MODE_ACCURATE, ON_STALL_EXIT);
 		waitForTDrive();
 
 		if ((*selectedProgram).id == menuItemAutonCRam.id)
