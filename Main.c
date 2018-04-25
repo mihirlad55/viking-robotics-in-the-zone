@@ -2527,31 +2527,27 @@ task autonomous()
 		setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 		startTMini4Bar(STATE_EXTENSION_EXTENDED, WAIT, ON_STALL_EXIT);
 		wait1Msec(500);
-		stopTask(tMini4Bar);
 
-		startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 200, WAIT_NONE, ON_STALL_EXIT);
+		startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 400, WAIT_NONE, ON_STALL_EXIT);
 		startTMoGoLift(STATE_EXTENSION_EXTENDED, ON_STALL_EXIT);
 		wait1Msec(800);
-		startTMini4Bar(STATE_EXTENSION_RETRACTED, WAIT, ON_STALL_EXIT);
-		startTDrivePID(1380, MODE_ACCURATE, ON_STALL_EXIT);
+		startTDrivePID(1430, MODE_ACCURATE, ON_STALL_EXIT);
 		waitForTDrive();
 
+		setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
 		startTMoGoLift(STATE_EXTENSION_RETRACTED, ON_STALL_EXIT);
 		if (autonomousSide == SIDE_LEFT) startTGyroPID(2, MODE_MOGO, ON_STALL_EXIT);
 		else if (autonomousSide == SIDE_RIGHT) startTGyroPID(-2, MODE_MOGO, ON_STALL_EXIT);
 		waitForTGyroPID();
-		waitForTMoGoLift();
 
 		if ( (*selectedProgram).id == menuItemAuton14P.id || (*selectedProgram).id == menuItemAuton24P.id || (*selectedProgram).id == menuItemAuton9P.id  || (*selectedProgram).id == menuItemAuton26P.id)
 		{
-			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE, WAIT, ON_STALL_EXIT);
 			lastStackedConeSensorValue = ARM_POTENTIOMETER_MIN_VALUE;
-			setGoliathMotorPower(GOLIATH_OUTTAKE_POWER);
-			waitForTArm();
-
-			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 300, WAIT, ON_STALL_EXIT);
-			startTDrivePID(200, MODE_ACCURATE, ON_STALL_EXIT);
+			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 400, WAIT, ON_STALL_EXIT);
+			startTDrivePID(150, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
+			waitForTMoGoLift();
+			waitForTArm();
 
 			stack(STACK_END_ON_CONE_RETRACTION);
 		}
@@ -2566,7 +2562,7 @@ task autonomous()
 			wait1Msec(300);
 			waitForTGyroPID();
 
-			startTDrivePID(275, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(225, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 
 			stack(STACK_END_ON_CONE_RETRACTION);
@@ -2576,17 +2572,18 @@ task autonomous()
 
 		if ( (*selectedProgram).id == menuItemAuton22P.id)
 		{
-			startTDrivePID(-1280, MODE_ACCURATE, ON_STALL_EXIT);
+			waitForTMoGoLift();
+			startTDrivePID(-1330, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 		else if ( (*selectedProgram).id == menuItemAuton24P.id)
 		{
-			startTDrivePID(-1595, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1515, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 		else if ( (*selectedProgram).id == menuItemAuton26P.id)
 		{
-			startTDrivePID(-1695, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1615, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 
