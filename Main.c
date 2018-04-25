@@ -1937,7 +1937,7 @@ void armPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, 
 void mini4BarPIDControl(short goalPoint, WaitForAction stopWhenMet, OnStall onStall, bool isDataLogged)
 {
 
-	float pGain = 0.07;
+	float pGain = 0.1;
 	float iGain = 0.001;
 	float dGain = 0.7;
 
