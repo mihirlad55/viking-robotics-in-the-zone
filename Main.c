@@ -3195,6 +3195,24 @@ void PIDMode()
 	{
 		while (true)
 		{
+
+			clearTimer(T4);
+			SensorValue[LED] = 1;
+			mini4BarRetract(WAIT, ON_STALL_NOTHING);
+			waitForTMini4Bar();
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
+			SensorValue[LED] = 0;
+			wait1Msec(1000);
+
+			clearDebugStream();
+			SensorValue[LED] = 1;
+			clearTimer(T4);
+			mini4BarPIDControl(MINI_4_BAR_POTENTIOMETER_STATIONARY_VALUE, WAIT, ON_STALL_NOTHING, DATALOG_OFF);
+			waitForTMini4Bar();
+			SensorValue[LED] = 0;
+			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
+			wait1Msec(1000);
+
 			clearDebugStream();
 			SensorValue[LED] = 1;
 			clearTimer(T4);
@@ -3204,13 +3222,6 @@ void PIDMode()
 			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
 			wait1Msec(1000);
 
-			clearTimer(T4);
-			SensorValue[LED] = 1;
-			mini4BarRetract(WAIT, ON_STALL_NOTHING);
-			waitForTMini4Bar();
-			writeDebugStreamLine(ConvertIntegerToString(time1[T4]));
-			SensorValue[LED] = 0;
-			wait1Msec(1000);
 		}
 	}
 	else if ( (*selectedProgram).id == menuItemPIDMoGoLift.id)
