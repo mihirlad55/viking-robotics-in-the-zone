@@ -150,7 +150,7 @@ Each Side/Color is represented by a boolean */
 #define GOLIATH_OUTTAKE_POWER	-127
 
 
-#define SONAR_CONE_DISTANCE		15
+#define SONAR_CONE_DISTANCE		20
 
 #define IS_SLEW_RATE_ENABLED	true
 
@@ -4189,7 +4189,7 @@ task usercontrol()
 
 	while (true)
 	{
-		if (abs(SensorValue[sonar] - SONAR_CONE_DISTANCE) < 2)
+		if (abs(SensorValue[sonar] - SONAR_CONE_DISTANCE) < 8)
 		{
 			playImmediateTone(200, 10);
 			wait1Msec(50);
