@@ -2552,10 +2552,11 @@ task autonomous()
 			startTArmPID(ARM_POTENTIOMETER_MIN_VALUE + 400, WAIT, ON_STALL_EXIT);
 			startTDrivePID(150, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
-			waitForTMoGoLift();
 			waitForTArm();
 
+			while (getMoGoLiftSensorValue() > correctMoGoLiftGoalPoint(MOGO_LIFT_POTENTIOMETER_RETRACTED_VALUE - 1000) ) { wait1Msec(1); }
 			stack(STACK_END_ON_CONE_RETRACTION);
+			waitForTMoGoLift();
 		}
 
 		if ((*selectedProgram).id == menuItemAuton26P.id)
@@ -2584,12 +2585,12 @@ task autonomous()
 		}
 		else if ( (*selectedProgram).id == menuItemAuton24P.id)
 		{
-			startTDrivePID(-1515, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1415, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 		else if ( (*selectedProgram).id == menuItemAuton26P.id)
 		{
-			startTDrivePID(-1615, MODE_ACCURATE, ON_STALL_EXIT);
+			startTDrivePID(-1515, MODE_ACCURATE, ON_STALL_EXIT);
 			waitForTDrive();
 		}
 
