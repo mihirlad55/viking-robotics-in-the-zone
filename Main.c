@@ -3737,9 +3737,9 @@ task Drive()
 					axisY = 0.0000334305 * pow(vexRT[Ch2], 3) + 0.447987 * vexRT[Ch2];
 					axisX = 0.0000334305 * pow(vexRT[Ch1], 3) + 0.447987 * vexRT[Ch1];
 
-					setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), axisY + axisX, 0.3, 20), SlewRate(getDriveRightMotorPower(), axisY - axisX, 0.15, 20) );
+					setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), axisY + axisX, 0.3, 20), SlewRate(getDriveRightMotorPower(), axisY - axisX, 0.3, 20) );
 				}
-				else setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 0, 0.3, 20), SlewRate(getDriveRightMotorPower(), 0, 0.15, 20) );
+				else setDriveMotorPower( SlewRate(getDriveLeftMotorPower(), 0, 0.3, 20), SlewRate(getDriveRightMotorPower(), 0, 0.3, 20) );
 			}
 			wait1Msec(25);
 		}
