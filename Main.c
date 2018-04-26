@@ -2816,7 +2816,7 @@ task autonomous()
 				setArmMotorPower(-127);
 				wait1Msec(320);*/
 
-				startTDrivePID(-500, MODE_ACCURATE, ON_STALL_EXIT);
+				startTDrivePID(-800, MODE_ACCURATE, ON_STALL_EXIT);
 				setGoliathMotorPower(GOLIATH_REST_POWER);
 				startTArmPID(lastStackedConeSensorValue + 300, WAIT, ON_STALL_EXIT);
 				while (getArmSensorValue() < lastStackedConeSensorValue + 200) { }
@@ -2833,7 +2833,7 @@ task autonomous()
 
 				startTMoGoLift(STATE_EXTENSION_HALFWAY, ON_STALL_EXIT);
 				resetDriveSensors();
-				actionUntilOverGoalPoint(A_DRIVE, 700, 127);
+				actionUntilOverGoalPoint(A_DRIVE, 300, 127);
 
 				actionTimed(A_DRIVE, 1000, -127);
 			}
