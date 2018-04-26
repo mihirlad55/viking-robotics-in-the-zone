@@ -2061,7 +2061,7 @@ void moGoExtend(OnStall onStall)
 		if (abs(errorDifference) > 5) timeInitialOnStall = time1[T4];
 		wait1Msec(20);
 	}
-	setMoGoLiftMotorPower(0);
+	setMoGoLiftMotorPower(15);
 }
 
 
