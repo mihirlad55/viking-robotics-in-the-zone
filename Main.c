@@ -1262,6 +1262,11 @@ byte getMini4BarMotorPower() { return motor[motorMini4BarLeft]; }
 byte getMoGoLiftMotorPower() { return motor[motorMoGoLift]; }
 byte getGoliathMotorPower() { return motor[motorGoliath]; }
 
+void resetDriveSensors()
+{
+	SensorValue[encoderDriveLeft] = 0;
+	SensorValue[encoderDriveRight] = 0;
+}
 
 void resetGyro(short leftSidedOffset)
 {
