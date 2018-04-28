@@ -4035,8 +4035,9 @@ task Goliath()
 			}
 			else if (!areSensorsOverridden)
 			{
-				if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
+				if ( getArmSensorValue() < ARM_POTENTIOMETER_MIN_VALUE ) setGoliathMotorPower(127);
 				else if (stateMini4BarCurrent == STATE_EXTENSION_RETRACTED) setGoliathMotorPower(GOLIATH_RETRACTED_POWER);
+				else if (getArmMotorPower() <= 0) setGoliathMotorPower(GOLIATH_INTAKE_POWER);
 				else if (getArmMotorPower() > 0) setGoliathMotorPower(GOLIATH_REST_POWER);
 
 			}
